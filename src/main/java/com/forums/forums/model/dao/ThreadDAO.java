@@ -1,6 +1,6 @@
 package com.forums.forums.model.dao;
 
-import com.forums.forums.model.mo.Report;
+import com.forums.forums.model.mo.Thread;
 import com.forums.forums.model.mo.User;
 import com.forums.forums.model.mo.Category;
 

@@ -3,9 +3,6 @@ package com.forums.forums.model.dao.mySQLJDBCImpl;
 import java.sql.*;
 
 import com.forums.forums.model.mo.User;
-import com.forums.forums.model.mo.Thread;
-import com.forums.forums.model.mo.Post;
-import com.forums.forums.model.mo.Media;
 import com.forums.forums.model.dao.UserDAO;
 
 import com.forums.forums.model.dao.exception.DuplicatedObjectException;
