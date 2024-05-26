@@ -2,9 +2,9 @@ package com.forums.forums.model.mo;
 
 import java.sql.Timestamp;
 
-public class Thread {
+public class Topic {
 
-    private Long threadID;
+    private Long topicID;
     private String title;
     private Timestamp creationTimestamp;
     private User author;
@@ -15,12 +15,12 @@ public class Thread {
     /* 1:N */
     private Post[] posts;
 
-    public Long getThreadID() {
-        return threadID;
+    public Long getTopicID() {
+        return topicID;
     }
 
-    public void setThreadID(Long threadID) {
-        this.threadID = threadID;
+    public void setTopicID(Long topicID) {
+        this.topicID = topicID;
     }
 
     public String getTitle() {

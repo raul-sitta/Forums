@@ -9,7 +9,7 @@ public class Report {
     private Timestamp creationTimestamp;
     private User author;
     private Post reportedPost;
-    private Thread reportedThread;
+    private Topic reportedTopic;
     private User reportedUser;
 
     public Long getReportID() {
@@ -52,12 +52,12 @@ public class Report {
         this.reportedPost = reportedPost;
     }
 
-    public Thread getReportedThread() {
-        return reportedThread;
+    public Topic getReportedTopic() {
+        return reportedTopic;
     }
 
-    public void setReportedThread(Thread reportedThread) {
-        this.reportedThread = reportedThread;
+    public void setReportedTopic(Topic reportedTopic) {
+        this.reportedTopic = reportedTopic;
     }
 
     public User getReportedUser() {

@@ -59,7 +59,7 @@ public class CookieDAOFactory extends DAOFactory {
     }
 
     @Override
-    public ThreadDAO getThreadDAO() {
+    public TopicDAO getTopicDAO() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -8,7 +8,7 @@ public class Post {
     private String content;
     private Timestamp creationTimestamp;
     private User author;
-    private Thread thread;
+    private Topic topic;
     private Boolean deleted;
 
     /* 1:N */
@@ -46,12 +46,12 @@ public class Post {
         this.author = author;
     }
 
-    public Thread getThread() {
-        return thread;
+    public Topic getTopic() {
+        return topic;
     }
 
-    public void setThread(Thread thread) {
-        this.thread = thread;
+    public void setTopic(Topic topic) {
+        this.topic = topic;
     }
 
     public Boolean getDeleted() {

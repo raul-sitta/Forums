@@ -84,8 +84,8 @@ public class MySQLJDBCDAOFactory extends DAOFactory {
     }
 
     @Override
-    public ThreadDAO getThreadDAO() {
-        return new ThreadDAOMySQLJDBCImpl(connection);
+    public TopicDAO getTopicDAO() {
+        return new TopicDAOMySQLJDBCImpl(connection);
     }
 
     @Override

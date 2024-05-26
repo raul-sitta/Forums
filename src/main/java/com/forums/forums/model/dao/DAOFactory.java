@@ -19,7 +19,7 @@ public abstract class DAOFactory {
     public abstract MediaDAO getMediaDAO();
     public abstract PostDAO getPostDAO();
     public abstract ReportDAO getReportDAO();
-    public abstract ThreadDAO getThreadDAO();
+    public abstract TopicDAO getTopicDAO();
     public abstract UserDAO getUserDAO();
 
     public static DAOFactory getDAOFactory(String whichFactory,Map factoryParameters) {

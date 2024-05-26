@@ -18,7 +18,7 @@ public class User {
     private Boolean deleted;
 
     /* 1:N */
-    private Thread[] threads;
+    private Topic[] topics;
     private Post[] posts;
     private Media[] medias;
 
@@ -110,12 +110,12 @@ public class User {
         this.deleted = deleted;
     }
 
-    public Thread[] getThreads() {
-        return threads;
+    public Topic[] getTopics() {
+        return topics;
     }
 
-    public void setThreads(Thread[] threads) {
-        this.threads = threads;
+    public void setTopics(Topic[] topics) {
+        this.topics = topics;
     }
 
     public Post[] getPosts() {
