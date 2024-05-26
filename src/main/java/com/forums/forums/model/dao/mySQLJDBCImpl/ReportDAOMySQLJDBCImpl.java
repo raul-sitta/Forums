@@ -6,6 +6,8 @@ import com.forums.forums.model.mo.User;
 import com.forums.forums.model.mo.Post;
 import com.forums.forums.model.mo.Topic;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReportDAOMySQLJDBCImpl implements ReportDAO {
     Connection conn;
@@ -14,6 +16,7 @@ public class ReportDAOMySQLJDBCImpl implements ReportDAO {
         this.conn = conn;
     }
 
+    @Override
     public Report create(
             String content,
             User author,
@@ -61,6 +64,7 @@ public class ReportDAOMySQLJDBCImpl implements ReportDAO {
         return report;
     }
 
+    @Override
     public void update(Report report) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -68,6 +72,32 @@ public class ReportDAOMySQLJDBCImpl implements ReportDAO {
     @Override
     public void delete(Report report) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<Report> getAll() {
+        PreparedStatement ps;
+        List<Report> reports = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM REPORT";
+
+            ps = conn.prepareStatement(sql);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while(resultSet.next()){
+                Report report = read(resultSet);
+                reports.add(report);
+            }
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return reports;
     }
 
     public Report read(ResultSet rs) {

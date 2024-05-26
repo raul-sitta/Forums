@@ -1,8 +1,8 @@
 package com.forums.forums.model.dao;
 
-import com.forums.forums.model.mo.Topic;
-import com.forums.forums.model.mo.User;
-import com.forums.forums.model.mo.Category;
+import com.forums.forums.model.mo.*;
+
+import java.util.List;
 
 public interface TopicDAO {
     public Topic create(
@@ -13,4 +13,5 @@ public interface TopicDAO {
     );
     public void update(Topic topic);
     public void delete(Topic topic);
+    public List<Topic> getAll();
 }

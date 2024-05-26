@@ -1,6 +1,8 @@
 package com.forums.forums.model.dao.mySQLJDBCImpl;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.forums.forums.model.mo.Topic;
 import com.forums.forums.model.dao.TopicDAO;
@@ -16,6 +18,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         this.conn = conn;
     }
 
+    @Override
     public Topic create(
             String title,
             User author,
@@ -62,6 +65,8 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
         return topic;
     }
+
+    @Override
     public void update(Topic topic) {
 
         PreparedStatement ps;
@@ -84,6 +89,8 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
     public void delete(Topic topic) {
         PreparedStatement ps;
         String sql;
@@ -102,6 +109,32 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<Topic> getAll() {
+        PreparedStatement ps;
+        List<Topic> topics = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM TOPIC";
+
+            ps = conn.prepareStatement(sql);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while(resultSet.next()){
+                Topic topic = read(resultSet);
+                topics.add(topic);
+            }
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return topics;
     }
 
     Topic read(ResultSet rs) {

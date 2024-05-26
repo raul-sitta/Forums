@@ -5,6 +5,8 @@ import com.forums.forums.model.mo.Post;
 import com.forums.forums.model.mo.User;
 import com.forums.forums.model.mo.Topic;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostDAOMySQLJDBCImpl implements PostDAO {
     Connection conn;
@@ -13,6 +15,7 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         this.conn = conn;
     }
 
+    @Override
     public Post create(String content, User author, Topic topic) {
         // Ottengo il timestamp corrente
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
@@ -50,6 +53,7 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         return post;
     }
 
+    @Override
     public void update(Post post) {
         PreparedStatement ps;
         try {
@@ -67,6 +71,7 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         }
     }
 
+    @Override
     public void delete(Post post) {
         PreparedStatement ps;
         String sql;
@@ -87,7 +92,33 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         }
     }
 
-    public Post read(ResultSet rs) {
+    @Override
+    public List<Post> getAll() {
+        PreparedStatement ps;
+        List<Post> posts = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM POST";
+
+            ps = conn.prepareStatement(sql);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while(resultSet.next()){
+                Post post = read(resultSet);
+                posts.add(post);
+            }
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return posts;
+    }
+
+    Post read(ResultSet rs) {
         Post post = new Post();
         User author = new User();
         Topic topic = new Topic();
@@ -108,6 +139,5 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
 
         return post;
     }
-
 
 }

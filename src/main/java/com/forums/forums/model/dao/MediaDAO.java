@@ -1,9 +1,8 @@
 package com.forums.forums.model.dao;
 
-import com.forums.forums.model.mo.Media;
-import com.forums.forums.model.mo.User;
-import com.forums.forums.model.mo.Post;
-import com.forums.forums.model.mo.Report;
+import com.forums.forums.model.mo.*;
+
+import java.util.List;
 
 public interface MediaDAO {
     public Media create(
@@ -14,4 +13,5 @@ public interface MediaDAO {
     );
     public void update(Media media);
     public void delete(Media media);
+    public List<Media> getAll();
 }

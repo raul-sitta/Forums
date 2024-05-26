@@ -15,6 +15,7 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
 
     public CategoryDAOMySQLJDBCImpl(Connection conn){this.conn = conn;}
 
+    @Override
     public Category create(String name) throws DuplicatedObjectException {
         PreparedStatement ps;
         Category category = new Category();
@@ -64,6 +65,7 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
         return category;
     }
 
+    @Override
     public void update(Category category) throws DuplicatedObjectException {
         PreparedStatement ps;
         try {
@@ -106,6 +108,7 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
         }
     }
 
+    @Override
     public void delete(Category category) {
         PreparedStatement ps;
         String sql;
@@ -126,6 +129,7 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
         }
     }
 
+    @Override
     public Category findByCategoryID(Long categoryID) {
         PreparedStatement ps;
         Category category = new Category();
@@ -154,6 +158,7 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
         return category;
     }
 
+    @Override
     public Category findByName(String name) {
         PreparedStatement ps;
         Category category = new Category();
@@ -182,7 +187,8 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
         return category;
     }
 
-    public List<Category> getAllCategories() {
+    @Override
+    public List<Category> getAll() {
         PreparedStatement ps;
         List<Category> categories = new ArrayList<>();
 

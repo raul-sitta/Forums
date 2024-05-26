@@ -4,6 +4,8 @@ import com.forums.forums.model.dao.MediaDAO;
 import com.forums.forums.model.mo.*;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MediaDAOMySQLJDBCImpl implements MediaDAO {
     Connection conn;
@@ -12,6 +14,7 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
         this.conn = conn;
     }
 
+    @Override
     public Media create(
             String path,
             User uploader,
@@ -59,10 +62,12 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
         return media;
     }
 
+    @Override
     public void update(Media media) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void delete(Media media) {
         PreparedStatement ps;
         String sql;
@@ -83,7 +88,33 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
         }
     }
 
-    public Media read(ResultSet rs) {
+    @Override
+    public List<Media> getAll() {
+        PreparedStatement ps;
+        List<Media> medias = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM MEDIA";
+
+            ps = conn.prepareStatement(sql);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while(resultSet.next()){
+                Media media = read(resultSet);
+                medias.add(media);
+            }
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return medias;
+    }
+
+    Media read(ResultSet rs) {
         Media media = new Media();
 
         User uploader = new User();

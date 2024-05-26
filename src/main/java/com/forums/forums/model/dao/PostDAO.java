@@ -1,8 +1,8 @@
 package com.forums.forums.model.dao;
 
-import com.forums.forums.model.mo.Post;
-import com.forums.forums.model.mo.User;
-import com.forums.forums.model.mo.Topic;
+import com.forums.forums.model.mo.*;
+
+import java.util.List;
 
 public interface PostDAO {
     public Post create(
@@ -12,4 +12,5 @@ public interface PostDAO {
     );
     public void update(Post post);
     public void delete(Post post);
+    public List<Post> getAll();
 }

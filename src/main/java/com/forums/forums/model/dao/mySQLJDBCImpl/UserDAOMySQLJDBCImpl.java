@@ -1,6 +1,8 @@
 package com.forums.forums.model.dao.mySQLJDBCImpl;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.forums.forums.model.mo.User;
 import com.forums.forums.model.dao.UserDAO;
@@ -247,6 +249,32 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
         return user;
 
+    }
+
+    @Override
+    public List<User> getAll() {
+        PreparedStatement ps;
+        List<User> users = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM USER";
+
+            ps = conn.prepareStatement(sql);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while(resultSet.next()){
+                User user = read(resultSet);
+                users.add(user);
+            }
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return users;
     }
 
     User read(ResultSet rs) {

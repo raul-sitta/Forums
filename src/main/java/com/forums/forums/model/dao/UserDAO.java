@@ -1,9 +1,10 @@
 package com.forums.forums.model.dao;
 
 import com.forums.forums.model.dao.exception.DuplicatedObjectException;
-import com.forums.forums.model.mo.User;
+import com.forums.forums.model.mo.*;
 
 import java.sql.Date;
+import java.util.List;
 
 public interface UserDAO {
 
@@ -26,5 +27,7 @@ public interface UserDAO {
     public User findByUserID(Long userID);
 
     public User findByUsername(String username);
+
+    public List<User> getAll();
 
 }

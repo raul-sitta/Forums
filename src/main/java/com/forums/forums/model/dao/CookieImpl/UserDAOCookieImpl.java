@@ -8,6 +8,7 @@ import com.forums.forums.model.dao.UserDAO;
 import com.forums.forums.model.mo.User;
 
 import java.sql.Date;
+import java.util.List;
 
 
 public class UserDAOCookieImpl implements UserDAO {
@@ -92,6 +93,11 @@ public class UserDAOCookieImpl implements UserDAO {
 
     @Override
     public User findByUsername(String username) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<User> getAll() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
