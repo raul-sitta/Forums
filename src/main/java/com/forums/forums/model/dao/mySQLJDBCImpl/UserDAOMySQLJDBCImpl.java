@@ -8,6 +8,8 @@ import com.forums.forums.model.mo.Post;
 import com.forums.forums.model.mo.Media;
 import com.forums.forums.model.dao.UserDAO;
 
+import com.forums.forums.model.dao.exception.DuplicatedObjectException;
+
 public class UserDAOMySQLJDBCImpl implements UserDAO {
 
     Connection conn;
@@ -25,13 +27,12 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             String email,
             Date birthDate,
             String imagePath,
-            String role) {
+            String role) throws DuplicatedObjectException {
 
         // Ottengo il timestamp corrente
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
 
         PreparedStatement ps;
-        String sql;
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
@@ -45,6 +46,26 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         user.setDeleted(false);
 
         try{
+            String sql
+                    = " SELECT userID "
+                    + " FROM USER "
+                    + " WHERE "
+                    + " deleted = 'N' AND "
+                    + " username = ? ";
+
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, user.getUsername());
+
+            ResultSet resultSet = ps.executeQuery();
+
+            boolean exist;
+            exist = resultSet.next();
+            resultSet.close();
+
+            if (exist) {
+                throw new DuplicatedObjectException("UserDAOJDBCImpl.create: Tentativo di inserimento di un utente già esistente.");
+            }
+
             sql
                     = "INSERT INTO USER "
                     + "(username,"
@@ -82,13 +103,82 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
     }
 
     @Override
-    public void update(User user) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void update(User user) throws DuplicatedObjectException {
+        PreparedStatement ps;
+
+        try{
+            String sql
+                    = " SELECT userID "
+                    + " FROM USER "
+                    + " WHERE "
+                    + " deleted = 'N' AND "
+                    + " username = ? ";
+
+            ps = conn.prepareStatement(sql);
+            int i = 1;
+            ps.setString(i++, user.getUsername());
+
+            ResultSet resultSet = ps.executeQuery();
+
+            boolean exist;
+            exist = resultSet.next();
+            resultSet.close();
+
+            if (exist) {
+                throw new DuplicatedObjectException("UserDAOJDBCImpl.update: Tentativo di aggiornamento di un utente già esistente.");
+            }
+
+            sql
+                    = "UPDATE USER "
+                    + "SET "
+                    + "username = ?, "
+                    + "password = ?, "
+                    + "firstname = ?, ,"
+                    + "surname = ?, "
+                    + "email = ?, "
+                    + "birthDate = ?, "
+                    + "imagePath = ?, "
+                    + "role = ? "
+                    + "WHERE userID = ?";
+            ps = conn.prepareStatement(sql);
+
+            i = 1;
+            ps.setString(i++, user.getUsername());
+            ps.setString(i++, user.getPassword());
+            ps.setString(i++, user.getFirstname());
+            ps.setString(i++, user.getSurname());
+            ps.setString(i++, user.getEmail());
+            ps.setDate(i++, user.getBirthDate());
+            ps.setString(i++, user.getImagePath());
+            ps.setString(i++, user.getRole());
+
+            ps.executeUpdate();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public void delete(User user) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        PreparedStatement ps;
+        String sql;
+
+        try {
+            sql
+                    = "UPDATE USER SET "
+                    + "deleted = ? "
+                    + "WHERE userID = ?";
+            ps = conn.prepareStatement(sql);
+
+            ps.setString(1, "Y");
+            ps.setLong(2, user.getUserID());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -166,68 +256,32 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
         User user = new User();
         try {
+
             user.setUserID(rs.getLong("userID"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setUsername(rs.getString("username"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setPassword(rs.getString("password"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setFirstname(rs.getString("firstname"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setSurname(rs.getString("surname"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setEmail(rs.getString("email"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setBirthDate(rs.getDate("birthDate"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setRegistrationTimestamp(rs.getTimestamp("registrationTimestamp"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setImagePath(rs.getString("imagePath"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setRole(rs.getString("role"));
-        } catch (SQLException sqle) {
 
-        }
-
-        try {
             user.setDeleted(rs.getString("deleted").equals("Y"));
+
         } catch (SQLException sqle) {
+
+            throw new RuntimeException("Error: read rs - User", sqle);
 
         }
 

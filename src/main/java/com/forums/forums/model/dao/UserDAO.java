@@ -1,5 +1,6 @@
 package com.forums.forums.model.dao;
 
+import com.forums.forums.model.dao.exception.DuplicatedObjectException;
 import com.forums.forums.model.mo.User;
 
 import java.sql.Date;
@@ -14,9 +15,9 @@ public interface UserDAO {
             String email,
             Date birthDate,
             String imagePath,
-            String role);
+            String role) throws DuplicatedObjectException;
 
-    public void update(User user);
+    public void update(User user) throws DuplicatedObjectException;
 
     public void delete(User user);
 
