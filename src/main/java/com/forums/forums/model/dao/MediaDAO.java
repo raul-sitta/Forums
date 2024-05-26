@@ -9,8 +9,8 @@ public interface MediaDAO {
     public Media create(
             String path,
             User uploader,
-            Post post,
-            Report report
+            String linkedResourceType,
+            Long linkedResourceID
     );
     public void update(Media media);
     public void delete(Media media);

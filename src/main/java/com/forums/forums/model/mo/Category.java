@@ -4,6 +4,7 @@ public class Category {
 
     private Long categoryID;
     private String name;
+    private Boolean deleted;
 
     public Long getCategoryID() {
         return categoryID;
@@ -21,4 +22,11 @@ public class Category {
         this.name = name;
     }
 
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
 }

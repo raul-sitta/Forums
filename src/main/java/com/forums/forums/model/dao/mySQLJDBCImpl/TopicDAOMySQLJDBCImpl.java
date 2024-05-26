@@ -43,7 +43,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                     + "categoryID,"
                     + "anonymous,"
                     + "deleted) "
-                    + "VALUES (?,?,?,?,?,?)";
+                    + "VALUES (?, ?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
             int i = 1;

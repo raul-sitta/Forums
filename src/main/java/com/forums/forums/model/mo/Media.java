@@ -1,12 +1,15 @@
 package com.forums.forums.model.mo;
 
+import java.sql.Timestamp;
+
 public class Media {
 
     private Long mediaID;
     private String path;
+    private Timestamp creationTimestamp;
     private User uploader;
-    private Post post;
-    private Report report;
+    private String linkedResourceType;
+    private Long linkedResourceID;
     private Boolean deleted;
 
     public Long getMediaID() {
@@ -25,6 +28,14 @@ public class Media {
         this.path = path;
     }
 
+    public Timestamp getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(Timestamp creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
+    }
+
     public User getUploader() {
         return uploader;
     }
@@ -33,20 +44,20 @@ public class Media {
         this.uploader = uploader;
     }
 
-    public Post getPost() {
-        return post;
+    public String getLinkedResourceType() {
+        return linkedResourceType;
     }
 
-    public void setPost(Post post) {
-        this.post = post;
+    public void setLinkedResourceType(String linkedResourceType) {
+        this.linkedResourceType = linkedResourceType;
     }
 
-    public Report getReport() {
-        return report;
+    public Long getLinkedResourceID() {
+        return linkedResourceID;
     }
 
-    public void setReport(Report report) {
-        this.report = report;
+    public void setLinkedResourceID(Long linkedResourceID) {
+        this.linkedResourceID = linkedResourceID;
     }
 
     public Boolean getDeleted() {
@@ -56,5 +67,4 @@ public class Media {
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
     }
-
 }
