@@ -12,6 +12,7 @@ import com.forums.forums.model.mo.User;
 
 public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
+    private final String COUNTER_ID = "topicID";
     Connection conn;
 
     public TopicDAOMySQLJDBCImpl(Connection conn) {
@@ -38,18 +39,35 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         topic.setDeleted(false);
 
         try{
-            String sql
+            String sql = "UPDATE COUNTER SET counterValue=counterValue+1 where counterID='" + COUNTER_ID + "'";
+
+            ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+
+            sql = "SELECT counterValue FROM COUNTER WHERE counterID='" + COUNTER_ID + "'";
+
+            ps = conn.prepareStatement(sql);
+            ResultSet resultSet = ps.executeQuery();
+            resultSet.next();
+
+            topic.setTopicID(resultSet.getLong("counterValue"));
+
+            resultSet.close();
+
+            sql
                     = "INSERT INTO TOPIC "
-                    + "(title,"
+                    + "(topicID,"
+                    + "title,"
                     + "creationTimestamp,"
                     + "authorID,"
                     + "categoryID,"
                     + "anonymous,"
                     + "deleted) "
-                    + "VALUES (?, ?, ?, ?, ?, ?)";
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
             int i = 1;
+            ps.setLong(i++, topic.getTopicID());
             ps.setString(i++, topic.getTitle());
             ps.setTimestamp(i++, topic.getCreationTimestamp());
             ps.setLong(i++, topic.getAuthor().getUserID());
@@ -80,8 +98,10 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                     + "WHERE topicID = ?";
             ps = conn.prepareStatement(sql);
 
-            ps.setString(1, topic.getTitle());
-            ps.setLong(2, topic.getCategory().getCategoryID());
+            int i=1;
+            ps.setString(i++, topic.getTitle());
+            ps.setLong(i++, topic.getCategory().getCategoryID());
+            ps.setLong(i++, topic.getTopicID());
 
             ps.executeUpdate();
         }

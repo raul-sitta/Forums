@@ -8,8 +8,6 @@ public interface ReportDAO {
     public Report create(
             String content,
             User author,
-            Post reportedPost,
-            Topic reportedTopic,
             User reportedUser
     );
     public void update(Report report);

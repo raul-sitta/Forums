@@ -6,6 +6,9 @@ public class Category {
     private String name;
     private Boolean deleted;
 
+    /* 1:N */
+    private Topic[] topics;
+
     public Long getCategoryID() {
         return categoryID;
     }
@@ -28,5 +31,13 @@ public class Category {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public Topic[] getTopics() {
+        return topics;
+    }
+
+    public void setTopics(Topic[] topics) {
+        this.topics = topics;
     }
 }

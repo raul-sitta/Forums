@@ -7,12 +7,16 @@ public class Post {
     private Long postID;
     private String content;
     private Timestamp creationTimestamp;
+    private Boolean deleted;
+
+    /* N:1 */
     private User author;
     private Topic topic;
-    private Boolean deleted;
+    private Post parentPost;
 
     /* 1:N */
     private Media[] medias;
+    private Post[] childrenPosts;
 
     public Long getPostID() {
         return postID;
@@ -38,6 +42,14 @@ public class Post {
         this.creationTimestamp = creationTimestamp;
     }
 
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
     public User getAuthor() {
         return author;
     }
@@ -54,12 +66,12 @@ public class Post {
         this.topic = topic;
     }
 
-    public Boolean getDeleted() {
-        return deleted;
+    public Post getParentPost() {
+        return parentPost;
     }
 
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
+    public void setParentPost(Post parentPost) {
+        this.parentPost = parentPost;
     }
 
     public Media[] getMedias() {
@@ -70,4 +82,11 @@ public class Post {
         this.medias = medias;
     }
 
+    public Post[] getChildrenPosts() {
+        return childrenPosts;
+    }
+
+    public void setChildrenPosts(Post[] childrenPosts) {
+        this.childrenPosts = childrenPosts;
+    }
 }

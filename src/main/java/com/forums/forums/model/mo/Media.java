@@ -7,10 +7,11 @@ public class Media {
     private Long mediaID;
     private String path;
     private Timestamp creationTimestamp;
-    private User uploader;
-    private String linkedResourceType;
-    private Long linkedResourceID;
     private Boolean deleted;
+
+    /* N:1 */
+    private User uploader;
+    private Post post;
 
     public Long getMediaID() {
         return mediaID;
@@ -36,6 +37,14 @@ public class Media {
         this.creationTimestamp = creationTimestamp;
     }
 
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
     public User getUploader() {
         return uploader;
     }
@@ -44,27 +53,11 @@ public class Media {
         this.uploader = uploader;
     }
 
-    public String getLinkedResourceType() {
-        return linkedResourceType;
+    public Post getPost() {
+        return post;
     }
 
-    public void setLinkedResourceType(String linkedResourceType) {
-        this.linkedResourceType = linkedResourceType;
-    }
-
-    public Long getLinkedResourceID() {
-        return linkedResourceID;
-    }
-
-    public void setLinkedResourceID(Long linkedResourceID) {
-        this.linkedResourceID = linkedResourceID;
-    }
-
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
+    public void setPost(Post post) {
+        this.post = post;
     }
 }

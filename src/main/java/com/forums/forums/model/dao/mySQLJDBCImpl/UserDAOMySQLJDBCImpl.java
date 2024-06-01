@@ -11,6 +11,7 @@ import com.forums.forums.model.dao.exception.DuplicatedObjectException;
 
 public class UserDAOMySQLJDBCImpl implements UserDAO {
 
+    private final String COUNTER_ID = "userID";
     Connection conn;
 
     public UserDAOMySQLJDBCImpl(Connection conn) {
@@ -50,10 +51,13 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + " FROM USER "
                     + " WHERE "
                     + " deleted = 'N' AND "
-                    + " username = ? ";
+                    + " username = ? AND "
+                    + " email = ?";
 
             ps = conn.prepareStatement(sql);
-            ps.setString(1, user.getUsername());
+            int i=1;
+            ps.setString(i++, user.getUsername());
+            ps.setString(i++, user.getEmail());
 
             ResultSet resultSet = ps.executeQuery();
 
@@ -65,9 +69,25 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                 throw new DuplicatedObjectException("UserDAOJDBCImpl.create: Tentativo di inserimento di un utente già esistente.");
             }
 
+            sql = "UPDATE COUNTER SET counterValue=counterValue+1 where counterID='" + COUNTER_ID + "'";
+
+            ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+
+            sql = "SELECT counterValue FROM COUNTER WHERE counterID='" + COUNTER_ID + "'";
+
+            ps = conn.prepareStatement(sql);
+            resultSet = ps.executeQuery();
+            resultSet.next();
+
+            user.setUserID(resultSet.getLong("counterValue"));
+
+            resultSet.close();
+
             sql
                     = "INSERT INTO USER "
-                    + "(username,"
+                    + "(userID,"
+                    + "username,"
                     + "password,"
                     + "firstname,"
                     + "surname,"
@@ -77,10 +97,11 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + "imagePath,"
                     + "role,"
                     + "deleted) "
-                    + "VALUES (?,?,?,?,?,?,?,?,?,?)";
+                    + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
             ps = conn.prepareStatement(sql);
 
-            int i = 1;
+            i = 1;
+            ps.setLong(i++, user.getUserID());
             ps.setString(i++, user.getUsername());
             ps.setString(i++, user.getPassword());
             ps.setString(i++, user.getFirstname());
@@ -111,11 +132,13 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + " FROM USER "
                     + " WHERE "
                     + " deleted = 'N' AND "
-                    + " username = ? ";
+                    + " username = ? AND "
+                    + " email = ?";
 
             ps = conn.prepareStatement(sql);
-            int i = 1;
+            int i=1;
             ps.setString(i++, user.getUsername());
+            ps.setString(i++, user.getEmail());
 
             ResultSet resultSet = ps.executeQuery();
 
@@ -124,7 +147,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             resultSet.close();
 
             if (exist) {
-                throw new DuplicatedObjectException("UserDAOJDBCImpl.update: Tentativo di aggiornamento di un utente già esistente.");
+                throw new DuplicatedObjectException("UserDAOJDBCImpl.create: Tentativo di inserimento di un utente già esistente.");
             }
 
             sql
@@ -150,7 +173,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             ps.setDate(i++, user.getBirthDate());
             ps.setString(i++, user.getImagePath());
             ps.setString(i++, user.getRole());
-
+            ps.setLong(i++, user.getUserID());
             ps.executeUpdate();
         }
         catch (SQLException e){

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReportDAOMySQLJDBCImpl implements ReportDAO {
+
+    private final String COUNTER_ID = "reportID";
     Connection conn;
 
     public ReportDAOMySQLJDBCImpl(Connection conn) {
@@ -20,8 +22,6 @@ public class ReportDAOMySQLJDBCImpl implements ReportDAO {
     public Report create(
             String content,
             User author,
-            Post reportedPost,
-            Topic reportedTopic,
             User reportedUser
     ) {
         // Ottengo il timestamp corrente
@@ -32,27 +32,39 @@ public class ReportDAOMySQLJDBCImpl implements ReportDAO {
         report.setContent(content);
         report.setCreationTimestamp(currentTimestamp);
         report.setAuthor(author);
-        report.setReportedPost(reportedPost);
-        report.setReportedTopic(reportedTopic);
         report.setReportedUser(reportedUser);
 
         try {
-            String sql = "INSERT INTO REPORT "
-                    + "(content, "
+            String sql = "UPDATE COUNTER SET counterValue=counterValue+1 where counterID='" + COUNTER_ID + "'";
+
+            ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+
+            sql = "SELECT counterValue FROM COUNTER WHERE counterID='" + COUNTER_ID + "'";
+
+            ps = conn.prepareStatement(sql);
+            ResultSet resultSet = ps.executeQuery();
+            resultSet.next();
+
+            report.setReportID(resultSet.getLong("counterValue"));
+
+            resultSet.close();
+
+            sql
+                    = "INSERT INTO REPORT "
+                    + "(reportID, "
+                    + "content, "
                     + "creationTimestamp, "
                     + "authorID, "
-                    + "reportedPostID, "
-                    + "reportedTopicID, "
                     + "reportedUserID) "
-                    + "VALUES (?, ?, ?, ?, ?, ?)";
+                    + "VALUES (?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
             int i = 1;
+            ps.setLong(i++, report.getReportID());
             ps.setString(i++, report.getContent());
             ps.setTimestamp(i++, report.getCreationTimestamp());
             ps.setLong(i++, report.getAuthor().getUserID());
-            ps.setLong(i++, report.getReportedPost().getPostID());
-            ps.setLong(i++, report.getReportedTopic().getTopicID());
             ps.setLong(i++, report.getReportedUser().getUserID());
 
             ps.executeUpdate();
@@ -103,21 +115,16 @@ public class ReportDAOMySQLJDBCImpl implements ReportDAO {
     public Report read(ResultSet rs) {
         Report report = new Report();
         User author = new User();
-        Post reportedPost = new Post();
-        Topic reportedTopic = new Topic();
         User reportedUser = new User();
 
         report.setAuthor(author);
-        report.setReportedPost(reportedPost);
-        report.setReportedTopic(reportedTopic);
         report.setReportedUser(reportedUser);
 
         try {
             report.setReportID(rs.getLong("reportID"));
             report.setContent(rs.getString("content"));
+            report.setCreationTimestamp(rs.getTimestamp("creationTimestamp"));
             report.getAuthor().setUserID(rs.getLong("authorID"));
-            report.getReportedPost().setPostID(rs.getLong("reportedPostID"));
-            report.getReportedTopic().setTopicID(rs.getLong("reportedTopicID"));
             report.getReportedUser().setUserID(rs.getLong("reportedUserID"));
         } catch (SQLException sqle) {
             throw new RuntimeException("Error: read rs - Report", sqle);

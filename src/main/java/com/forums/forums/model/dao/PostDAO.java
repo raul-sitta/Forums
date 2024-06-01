@@ -8,7 +8,8 @@ public interface PostDAO {
     public Post create(
             String content,
             User author,
-            Topic Topic
+            Topic Topic,
+            Post parentPost
     );
     public void update(Post post);
     public void delete(Post post);

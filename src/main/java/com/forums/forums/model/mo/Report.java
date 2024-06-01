@@ -7,9 +7,9 @@ public class Report {
     private Long reportID;
     private String content;
     private Timestamp creationTimestamp;
+
+    /* N:1 */
     private User author;
-    private Post reportedPost;
-    private Topic reportedTopic;
     private User reportedUser;
 
     public Long getReportID() {
@@ -44,22 +44,6 @@ public class Report {
         this.author = author;
     }
 
-    public Post getReportedPost() {
-        return reportedPost;
-    }
-
-    public void setReportedPost(Post reportedPost) {
-        this.reportedPost = reportedPost;
-    }
-
-    public Topic getReportedTopic() {
-        return reportedTopic;
-    }
-
-    public void setReportedTopic(Topic reportedTopic) {
-        this.reportedTopic = reportedTopic;
-    }
-
     public User getReportedUser() {
         return reportedUser;
     }
@@ -67,5 +51,4 @@ public class Report {
     public void setReportedUser(User reportedUser) {
         this.reportedUser = reportedUser;
     }
-
 }

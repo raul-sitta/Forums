@@ -11,6 +11,8 @@ import java.util.List;
 
 
 public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
+
+    private final String COUNTER_ID = "categoryID";
     Connection conn;
 
     public CategoryDAOMySQLJDBCImpl(Connection conn){this.conn = conn;}
@@ -24,7 +26,6 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
         category.setDeleted(false);
 
         try {
-
             String sql
                     = " SELECT categoryID "
                     + " FROM CATEGORY "
@@ -33,7 +34,8 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
                     + " name = ? ";
 
             ps = conn.prepareStatement(sql);
-            ps.setString(1, category.getName());
+            int i = 1;
+            ps.setString(i++, category.getName());
 
             ResultSet resultSet = ps.executeQuery();
 
@@ -45,14 +47,31 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
                 throw new DuplicatedObjectException("CategoryDAOJDBCImpl.create: Tentativo di inserimento di una categoria già esistente.");
             }
 
+            sql = "UPDATE COUNTER SET counterValue=counterValue+1 where counterID='" + COUNTER_ID + "'";
+
+            ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+
+            sql = "SELECT counterValue FROM COUNTER WHERE counterID='" + COUNTER_ID + "'";
+
+            ps = conn.prepareStatement(sql);
+            resultSet = ps.executeQuery();
+            resultSet.next();
+
+            category.setCategoryID(resultSet.getLong("counterValue"));
+
+            resultSet.close();
+
             sql
                     = "INSERT INTO CATEGORY "
-                    + "(name, "
+                    + "(categoryID, "
+                    + "name, "
                     + "deleted) "
-                    + "VALUES (?, ?)";
+                    + "VALUES (?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
-            int i=1;
+            i = 1;
+            ps.setLong(i++, category.getCategoryID());
             ps.setString(i++, category.getName());
             ps.setString(i++, "N");
 

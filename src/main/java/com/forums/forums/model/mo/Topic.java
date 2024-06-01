@@ -7,10 +7,12 @@ public class Topic {
     private Long topicID;
     private String title;
     private Timestamp creationTimestamp;
-    private User author;
-    private Category category;
     private Boolean anonymous;
     private Boolean deleted;
+
+    /* N:1 */
+    private User author;
+    private Category category;
 
     /* 1:N */
     private Post[] posts;

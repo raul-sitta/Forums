@@ -21,6 +21,8 @@ public class User {
     private Topic[] topics;
     private Post[] posts;
     private Media[] medias;
+    private Report[] reportsCreated;
+    private Report[] reportsReceived;
 
     public Long getUserID() {
         return userID;
@@ -134,4 +136,19 @@ public class User {
         this.medias = medias;
     }
 
+    public Report[] getReportsCreated() {
+        return reportsCreated;
+    }
+
+    public void setReportsCreated(Report[] reportsCreated) {
+        this.reportsCreated = reportsCreated;
+    }
+
+    public Report[] getReportsReceived() {
+        return reportsReceived;
+    }
+
+    public void setReportsReceived(Report[] reportsReceived) {
+        this.reportsReceived = reportsReceived;
+    }
 }
