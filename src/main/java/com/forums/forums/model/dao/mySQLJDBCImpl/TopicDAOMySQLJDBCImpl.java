@@ -132,6 +132,43 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
     }
 
     @Override
+    public List<Topic> findByCategory(Category category) {
+        PreparedStatement ps;
+        List<Topic> topics = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM TOPIC WHERE categoryID = ?";
+
+            ps = conn.prepareStatement(sql);
+
+            ps.setLong(1, category.getCategoryID());
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while(resultSet.next()){
+                Topic topic = read(resultSet);
+                topics.add(topic);
+            }
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        return topics;
+    }
+
+    @Override
+    public List<Topic> findInTimeRangeByCategory
+            (Category category,
+             Long fromIndex,
+             Long toIndex,
+             Boolean sortNewestFirst) {
+        PreparedStatement ps;
+        List<Topic> topics = new ArrayList<>();
+        return topics;
+    }
+
+    @Override
     public List<Topic> getAll() {
         PreparedStatement ps;
         List<Topic> topics = new ArrayList<>();
