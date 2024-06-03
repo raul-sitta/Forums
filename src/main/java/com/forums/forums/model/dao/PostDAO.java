@@ -13,5 +13,10 @@ public interface PostDAO {
     );
     public void update(Post post);
     public void delete(Post post);
+    public List<Post> findInTimeRangeByTopic
+            (Topic topic,
+             Long index,
+             Boolean sortNewestFirst);
+    public Long countPagesByTopic (Topic topic);
     public List<Post> getAll();
 }

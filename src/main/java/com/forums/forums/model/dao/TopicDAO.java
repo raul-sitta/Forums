@@ -13,11 +13,10 @@ public interface TopicDAO {
     );
     public void update(Topic topic);
     public void delete(Topic topic);
-    public List<Topic> findByCategory(Category category);
     public List<Topic> findInTimeRangeByCategory
             (Category category,
-             Long fromIndex,
-             Long toIndex,
+             Long index,
              Boolean sortNewestFirst);
+    public Long countPagesByCategory (Category category);
     public List<Topic> getAll();
 }

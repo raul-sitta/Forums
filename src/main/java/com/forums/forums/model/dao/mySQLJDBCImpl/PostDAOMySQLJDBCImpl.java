@@ -11,6 +11,7 @@ import java.util.List;
 public class PostDAOMySQLJDBCImpl implements PostDAO {
 
     private final String COUNTER_ID = "postID";
+    private static final long ITEMS_PER_PAGE = 10L;
     Connection conn;
 
     public PostDAOMySQLJDBCImpl(Connection conn) {
@@ -114,6 +115,100 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<Post> findInTimeRangeByTopic
+            (Topic topic,
+             Long index,
+             Boolean sortNewestFirst) {
+
+        //Controllo gli argomenti
+
+        if (index != null && index < 0) {
+            throw new IllegalArgumentException("Errore: il parametro index non può essere negativo");
+        }
+
+        if (topic == null) {
+            throw new IllegalArgumentException("Errore: il parametro topic non può essere nullo");
+        }
+
+        if (sortNewestFirst == null) {
+            throw new IllegalArgumentException("Errore: il parametro sortNewestFirst non può essere null");
+        }
+
+        PreparedStatement ps;
+
+        List<Post> posts = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM TOPIC WHERE topicID = ? ";
+
+            String orderBy = sortNewestFirst ? "DESC " : "ASC ";
+
+            sql += " ORDER BY creationTimestamp " + orderBy;
+
+            if (index != null) sql += "LIMIT ?, ? ";
+
+            ps = conn.prepareStatement(sql);
+
+            int i = 1;
+            ps.setLong(i++, topic.getTopicID());
+            if (index!=null) {
+                ps.setLong(i++, index * ITEMS_PER_PAGE);
+                ps.setLong(i++, ITEMS_PER_PAGE);
+            }
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while(resultSet.next()){
+                Post post = read(resultSet);
+                posts.add(post);
+            }
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return posts;
+    }
+
+    @Override
+    public Long countPagesByTopic (Topic topic) {
+
+        //Controllo gli argomenti
+        if (topic == null) {
+            throw new IllegalArgumentException("Errore: il parametro topic non può essere null");
+        }
+
+        PreparedStatement ps;
+        long pageCount = 0L;
+
+        try {
+            String sql = "SELECT COUNT(*) FROM POST WHERE topicID = ?";
+
+            ps = conn.prepareStatement(sql);
+
+            int i = 1;
+            ps.setLong(i++, topic.getTopicID());
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                long totalItems = resultSet.getLong(1);
+                pageCount = (totalItems + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
+            }
+
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return pageCount;
     }
 
     @Override

@@ -13,6 +13,7 @@ import com.forums.forums.model.mo.User;
 public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
     private final String COUNTER_ID = "topicID";
+    private static final long ITEMS_PER_PAGE = 10L;
     Connection conn;
 
     public TopicDAOMySQLJDBCImpl(Connection conn) {
@@ -132,15 +133,45 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
     }
 
     @Override
-    public List<Topic> findByCategory(Category category) {
+    public List<Topic> findInTimeRangeByCategory
+            (Category category,
+             Long index,
+             Boolean sortNewestFirst) {
+
+        //Controllo gli argomenti
+
+        if (index != null && index < 0) {
+            throw new IllegalArgumentException("Errore: il parametro index non può essere negativo");
+        }
+
+        if (sortNewestFirst == null) {
+            throw new IllegalArgumentException("Errore: il parametro sortNewestFirst non può essere null");
+        }
+
         PreparedStatement ps;
+
         List<Topic> topics = new ArrayList<>();
+
         try {
-            String sql = "SELECT * FROM TOPIC WHERE categoryID = ?";
+            String sql = "SELECT * FROM TOPIC ";
+
+            if (category != null) sql += "WHERE categoryID = ? ";
+
+
+            String orderBy = sortNewestFirst ? "DESC " : "ASC ";
+
+            sql += " ORDER BY creationTimestamp " + orderBy;
+
+            if (index != null) sql += "LIMIT ?, ? ";
 
             ps = conn.prepareStatement(sql);
 
-            ps.setLong(1, category.getCategoryID());
+            int i = 1;
+            if (category != null) ps.setLong(i++, category.getCategoryID());
+            if (index!=null) {
+                ps.setLong(i++, index * ITEMS_PER_PAGE);
+                ps.setLong(i++, ITEMS_PER_PAGE);
+            }
 
             ResultSet resultSet = ps.executeQuery();
 
@@ -154,18 +185,43 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         catch (SQLException e){
             throw new RuntimeException(e);
         }
+
         return topics;
     }
 
-    @Override
-    public List<Topic> findInTimeRangeByCategory
-            (Category category,
-             Long fromIndex,
-             Long toIndex,
-             Boolean sortNewestFirst) {
+    public Long countPagesByCategory (Category category) {
         PreparedStatement ps;
-        List<Topic> topics = new ArrayList<>();
-        return topics;
+        long pageCount = 0L;
+
+        try {
+            String sql = "SELECT COUNT(*) FROM TOPIC ";
+
+            if (category != null) {
+                sql += "WHERE categoryID = ? ";
+            }
+
+            ps = conn.prepareStatement(sql);
+
+            int i = 1;
+            if (category != null) {
+                ps.setLong(i++, category.getCategoryID());
+            }
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                long totalItems = resultSet.getLong(1);
+                pageCount = (totalItems + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
+            }
+
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return pageCount;
     }
 
     @Override
