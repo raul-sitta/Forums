@@ -189,6 +189,117 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         return topics;
     }
 
+    @Override
+    public List<Topic> findByParameters(
+            Long pageIndex,
+            Boolean sortNewestFirst,
+            String title,
+            String authorName,
+            String categoryName,
+            Date moreRecentThan,
+            Date olderThan,
+            Boolean isAnonymous) {
+
+        // Controllo degli argomenti
+        if (pageIndex != null && pageIndex < 0) {
+            throw new IllegalArgumentException("Errore: il parametro pageIndex non può essere negativo");
+        }
+
+        if (sortNewestFirst == null) {
+            throw new IllegalArgumentException("Errore: il parametro sortNewestFirst non può essere null");
+        }
+
+        if (isAnonymous == null) {
+            throw new IllegalArgumentException("Errore: il parametro isAnonymous non può essere null");
+        }
+
+        PreparedStatement ps;
+
+        List<Topic> topics = new ArrayList<>();
+
+        try {
+            String sql = "SELECT T.* FROM TOPIC AS T ";
+            String whereClause = "";
+
+            // JOIN (solo se necessaria)
+            if (authorName != null || categoryName != null) {
+                sql += "LEFT JOIN USER AS U ON T.authorID = U.userID ";
+                sql += "LEFT JOIN CATEGORY AS C ON T.categoryID = C.categoryID ";
+            }
+
+            // Costruzione dinamica della query
+            if (title != null && !title.trim().isEmpty()) {
+                whereClause += addCondition(whereClause, "T.title LIKE ?");
+            }
+            if (authorName != null && !authorName.trim().isEmpty()) {
+                whereClause += addCondition(whereClause, "U.username LIKE ?");
+            }
+            if (categoryName != null && !categoryName.trim().isEmpty()) {
+                whereClause += addCondition(whereClause, "C.name LIKE ?");
+            }
+            if (moreRecentThan != null) {
+                whereClause += addCondition(whereClause, "T.creationTimestamp > ?");
+            }
+            if (olderThan != null) {
+                whereClause += addCondition(whereClause, "T.creationTimestamp < ?");
+            }
+            whereClause += addCondition(whereClause, "T.anonymous = ?");
+
+            if (!whereClause.isEmpty()) {
+                sql += "WHERE " + whereClause + " ";
+            }
+
+            String orderBy = sortNewestFirst ? "DESC" : "ASC";
+            sql += "ORDER BY T.creationTimestamp " + orderBy + " ";
+
+            if (pageIndex != null) {
+                sql += "LIMIT ? OFFSET ?";
+            }
+
+            ps = conn.prepareStatement(sql);
+
+            int i = 1;
+
+            if (title != null && !title.trim().isEmpty()) {
+                ps.setString(i++, "%" + title + "%");
+            }
+            if (authorName != null && !authorName.trim().isEmpty()) {
+                ps.setString(i++, "%" + authorName + "%");
+            }
+            if (categoryName != null && !categoryName.trim().isEmpty()) {
+                ps.setString(i++, "%" + categoryName + "%");
+            }
+            if (moreRecentThan != null) {
+                ps.setDate(i++, new java.sql.Date(moreRecentThan.getTime()));
+            }
+            if (olderThan != null) {
+                ps.setDate(i++, new java.sql.Date(olderThan.getTime()));
+            }
+            ps.setString(i++, isAnonymous ? "Y" : "N");
+            if (pageIndex != null) {
+                ps.setLong(i++, ITEMS_PER_PAGE); // Limit
+                ps.setLong(i++, pageIndex * ITEMS_PER_PAGE); // Offset
+            }
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while (resultSet.next()) {
+                Topic topic = read(resultSet);
+                topics.add(topic);
+            }
+
+            resultSet.close();
+
+            ps.close();
+
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return topics;
+    }
+
     public Long countPagesByCategory (Category category) {
         PreparedStatement ps;
         long pageCount = 0L;
@@ -248,6 +359,13 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         }
 
         return topics;
+    }
+
+    private String addCondition(String whereClause, String condition) {
+        if (!whereClause.isEmpty()) {
+            return " AND " + condition;
+        }
+        return condition;
     }
 
     Topic read(ResultSet rs) {
