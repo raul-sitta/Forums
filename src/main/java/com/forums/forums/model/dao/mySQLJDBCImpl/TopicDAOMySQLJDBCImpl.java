@@ -218,14 +218,10 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         List<Topic> topics = new ArrayList<>();
 
         try {
-            String sql = "SELECT T.* FROM TOPIC AS T ";
+            String sql = "SELECT * FROM TOPIC AS T " +
+                         "LEFT JOIN USER AS U ON T.authorID = U.userID " +
+                         "LEFT JOIN CATEGORY AS C ON T.categoryID = C.categoryID ";
             String whereClause = "";
-
-            // JOIN (solo se necessaria)
-            if (authorName != null || categoryName != null) {
-                sql += "LEFT JOIN USER AS U ON T.authorID = U.userID ";
-                sql += "LEFT JOIN CATEGORY AS C ON T.categoryID = C.categoryID ";
-            }
 
             // Costruzione dinamica della query
             if (title != null && !title.trim().isEmpty()) {
@@ -283,8 +279,16 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
             ResultSet resultSet = ps.executeQuery();
 
+            //Creo i DAOMySQLJDBCImpl per leggere il resultSet usando i metodi di altri DAO
+            UserDAOMySQLJDBCImpl userDAOMySQLJDBC = new UserDAOMySQLJDBCImpl(this.conn);
+            CategoryDAOMySQLJDBCImpl categoryDAOMySQLJDBC = new CategoryDAOMySQLJDBCImpl(this.conn);
+
             while (resultSet.next()) {
                 Topic topic = read(resultSet);
+                User author = userDAOMySQLJDBC.read(resultSet);
+                Category category = categoryDAOMySQLJDBC.read(resultSet);
+                topic.setAuthor(author);
+                topic.setCategory(category);
                 topics.add(topic);
             }
 
