@@ -1,12 +1,19 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<!DOCTYPE html>
-<html>
+<%@page session="false"%>
+<%String contextPath=request.getContextPath();%>
+<!DOCTYPE HTML>
+<html lang="it-IT">
 <head>
-  <title>JSP - Hello World</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=<%=contextPath%>/Dispatcher">
+  <script type="text/javascript">
+    function onLoadHandler() {
+      window.location.href = "<%=contextPath%>/Dispatcher";
+    }
+    window.addEventListener("load", onLoadHandler);
+  </script>
+  <title>Page Redirection</title>
 </head>
 <body>
-<h1><%= "Hello World!" %></h1>
-<br/>
-<a href="hello-servlet">Hello Servlet</a>
+If you are not redirected automatically, follow the <a href='<%=contextPath%>/Dispatcher'>link</a>
 </body>
 </html>

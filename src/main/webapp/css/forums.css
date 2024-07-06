@@ -1,0 +1,163 @@
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+a:link, a:active, a:visited {
+    text-decoration: none;
+}
+
+.clearfix:after {
+    content: ".";
+    visibility: hidden;
+    display: block;
+    height: 0;
+    clear: both;
+}
+
+body {
+    background: url(../images/background.png);
+    color: #666666;
+    font-family: "Trebuchet MS",Arial,Helvetica,sans-serif;
+    font-size: 1em;
+    width:980px;
+    margin:0 auto;
+    box-shadow:0 0 0 2px #222222;
+}
+
+/* Header Section */
+header {
+    background: #a32900;
+    padding-top: 10px;
+}
+
+.logo {
+    padding-top: 20px;
+    padding-left: 14px;
+    font-size: 2.2em;
+    font-weight: 900;
+    color: white;
+}
+
+/* Navigation Menu */
+header nav {
+    float: left;
+    padding-top: 15px;
+}
+
+header nav ul {
+    padding: 0;
+}
+
+header nav ul > li {
+    float:left;
+    border-top:solid 1px #daa999;
+    background: linear-gradient(#daa999, #EDD4CC);
+}
+
+header nav ul > li > a {
+    display:block;
+    color:#fff;
+    width:100px;
+    text-align:center;
+    font-size:14px;
+    text-transform:uppercase;
+    padding:4px 0 5px;
+    text-decoration:none;
+}
+
+header nav ul > li:hover, nav ul > li.active {
+    border-top:solid 1px #210800;
+    background: linear-gradient(#621900, #822100);
+}
+header nav ul > li:hover > a {
+    color:#f9dcb4;
+}
+
+/* Login Section */
+#login {
+    float: right;
+    padding-top: 14px;
+    width:420px;
+}
+
+#login label[for="username"], #login label[for="password"] {
+    color:#fff;;
+    float:left;
+    padding:6px 12px 0px 7px;
+    font-size: 11px;
+}
+
+#login form input[type="text"], #login form input[type="password"] {
+    float:left;
+    height:18px;
+    width:125px;
+    border: 1px solid #A32900;
+    border-radius: 4px;
+    margin-top: 2px;
+    font-size: 11px;
+}
+
+#login form input[type="text"]:focus, #login form input[type="password"]:focus {
+    outline: none;
+}
+
+
+#login form input[type="submit"] {
+    background-color:#A32900;
+    color: #FFFFFF;
+    border: 0;
+    cursor:pointer;
+    float:left;
+    overflow:hidden;
+    padding:6px 12px 0px 7px;
+    width:26px;
+    font-size: 11px;
+}
+
+/* Main Section */
+
+main {
+    background-color: #FFFFFF;
+    padding: 10px 18px;
+}
+
+#pageTitle {
+    margin: 12px 0;
+}
+
+#pageTitle h1 {
+    font-size: 1.3em;
+    font-weight: normal;
+}
+
+.button {
+    padding: 5px 10px;
+    background-color: #a3271f;
+    color: #ffffff;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+}
+
+/* Footer Section */
+footer {
+    padding:20px 40px;
+    text-align:right;
+    font-size:11px;
+    background-color:#d4d4d4;
+}
+
+footer a{
+    text-decoration:none;
+    color:#5E5956;
+}
+
+footer #privacy {
+    float:right;
+}
