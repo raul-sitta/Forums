@@ -74,6 +74,7 @@ public class UserManagement {
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
         User loggedUser;
+        User user;
         Logger logger = LogService.getApplicationLogger();
 
         try {
@@ -90,14 +91,14 @@ public class UserManagement {
             daoFactory.beginTransaction();
 
             UserDAO userDAO = daoFactory.getUserDAO();
-            loggedUser = userDAO.findByUsername(loggedUser.getUsername());
+            user = userDAO.findByUsername(loggedUser.getUsername());
 
             try {
                 sessionUserDAO.delete(loggedUser);
-                userDAO.delete(loggedUser);
+                userDAO.delete(user);
 
                 //Elimino la foto profilo dell'utente
-                deleteProfilePic(loggedUser);
+                deleteProfilePic(user);
             }
             catch (Exception e){
                 logger.log(Level.SEVERE, "Errore di cancellazione dell'utente!" + e);
@@ -152,7 +153,7 @@ public class UserManagement {
 
             try {
                 userDAO.create(
-                        request.getParameter("username"),
+                        request.getParameter("username").toLowerCase(),
                         request.getParameter("password"),
                         request.getParameter("firstname"),
                         request.getParameter("surname"),
@@ -160,14 +161,14 @@ public class UserManagement {
                         Date.valueOf(request.getParameter("birthDate")),
                         request.getParameter("role")
                 );
-                applicationMessage = "Account creato correttamente! Fai il logon per iniziare!";
+                applicationMessage = "Account creato correttamente!";
             }catch (DuplicatedObjectException de){
                 // Scopro se l'attributo duplicato è l'username o l'email
                 String duplicatedAttribute = de.getDuplicatedAttribute();
                 if (de.getDuplicatedAttribute() != null) {
                     // Stampa in maiuscolo dell'iniziale rispettivamente di Username o Email seguita dall'attributo
-                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute) + " già in uso!";
-                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute) + de);
+                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute).toLowerCase() + " già in uso!";
+                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute).toLowerCase() + de);
                 }
                 else {
                     applicationMessage = "Utente non creato!";
@@ -176,6 +177,8 @@ public class UserManagement {
             }catch (Exception e){
                 logger.log(Level.SEVERE, "Errore nella creazione dell'utente @" + request.getParameter("username") + ": " + e);
             }
+
+            loggedUser = sessionUserDAO.create(request.getParameter("username").toLowerCase(), null, request.getParameter("firstname"), request.getParameter("surname"), null, null, request.getParameter("role"));
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
@@ -240,6 +243,7 @@ public class UserManagement {
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
         User loggedUser;
+        User user;
 
         Logger logger = LogService.getApplicationLogger();
         try {
@@ -256,16 +260,14 @@ public class UserManagement {
             daoFactory.beginTransaction();
 
             UserDAO userDAO = daoFactory.getUserDAO();
-            loggedUser = userDAO.findByUsername(loggedUser.getUsername());
-
-            loggedUser = daoFactory.getUserDAO().findByUsername(loggedUser.getUsername());
+            user = userDAO.findByUsername(loggedUser.getUsername());
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedOn", loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
-            request.setAttribute("auctionID",request.getParameter("auctionID"));
+            request.setAttribute("user",user);
             request.setAttribute("viewUrl","userManagement/insModView");
         }
         catch (Exception e){
@@ -308,7 +310,7 @@ public class UserManagement {
 
             String oldProfilePicDirectoryPath = ProfilePicPath.profilePicPath(user.getUsername(), true);
 
-            user.setUsername(request.getParameter("username"));
+            user.setUsername(request.getParameter("username").toLowerCase());
             user.setPassword(request.getParameter("password"));
             user.setFirstname(request.getParameter("firstname"));
             user.setSurname(request.getParameter("surname"));
@@ -344,8 +346,8 @@ public class UserManagement {
                 String duplicatedAttribute = de.getDuplicatedAttribute();
                 if (de.getDuplicatedAttribute() != null) {
                     // Stampa in maiuscolo dell'iniziale rispettivamente di Username o Email seguita dall'attributo
-                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute) + " già in uso!";
-                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute) + de);
+                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute).toLowerCase() + " già in uso!";
+                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute).toLowerCase() + de);
                 }
                 else {
                     applicationMessage = "Utente non creato!";
@@ -359,7 +361,8 @@ public class UserManagement {
             sessionDAOFactory.commitTransaction();
 
             request.setAttribute("loggedOn", loggedUser!=null);
-            request.setAttribute("loggedUser",user);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("user",user);
             request.setAttribute("applicationMessage",applicationMessage);
             request.setAttribute("viewUrl","userManagement/view");
 
@@ -385,6 +388,7 @@ public class UserManagement {
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
         User loggedUser;
+        User user;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
 
@@ -402,10 +406,10 @@ public class UserManagement {
             daoFactory.beginTransaction();
 
             UserDAO userDAO = daoFactory.getUserDAO();
-            loggedUser = userDAO.findByUsername(loggedUser.getUsername());
+            user = userDAO.findByUsername(loggedUser.getUsername());
 
             //Cerco tutti gli utenti eccetto l'utente loggato e gli utenti eliminati
-            List<User> users = userDAO.findByParameters(null,null,null,null,false,loggedUser);
+            List<User> users = userDAO.findByParameters(null,null,null,null,false, user);
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
@@ -454,9 +458,8 @@ public class UserManagement {
             daoFactory.beginTransaction();
 
             UserDAO userDAO = daoFactory.getUserDAO();
-            loggedUser = userDAO.findByUsername(loggedUser.getUsername());
 
-            User bannedUser = userDAO.findByUsername(request.getParameter("username"));
+            User bannedUser = userDAO.findByUsername(request.getParameter("bannedUser"));
 
             if(bannedUser.getUserID() != null){
                 try {

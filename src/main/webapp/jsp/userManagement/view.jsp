@@ -5,8 +5,7 @@
     boolean loggedOn = (Boolean) request.getAttribute("loggedOn");
     User loggedUser = (User) request.getAttribute("loggedUser");
     String applicationMessage = (String) request.getAttribute("applicationMessage");
-    User user = (User) request.getAttribute("user");
-    String action = (user!=null) ? "modify" : "insert";
+    String action = (loggedUser!=null) ? "modify" : "insert";
     String menuActiveLink = (loggedUser!=null) ? "Account" : "Registrati";
 %>
 <!DOCTYPE html>
@@ -62,12 +61,10 @@
         function mainOnLoadHandler(){
             document.querySelector("#newUserButton").addEventListener("click",insertUser);
         }
-        function modifyUser(userID){
-            document.modifyForm.userID.value = userID;
+        function modifyUser(){
             document.modifyForm.submit();
         }
-        function deleteUser(userID){
-            document.deleteForm.userID.value = userID;
+        function deleteUser(){
             if(confirm("Attenzione! Questa azione e' irreversibile. Vuoi procedere?")){
                 document.deleteForm.submit();
             }
@@ -91,12 +88,12 @@
     <%if (loggedOn){%>
     <section id="modifyUserButtonSelection">
         <input type="button" id="modifyUserButton" name="modifyUserButton"
-               class="button" value="Modifica i dati" onclick="modifyUser(<%=loggedUser.getUserID()%>)"/>
+               class="button" value="Modifica i dati" onclick="modifyUser()"/>
     </section>
 
     <section id="deleteUserButtonSelection">
         <input type="button" id="deleteUserButton" name="deleteUserButton"
-               class="button" value="Elimina l'account" onclick="deleteUser(<%=loggedUser.getUserID()%>)"/>
+               class="button" value="Elimina l'account" onclick="deleteUser()"/>
     </section>
     <%}%>
     <form name="insertForm" method="post" action="Dispatcher">
@@ -104,12 +101,10 @@
     </form>
 
     <form name="modifyForm" method="post" action="Dispatcher">
-        <input type="hidden" name="userID"/>
         <input type="hidden" name="controllerAction" value="UserManagement.modifyView"/>
     </form>
 
     <form name="deleteForm" method="post" action="Dispatcher">
-        <input type="hidden" name="userID"/>
         <input type="hidden" name="controllerAction" value="UserManagement.delete"/>
     </form>
 </main>

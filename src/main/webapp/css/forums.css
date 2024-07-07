@@ -86,7 +86,7 @@ header nav ul > li:hover > a {
     width:420px;
 }
 
-#login label[for="username"], #login label[for="password"] {
+#login label[for="usernameLogin"], #login label[for="passwordLogin"] {
     color:#fff;
     float:left;
     padding:6px 12px 0px 7px;

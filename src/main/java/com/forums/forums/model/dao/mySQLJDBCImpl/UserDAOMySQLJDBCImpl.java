@@ -264,12 +264,14 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
             String sql
                     = " SELECT * "
-                    + "   FROM USER "
-                    + " WHERE "
-                    + "   username = ?";
+                    + " FROM USER "
+                    + " WHERE username = ? "
+                    + " AND deleted = ? ";
 
             ps = conn.prepareStatement(sql);
-            ps.setString(1, username);
+            int i = 1;
+            ps.setString(i++, username);
+            ps.setString(i++, "N");
 
             ResultSet resultSet = ps.executeQuery();
 
