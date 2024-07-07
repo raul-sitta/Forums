@@ -28,7 +28,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             String surname,
             String email,
             Date birthDate,
-            String rank) throws DuplicatedObjectException {
+            String role) throws DuplicatedObjectException {
 
         // Ottengo il timestamp corrente
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
@@ -42,7 +42,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         user.setEmail(email);
         user.setBirthDate(birthDate);
         user.setRegistrationTimestamp(currentTimestamp);
-        user.setRank(rank);
+        user.setRole(role);
         user.setDeleted(false);
 
         try{
@@ -94,9 +94,9 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + "email,"
                     + "birthDate,"
                     + "registrationTimestamp,"
-                    + "rank,"
+                    + "role,"
                     + "deleted) "
-                    + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+                    + "VALUES (?,?,?,?,?,?,?,?,?,?)";
             ps = conn.prepareStatement(sql);
 
             i = 1;
@@ -108,7 +108,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             ps.setString(i++, user.getEmail());
             ps.setDate(i++, user.getBirthDate());
             ps.setTimestamp(i++, user.getRegistrationTimestamp());
-            ps.setString(i++, user.getRank());
+            ps.setString(i++, user.getRole());
             ps.setString(i++, "N");
 
             ps.executeUpdate();
@@ -157,7 +157,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + "surname = ?, "
                     + "email = ?, "
                     + "birthDate = ?, "
-                    + "rank = ? "
+                    + "role = ? "
                     + "WHERE userID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -168,7 +168,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             ps.setString(i++, user.getSurname());
             ps.setString(i++, user.getEmail());
             ps.setDate(i++, user.getBirthDate());
-            ps.setString(i++, user.getRank());
+            ps.setString(i++, user.getRole());
             ps.setLong(i++, user.getUserID());
             ps.executeUpdate();
         }
@@ -300,7 +300,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
     public List<User> findByParameters(String username,
                                        Date registratedBefore,
                                        Date registratedAfter,
-                                       String rank,
+                                       String role,
                                        Boolean isDeleted,
                                        User exceptUser) {
         PreparedStatement ps;
@@ -342,8 +342,8 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             if (registratedAfter != null) {
                 sql += "AND registrationTimestamp > ? ";
             }
-            if (rank != null && !rank.trim().isEmpty()) {
-                sql += "AND rank = ? ";
+            if (role != null && !role.trim().isEmpty()) {
+                sql += "AND role = ? ";
             }
             if (isDeleted != null) {
                 sql += "AND deleted = ? ";
@@ -364,8 +364,8 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             if (registratedAfter != null) {
                 ps.setTimestamp(i++, registratedAfterTimestamp);
             }
-            if (rank != null && !rank.trim().isEmpty()) {
-                ps.setString(i++, rank);
+            if (role != null && !role.trim().isEmpty()) {
+                ps.setString(i++, role);
             }
             if (isDeleted != null) {
                 ps.setString(i++, isDeleted ? "Y" : "N");
@@ -414,7 +414,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
             user.setRegistrationTimestamp(rs.getTimestamp("registrationTimestamp"));
 
-            user.setRank(rs.getString("rank"));
+            user.setRole(rs.getString("role"));
 
             user.setDeleted(rs.getString("deleted").equals("Y"));
 

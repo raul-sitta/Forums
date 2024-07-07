@@ -32,7 +32,7 @@ body {
 
 /* Header Section */
 header {
-    background: #a32900;
+    background: #005c99; /* Updated color */
     padding-top: 10px;
 }
 
@@ -56,8 +56,8 @@ header nav ul {
 
 header nav ul > li {
     float:left;
-    border-top:solid 1px #daa999;
-    background: linear-gradient(#daa999, #EDD4CC);
+    border-top:solid 1px #5da4d9; /* Updated color */
+    background: linear-gradient(#5da4d9, #89c2d9); /* Updated color */
 }
 
 header nav ul > li > a {
@@ -72,11 +72,11 @@ header nav ul > li > a {
 }
 
 header nav ul > li:hover, nav ul > li.active {
-    border-top:solid 1px #210800;
-    background: linear-gradient(#621900, #822100);
+    border-top:solid 1px #003366; /* Updated color */
+    background: linear-gradient(#003366, #004c99); /* Updated color */
 }
 header nav ul > li:hover > a {
-    color:#f9dcb4;
+    color:#b4d6f2; /* Updated color */
 }
 
 /* Login Section */
@@ -87,7 +87,7 @@ header nav ul > li:hover > a {
 }
 
 #login label[for="username"], #login label[for="password"] {
-    color:#fff;;
+    color:#fff;
     float:left;
     padding:6px 12px 0px 7px;
     font-size: 11px;
@@ -97,7 +97,7 @@ header nav ul > li:hover > a {
     float:left;
     height:18px;
     width:125px;
-    border: 1px solid #A32900;
+    border: 1px solid #005c99; /* Updated color */
     border-radius: 4px;
     margin-top: 2px;
     font-size: 11px;
@@ -107,9 +107,8 @@ header nav ul > li:hover > a {
     outline: none;
 }
 
-
 #login form input[type="submit"] {
-    background-color:#A32900;
+    background-color:#005c99; /* Updated color */
     color: #FFFFFF;
     border: 0;
     cursor:pointer;
@@ -138,7 +137,7 @@ main {
 
 .button {
     padding: 5px 10px;
-    background-color: #a3271f;
+    background-color: #005c99; /* Updated color */
     color: #ffffff;
     border-radius: 8px;
     cursor: pointer;

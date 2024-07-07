@@ -13,7 +13,7 @@ public class User {
     private String email;
     private Date birthDate;
     private Timestamp registrationTimestamp;
-    private String rank;
+    private String role;
     private Boolean deleted;
 
     /* 1:N */
@@ -87,12 +87,12 @@ public class User {
         this.registrationTimestamp = registrationTimestamp;
     }
 
-    public String getRank() {
-        return rank;
+    public String getRole() {
+        return role;
     }
 
-    public void setRank(String rank) {
-        this.rank = rank;
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public Boolean getDeleted() {

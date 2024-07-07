@@ -39,8 +39,8 @@
       </li>
       <%}%>
       <%if (loggedOn) {%>
-        <li <%=menuActiveLink.equals("Rubrica")?"class=\"active\"":""%>>
-          <a href="Dispatcher?controllerAction=AddressBookManagement.view">Rubrica</a>
+        <li <%=menuActiveLink.equals("Account")?"class=\"active\"":""%>>
+          <a href="Dispatcher?controllerAction=UserManagement.view">Account</a>
         </li>
         <li><a href="javascript:logoutForm.submit()">Logout</a></li>
       <%}%>

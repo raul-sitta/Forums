@@ -15,7 +15,7 @@ public interface UserDAO {
             String surname,
             String email,
             Date birthDate,
-            String rank) throws DuplicatedObjectException;
+            String role) throws DuplicatedObjectException;
 
     public void update(User user) throws DuplicatedObjectException;
 
@@ -30,7 +30,7 @@ public interface UserDAO {
     public List<User> findByParameters(String username,
                                        Date registratedBefore,
                                        Date registratedAfter,
-                                       String rank,
+                                       String role,
                                        Boolean isDeleted,
                                        User exceptUser);
 

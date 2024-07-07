@@ -158,7 +158,7 @@ public class UserManagement {
                         request.getParameter("surname"),
                         request.getParameter("email"),
                         Date.valueOf(request.getParameter("birthDate")),
-                        request.getParameter("rank")
+                        request.getParameter("role")
                 );
                 applicationMessage = "Account creato correttamente! Fai il logon per iniziare!";
             }catch (Exception e){
@@ -303,7 +303,7 @@ public class UserManagement {
             user.setSurname(request.getParameter("surname"));
             user.setEmail(request.getParameter("email"));
             user.setBirthDate(Date.valueOf(request.getParameter("birthDate")));
-            user.setRank(request.getParameter("rank"));
+            user.setRole(request.getParameter("role"));
 
             try {
                 userDAO.update(user);

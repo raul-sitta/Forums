@@ -93,7 +93,7 @@ public class HomeManagement {
                 applicationMessage = "Username e password errati!";
                 loggedUser=null;
             } else {
-                loggedUser = sessionUserDAO.create(user.getUsername(), null, user.getFirstname(), user.getSurname(), null, null, user.getRank());
+                loggedUser = sessionUserDAO.create(user.getUsername(), null, user.getFirstname(), user.getSurname(), null, null, user.getRole());
             }
 
             daoFactory.commitTransaction();
