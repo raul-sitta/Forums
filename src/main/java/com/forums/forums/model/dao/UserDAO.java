@@ -15,8 +15,7 @@ public interface UserDAO {
             String surname,
             String email,
             Date birthDate,
-            String imagePath,
-            String role) throws DuplicatedObjectException;
+            String rank) throws DuplicatedObjectException;
 
     public void update(User user) throws DuplicatedObjectException;
 
@@ -27,6 +26,13 @@ public interface UserDAO {
     public User findByUserID(Long userID);
 
     public User findByUsername(String username);
+
+    public List<User> findByParameters(String username,
+                                       Date registratedBefore,
+                                       Date registratedAfter,
+                                       String rank,
+                                       Boolean isDeleted,
+                                       User exceptUser);
 
     public List<User> getAll();
 

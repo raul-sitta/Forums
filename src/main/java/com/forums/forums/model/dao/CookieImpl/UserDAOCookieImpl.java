@@ -29,14 +29,13 @@ public class UserDAOCookieImpl implements UserDAO {
             String surname,
             String email,
             Date birthDate,
-            String imagePath,
-            String role) {
+            String rank) {
 
         User loggedUser = new User();
         loggedUser.setUsername(username);
         loggedUser.setFirstname(firstname);
         loggedUser.setSurname(surname);
-        loggedUser.setRole(role);
+        loggedUser.setRank(rank);
 
         Cookie cookie;
         cookie = new Cookie("loggedUser", encode(loggedUser));
@@ -101,10 +100,20 @@ public class UserDAOCookieImpl implements UserDAO {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public List<User> findByParameters(String username,
+                                       Date registratedBefore,
+                                       Date registratedAfter,
+                                       String rank,
+                                       Boolean isDeleted,
+                                       User exceptUser) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     private String encode(User loggedUser) {
 
         String encodedLoggedUser;
-        encodedLoggedUser = loggedUser.getUsername() + "#" + loggedUser.getFirstname() + "#" + loggedUser.getSurname() + "#" + loggedUser.getRole();
+        encodedLoggedUser = loggedUser.getUsername() + "#" + loggedUser.getFirstname() + "#" + loggedUser.getSurname() + "#" + loggedUser.getRank();
         return encodedLoggedUser;
 
     }
@@ -118,7 +127,7 @@ public class UserDAOCookieImpl implements UserDAO {
         loggedUser.setUsername(values[0]);
         loggedUser.setFirstname(values[1]);
         loggedUser.setSurname(values[2]);
-        loggedUser.setRole(values[3]);
+        loggedUser.setRank(values[3]);
 
         return loggedUser;
 

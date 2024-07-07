@@ -13,8 +13,7 @@ public class User {
     private String email;
     private Date birthDate;
     private Timestamp registrationTimestamp;
-    private String imagePath;
-    private String role;
+    private String rank;
     private Boolean deleted;
 
     /* 1:N */
@@ -88,20 +87,12 @@ public class User {
         this.registrationTimestamp = registrationTimestamp;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getRank() {
+        return rank;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    public void setRank(String rank) {
+        this.rank = rank;
     }
 
     public Boolean getDeleted() {

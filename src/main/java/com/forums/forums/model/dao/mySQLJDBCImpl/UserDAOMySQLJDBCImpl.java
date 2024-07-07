@@ -3,7 +3,9 @@ package com.forums.forums.model.dao.mySQLJDBCImpl;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Calendar;
 
+import com.forums.forums.model.mo.Topic;
 import com.forums.forums.model.mo.User;
 import com.forums.forums.model.dao.UserDAO;
 
@@ -26,8 +28,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             String surname,
             String email,
             Date birthDate,
-            String imagePath,
-            String role) throws DuplicatedObjectException {
+            String rank) throws DuplicatedObjectException {
 
         // Ottengo il timestamp corrente
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
@@ -41,8 +42,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         user.setEmail(email);
         user.setBirthDate(birthDate);
         user.setRegistrationTimestamp(currentTimestamp);
-        user.setImagePath(imagePath);
-        user.setRole(role);
+        user.setRank(rank);
         user.setDeleted(false);
 
         try{
@@ -50,9 +50,9 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     = " SELECT userID "
                     + " FROM USER "
                     + " WHERE "
-                    + " deleted = 'N' AND "
-                    + " username = ? AND "
-                    + " email = ?";
+                    + " (deleted = 'N') AND "
+                    + " (username = ? OR "
+                    + " email = ?) ";
 
             ps = conn.prepareStatement(sql);
             int i=1;
@@ -94,8 +94,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + "email,"
                     + "birthDate,"
                     + "registrationTimestamp,"
-                    + "imagePath,"
-                    + "role,"
+                    + "rank,"
                     + "deleted) "
                     + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
             ps = conn.prepareStatement(sql);
@@ -109,8 +108,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             ps.setString(i++, user.getEmail());
             ps.setDate(i++, user.getBirthDate());
             ps.setTimestamp(i++, user.getRegistrationTimestamp());
-            ps.setString(i++, user.getImagePath());
-            ps.setString(i++, user.getRole());
+            ps.setString(i++, user.getRank());
             ps.setString(i++, "N");
 
             ps.executeUpdate();
@@ -131,9 +129,9 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     = " SELECT userID "
                     + " FROM USER "
                     + " WHERE "
-                    + " deleted = 'N' AND "
-                    + " username = ? AND "
-                    + " email = ?";
+                    + " (deleted = 'N') AND "
+                    + " (username = ? OR "
+                    + " email = ?)";
 
             ps = conn.prepareStatement(sql);
             int i=1;
@@ -159,8 +157,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + "surname = ?, "
                     + "email = ?, "
                     + "birthDate = ?, "
-                    + "imagePath = ?, "
-                    + "role = ? "
+                    + "rank = ? "
                     + "WHERE userID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -171,8 +168,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             ps.setString(i++, user.getSurname());
             ps.setString(i++, user.getEmail());
             ps.setDate(i++, user.getBirthDate());
-            ps.setString(i++, user.getImagePath());
-            ps.setString(i++, user.getRole());
+            ps.setString(i++, user.getRank());
             ps.setLong(i++, user.getUserID());
             ps.executeUpdate();
         }
@@ -300,6 +296,103 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         return users;
     }
 
+    @Override
+    public List<User> findByParameters(String username,
+                                       Date registratedBefore,
+                                       Date registratedAfter,
+                                       String rank,
+                                       Boolean isDeleted,
+                                       User exceptUser) {
+        PreparedStatement ps;
+        List<User> users = new ArrayList<>();
+
+        Timestamp registratedBeforeTimestamp = null;
+        if (registratedBefore != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(registratedBefore);
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 999);
+            registratedBeforeTimestamp = new Timestamp(cal.getTimeInMillis());
+        }
+
+        Timestamp registratedAfterTimestamp = null;
+        if (registratedBefore != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(registratedAfter);
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 999);
+            registratedAfterTimestamp = new Timestamp(cal.getTimeInMillis());
+        }
+
+
+        try {
+            String sql = "SELECT * FROM USERS WHERE 1=1 "; // Base SQL query
+
+            // Costruzione dinamica della query SQL
+            if (username != null && !username.trim().isEmpty()) {
+                sql += "AND username LIKE ? ";
+            }
+            if (registratedBefore != null) {
+                sql += "AND registrationTimestamp < ? ";
+            }
+            if (registratedAfter != null) {
+                sql += "AND registrationTimestamp > ? ";
+            }
+            if (rank != null && !rank.trim().isEmpty()) {
+                sql += "AND rank = ? ";
+            }
+            if (isDeleted != null) {
+                sql += "AND deleted = ? ";
+            }
+            if (exceptUser != null) {
+                sql += "AND userID <> ? ";
+            }
+
+            ps = conn.prepareStatement(sql);
+
+            int i = 1;
+            if (username != null && !username.trim().isEmpty()) {
+                ps.setString(i++, "%" + username + "%");
+            }
+            if (registratedBefore != null) {
+                ps.setTimestamp(i++, registratedBeforeTimestamp);
+            }
+            if (registratedAfter != null) {
+                ps.setTimestamp(i++, registratedAfterTimestamp);
+            }
+            if (rank != null && !rank.trim().isEmpty()) {
+                ps.setString(i++, rank);
+            }
+            if (isDeleted != null) {
+                ps.setString(i++, isDeleted ? "Y" : "N");
+            }
+            if (exceptUser != null) {
+                ps.setLong(i++, exceptUser.getUserID());
+            }
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while (resultSet.next()) {
+                User user = read(resultSet);
+                users.add(user);
+            }
+
+            resultSet.close();
+
+            ps.close();
+
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return users;
+    }
+
     User read(ResultSet rs) {
 
         User user = new User();
@@ -321,9 +414,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
             user.setRegistrationTimestamp(rs.getTimestamp("registrationTimestamp"));
 
-            user.setImagePath(rs.getString("imagePath"));
-
-            user.setRole(rs.getString("role"));
+            user.setRank(rs.getString("rank"));
 
             user.setDeleted(rs.getString("deleted").equals("Y"));
 

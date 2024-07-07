@@ -21,7 +21,7 @@
 <header class="clearfix"><!-- Defining the header section of the page -->
 
   <h1 class="logo"><!-- Defining the logo element -->
-    Rubrica
+    Forums
   </h1>
 
   <form name="logoutForm" action="Dispatcher" method="post">

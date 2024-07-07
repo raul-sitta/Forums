@@ -17,11 +17,11 @@
 <%@include file="/include/header.jsp"%>
 <main>
     <%if (loggedOn) {%>
-    Benvenuto <%=loggedUser.getFirstname()%> <%=loggedUser.getSurname()%>!<br/>
+    Benvenuto @<%=loggedUser.getUsername()%> su Forums!<br/>
     Sei loggato.
     <%} else {%>
     Benvenuto.
-    Fai il logon per gestire la tua rubrica.
+    Fai il logon o registrati.
     <%}%>
 </main>
 <%@include file="/include/footer.inc"%>
