@@ -161,8 +161,19 @@ public class UserManagement {
                         request.getParameter("role")
                 );
                 applicationMessage = "Account creato correttamente! Fai il logon per iniziare!";
+            }catch (DuplicatedObjectException de){
+                // Scopro se l'attributo duplicato è l'username o l'email
+                String duplicatedAttribute = de.getDuplicatedAttribute();
+                if (de.getDuplicatedAttribute() != null) {
+                    // Stampa in maiuscolo dell'iniziale rispettivamente di Username o Email seguita dall'attributo
+                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute) + " già in uso!";
+                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute) + de);
+                }
+                else {
+                    applicationMessage = "Utente non creato!";
+                    logger.log(Level.SEVERE, "Errore generico nella creazione dell'utente:" + de);
+                }
             }catch (Exception e){
-                applicationMessage = "Username @" + request.getParameter("username") + " gia' in uso!";
                 logger.log(Level.SEVERE, "Errore nella creazione dell'utente @" + request.getParameter("username") + ": " + e);
             }
 
@@ -304,9 +315,15 @@ public class UserManagement {
             user.setEmail(request.getParameter("email"));
             user.setBirthDate(Date.valueOf(request.getParameter("birthDate")));
             user.setRole(request.getParameter("role"));
+            loggedUser.setUsername(request.getParameter("username"));
+            loggedUser.setFirstname(request.getParameter("firstname"));
+            loggedUser.setSurname(request.getParameter("surname"));
+            loggedUser.setRole(request.getParameter("role"));
 
             try {
                 userDAO.update(user);
+
+                sessionUserDAO.update(loggedUser);
 
                 // Aggiorno il nome della cartella che contiene la foto profilo dell'utente
                 String newProfilePicDirectoryPath = ProfilePicPath.profilePicPath(user.getUsername(), true);
@@ -322,9 +339,20 @@ public class UserManagement {
                     e.printStackTrace();
                 }
             }
-            catch (DuplicatedObjectException e){
-                applicationMessage = "Username o email già in uso!";
-                logger.log(Level.INFO, "Tentativo di inserimento di un utente già esistente.");
+            catch (DuplicatedObjectException de){
+                // Scopro se l'attributo duplicato è l'username o l'email
+                String duplicatedAttribute = de.getDuplicatedAttribute();
+                if (de.getDuplicatedAttribute() != null) {
+                    // Stampa in maiuscolo dell'iniziale rispettivamente di Username o Email seguita dall'attributo
+                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute) + " già in uso!";
+                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute) + de);
+                }
+                else {
+                    applicationMessage = "Utente non creato!";
+                    logger.log(Level.SEVERE, "Errore generico nella creazione dell'utente:" + de);
+                }
+            }catch (Exception e){
+                logger.log(Level.SEVERE, "Errore nella creazione dell'utente @" + request.getParameter("username") + ": " + e);
             }
 
             daoFactory.commitTransaction();

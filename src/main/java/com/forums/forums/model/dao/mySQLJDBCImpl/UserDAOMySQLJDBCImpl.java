@@ -46,8 +46,9 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         user.setDeleted(false);
 
         try{
+            // Controllo se esiste già un utente con lo stesso username o email
             String sql
-                    = " SELECT userID "
+                    = " SELECT * "
                     + " FROM USER "
                     + " WHERE "
                     + " (deleted = 'N') AND "
@@ -61,12 +62,19 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
             ResultSet resultSet = ps.executeQuery();
 
-            boolean exist;
-            exist = resultSet.next();
+            boolean exist = false;
+            User duplicatedUser = null;
+            String duplicatedAttribute = null;
+            if (resultSet.next()) {
+                exist = true;
+                duplicatedUser = read(resultSet);
+                if (user.getEmail().equals(duplicatedUser.getEmail())) duplicatedAttribute = "email";
+                if (user.getUsername().equals(duplicatedUser.getUsername())) duplicatedAttribute = "username";
+            }
             resultSet.close();
 
             if (exist) {
-                throw new DuplicatedObjectException("UserDAOJDBCImpl.create: Tentativo di inserimento di un utente già esistente.");
+                throw new DuplicatedObjectException("UserDAOJDBCImpl.create: Tentativo di inserimento di un utente già esistente.", duplicatedAttribute);
             }
 
             sql = "UPDATE COUNTER SET counterValue=counterValue+1 where counterID='" + COUNTER_ID + "'";
@@ -126,26 +134,35 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
         try{
             String sql
-                    = " SELECT userID "
+                    = " SELECT * "
                     + " FROM USER "
                     + " WHERE "
                     + " (deleted = 'N') AND "
+                    + " (userID <> ?) AND "
                     + " (username = ? OR "
                     + " email = ?)";
 
             ps = conn.prepareStatement(sql);
             int i=1;
+            ps.setLong(i++, user.getUserID());
             ps.setString(i++, user.getUsername());
             ps.setString(i++, user.getEmail());
 
             ResultSet resultSet = ps.executeQuery();
 
-            boolean exist;
-            exist = resultSet.next();
+            boolean exist = false;
+            User duplicatedUser = null;
+            String duplicatedAttribute = null;
+            if (resultSet.next()) {
+                exist = true;
+                duplicatedUser = read(resultSet);
+                if (user.getEmail().equals(duplicatedUser.getEmail())) duplicatedAttribute = "email";
+                if (user.getUsername().equals(duplicatedUser.getUsername())) duplicatedAttribute = "username";
+            }
             resultSet.close();
 
             if (exist) {
-                throw new DuplicatedObjectException("UserDAOJDBCImpl.create: Tentativo di inserimento di un utente già esistente.");
+                throw new DuplicatedObjectException("UserDAOJDBCImpl.create: Tentativo di inserimento di un utente già esistente.", duplicatedAttribute);
             }
 
             sql
@@ -153,7 +170,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + "SET "
                     + "username = ?, "
                     + "password = ?, "
-                    + "firstname = ?, ,"
+                    + "firstname = ?, "
                     + "surname = ?, "
                     + "email = ?, "
                     + "birthDate = ?, "
