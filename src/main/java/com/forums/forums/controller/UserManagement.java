@@ -8,8 +8,11 @@ import com.forums.forums.services.logservice.LogService;
 import com.forums.forums.services.profilepicpath.ProfilePicPath;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -98,7 +101,7 @@ public class UserManagement {
                 userDAO.delete(user);
 
                 //Elimino la foto profilo dell'utente
-                deleteProfilePic(user);
+                deleteProfilePicInFileSystem(user);
             }
             catch (Exception e){
                 logger.log(Level.SEVERE, "Errore di cancellazione dell'utente!" + e);
@@ -151,9 +154,11 @@ public class UserManagement {
 
             UserDAO userDAO = daoFactory.getUserDAO();
 
+            String username = request.getParameter("username").toLowerCase();
+            
             try {
                 userDAO.create(
-                        request.getParameter("username").toLowerCase(),
+                        username,
                         request.getParameter("password"),
                         request.getParameter("firstname"),
                         request.getParameter("surname"),
@@ -161,25 +166,29 @@ public class UserManagement {
                         Date.valueOf(request.getParameter("birthDate")),
                         request.getParameter("role")
                 );
+
+                loggedUser = sessionUserDAO.create(username, null, request.getParameter("firstname"), request.getParameter("surname"), null, null, request.getParameter("role"));
+
+                saveProfilePicInFileSystem(request.getPart("image"),username);
+                
                 applicationMessage = "Account creato correttamente!";
+                
             }catch (DuplicatedObjectException de){
                 // Scopro se l'attributo duplicato è l'username o l'email
                 String duplicatedAttribute = de.getDuplicatedAttribute();
                 if (de.getDuplicatedAttribute() != null) {
                     // Stampa in maiuscolo dell'iniziale rispettivamente di Username o Email seguita dall'attributo
-                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute).toLowerCase() + " già in uso!";
-                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute).toLowerCase() + de);
+                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute) + " già in uso!";
+                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute) + de);
                 }
                 else {
                     applicationMessage = "Utente non creato!";
                     logger.log(Level.SEVERE, "Errore generico nella creazione dell'utente:" + de);
                 }
             }catch (Exception e){
-                logger.log(Level.SEVERE, "Errore nella creazione dell'utente @" + request.getParameter("username") + ": " + e);
+                logger.log(Level.SEVERE, "Errore nella creazione dell'utente @" + username + ": " + e);
             }
-
-            loggedUser = sessionUserDAO.create(request.getParameter("username").toLowerCase(), null, request.getParameter("firstname"), request.getParameter("surname"), null, null, request.getParameter("role"));
-
+            
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
@@ -244,6 +253,7 @@ public class UserManagement {
         DAOFactory daoFactory = null;
         User loggedUser;
         User user;
+        String fullPath = null, imagePath = null;
 
         Logger logger = LogService.getApplicationLogger();
         try {
@@ -262,9 +272,13 @@ public class UserManagement {
             UserDAO userDAO = daoFactory.getUserDAO();
             user = userDAO.findByUsername(loggedUser.getUsername());
 
+            fullPath = ProfilePicPath.profilePicPath(user.getUsername(), false);
+            imagePath = fullPath.substring(fullPath.indexOf("/Uploads"));
+
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
+            request.setAttribute("imagePath", imagePath);
             request.setAttribute("loggedOn", loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("user",user);
@@ -308,9 +322,9 @@ public class UserManagement {
             UserDAO userDAO = daoFactory.getUserDAO();
             User user = userDAO.findByUsername(loggedUser.getUsername());
 
-            String oldProfilePicDirectoryPath = ProfilePicPath.profilePicPath(user.getUsername(), true);
-
-            user.setUsername(request.getParameter("username").toLowerCase());
+            String oldUsername = user.getUsername();
+            String username = request.getParameter("username").toLowerCase();
+            user.setUsername(username);
             user.setPassword(request.getParameter("password"));
             user.setFirstname(request.getParameter("firstname"));
             user.setSurname(request.getParameter("surname"));
@@ -327,27 +341,32 @@ public class UserManagement {
 
                 sessionUserDAO.update(loggedUser);
 
-                // Aggiorno il nome della cartella che contiene la foto profilo dell'utente
-                String newProfilePicDirectoryPath = ProfilePicPath.profilePicPath(user.getUsername(), true);
-                Path sourcePath = Paths.get(oldProfilePicDirectoryPath);
-                Path targetPath = Paths.get(newProfilePicDirectoryPath);
+                // Controllo se l'utente ha cambiato username per rinominare il path della directory della foto profilo
+                if (!oldUsername.equals(username)) {
+                    String oldProfilePicDirectoryPath = ProfilePicPath.profilePicPath(oldUsername, true);
+                    String newProfilePicDirectoryPath = ProfilePicPath.profilePicPath(user.getUsername(), true);
+                    Path sourcePath = Paths.get(oldProfilePicDirectoryPath);
+                    Path targetPath = Paths.get(newProfilePicDirectoryPath);
 
-                try {
-                    // Rinomino la directory
-                    Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                    System.out.println("Directory rinominata con successo (" + oldProfilePicDirectoryPath + " -> " + newProfilePicDirectoryPath +").");
-                } catch (Exception e) {
-                    System.err.println("Errore nella rinomina della cartella (" + oldProfilePicDirectoryPath + " -> " + newProfilePicDirectoryPath +").");
-                    e.printStackTrace();
+                    try {
+                        // Rinomino la directory
+                        Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        logger.log(Level.INFO,"Directory rinominata con successo (" + oldProfilePicDirectoryPath + " -> " + newProfilePicDirectoryPath +").");
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE,"Errore nella rinomina della cartella (" + oldProfilePicDirectoryPath + " -> " + newProfilePicDirectoryPath +"): " + e);
+                    }
                 }
+
+                saveProfilePicInFileSystem(request.getPart("image"),username);
+
             }
             catch (DuplicatedObjectException de){
                 // Scopro se l'attributo duplicato è l'username o l'email
                 String duplicatedAttribute = de.getDuplicatedAttribute();
                 if (de.getDuplicatedAttribute() != null) {
                     // Stampa in maiuscolo dell'iniziale rispettivamente di Username o Email seguita dall'attributo
-                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute).toLowerCase() + " già in uso!";
-                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute).toLowerCase() + de);
+                    applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute) + " già in uso!";
+                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute) + de);
                 }
                 else {
                     applicationMessage = "Utente non creato!";
@@ -466,7 +485,7 @@ public class UserManagement {
                     userDAO.delete(bannedUser);
 
                     //Elimino la foto profilo dell'utente
-                    deleteProfilePic(bannedUser);
+                    deleteProfilePicInFileSystem(bannedUser);
                 }
                 catch (Exception e){
                     logger.log(Level.SEVERE, "Errore di cancellazione dell'utente!" + e);
@@ -508,8 +527,22 @@ public class UserManagement {
             catch (Throwable t){}
         }
     }
+    
+    private static void saveProfilePicInFileSystem(Part filePart, String username) throws IOException {
+        String profilePicDirectoryPath = ProfilePicPath.profilePicPath(username, true);
+        File uploadDir = new File(profilePicDirectoryPath);
+        
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
 
-    private static void deleteProfilePic(User user) {
+        String profilePicPath = ProfilePicPath.profilePicPath(username, false);
+        try (InputStream fileContent = filePart.getInputStream()) {
+            Files.copy(fileContent, Paths.get(profilePicPath), StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    private static void deleteProfilePicInFileSystem(User user) {
         String directoryPath = ProfilePicPath.profilePicPath(user.getUsername(), true);
         File directory = new File(directoryPath);
 
