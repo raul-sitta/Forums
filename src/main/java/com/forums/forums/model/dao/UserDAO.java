@@ -9,6 +9,7 @@ import java.util.List;
 public interface UserDAO {
 
     public User create(
+            Long userID,
             String username,
             String password,
             String firstname,

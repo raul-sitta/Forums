@@ -23,6 +23,7 @@ public class UserDAOCookieImpl implements UserDAO {
 
     @Override
     public User create(
+            Long userID,
             String username,
             String password,
             String firstname,
@@ -32,6 +33,7 @@ public class UserDAOCookieImpl implements UserDAO {
             String role) {
 
         User loggedUser = new User();
+        loggedUser.setUserID(userID);
         loggedUser.setUsername(username);
         loggedUser.setFirstname(firstname);
         loggedUser.setSurname(surname);
@@ -113,7 +115,7 @@ public class UserDAOCookieImpl implements UserDAO {
     private String encode(User loggedUser) {
 
         String encodedLoggedUser;
-        encodedLoggedUser = loggedUser.getUsername() + "#" + loggedUser.getFirstname() + "#" + loggedUser.getSurname() + "#" + loggedUser.getRole();
+        encodedLoggedUser = loggedUser.getUserID() + "#" + loggedUser.getUsername() + "#" + loggedUser.getFirstname() + "#" + loggedUser.getSurname() + "#" + loggedUser.getRole();
         return encodedLoggedUser;
 
     }
@@ -124,10 +126,11 @@ public class UserDAOCookieImpl implements UserDAO {
 
         String[] values = encodedLoggedUser.split("#");
 
-        loggedUser.setUsername(values[0]);
-        loggedUser.setFirstname(values[1]);
-        loggedUser.setSurname(values[2]);
-        loggedUser.setRole(values[3]);
+        loggedUser.setUserID(Long.parseLong(values[0]));
+        loggedUser.setUsername(values[1]);
+        loggedUser.setFirstname(values[2]);
+        loggedUser.setSurname(values[3]);
+        loggedUser.setRole(values[4]);
 
         return loggedUser;
 

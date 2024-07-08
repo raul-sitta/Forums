@@ -5,7 +5,7 @@ import com.forums.forums.model.dao.exception.DuplicatedObjectException;
 import com.forums.forums.model.mo.*;
 import com.forums.forums.services.config.Configuration;
 import com.forums.forums.services.logservice.LogService;
-import com.forums.forums.services.profilepicpath.ProfilePicPath;
+import com.forums.forums.services.filesystemservice.FileSystemService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
@@ -79,6 +79,7 @@ public class UserManagement {
         User loggedUser;
         User user;
         Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
@@ -100,8 +101,10 @@ public class UserManagement {
                 sessionUserDAO.delete(loggedUser);
                 userDAO.delete(user);
 
-                //Elimino la foto profilo dell'utente
-                deleteProfilePicInFileSystem(user);
+                //Elimino la directory della foto profilo dell'utente (insieme al suo contenuto)
+                fs.deleteDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
+
+                //Conservo i media dell'utente eliminato
             }
             catch (Exception e){
                 logger.log(Level.SEVERE, "Errore di cancellazione dell'utente!" + e);
@@ -135,9 +138,11 @@ public class UserManagement {
     public static void insert(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
+        User user;
         User loggedUser;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
@@ -157,7 +162,8 @@ public class UserManagement {
             String username = request.getParameter("username").toLowerCase();
             
             try {
-                userDAO.create(
+                user = userDAO.create(
+                        null,
                         username,
                         request.getParameter("password"),
                         request.getParameter("firstname"),
@@ -167,9 +173,13 @@ public class UserManagement {
                         request.getParameter("role")
                 );
 
-                loggedUser = sessionUserDAO.create(username, null, request.getParameter("firstname"), request.getParameter("surname"), null, null, request.getParameter("role"));
+                loggedUser = sessionUserDAO.create(user.getUserID(),username, null, request.getParameter("firstname"), request.getParameter("surname"), null, null, request.getParameter("role"));
 
-                saveProfilePicInFileSystem(request.getPart("image"),username);
+                //Creo le directory dell'utente e salvo la foto profilo
+                fs.createDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
+                fs.createDirectory(fs.getUserMediaDirectoryPath(user.getUserID()));
+                Part filePart = request.getPart("image");
+                if (filePart != null) fs.createFile(filePart, fs.getUserProfilePicPath(user.getUserID()));
                 
                 applicationMessage = "Account creato correttamente!";
                 
@@ -253,9 +263,10 @@ public class UserManagement {
         DAOFactory daoFactory = null;
         User loggedUser;
         User user;
-        String fullPath = null, imagePath = null;
+        String fullProfilePicPath = null, profilePicPath = null;
 
         Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
             sessionFactoryParameters.put("request",request);
@@ -272,13 +283,13 @@ public class UserManagement {
             UserDAO userDAO = daoFactory.getUserDAO();
             user = userDAO.findByUsername(loggedUser.getUsername());
 
-            fullPath = ProfilePicPath.profilePicPath(user.getUsername(), false);
-            imagePath = fullPath.substring(fullPath.indexOf("/Uploads"));
+            fullProfilePicPath = fs.getUserProfilePicPath(user.getUserID());
+            profilePicPath = fullProfilePicPath.substring(fullProfilePicPath.indexOf("/Uploads"));
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("imagePath", imagePath);
+            request.setAttribute("profilePicPath", profilePicPath);
             request.setAttribute("loggedOn", loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("user",user);
@@ -305,6 +316,7 @@ public class UserManagement {
         User loggedUser;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
@@ -322,7 +334,6 @@ public class UserManagement {
             UserDAO userDAO = daoFactory.getUserDAO();
             User user = userDAO.findByUsername(loggedUser.getUsername());
 
-            String oldUsername = user.getUsername();
             String username = request.getParameter("username").toLowerCase();
             user.setUsername(username);
             user.setPassword(request.getParameter("password"));
@@ -341,23 +352,8 @@ public class UserManagement {
 
                 sessionUserDAO.update(loggedUser);
 
-                // Controllo se l'utente ha cambiato username per rinominare il path della directory della foto profilo
-                if (!oldUsername.equals(username)) {
-                    String oldProfilePicDirectoryPath = ProfilePicPath.profilePicPath(oldUsername, true);
-                    String newProfilePicDirectoryPath = ProfilePicPath.profilePicPath(user.getUsername(), true);
-                    Path sourcePath = Paths.get(oldProfilePicDirectoryPath);
-                    Path targetPath = Paths.get(newProfilePicDirectoryPath);
-
-                    try {
-                        // Rinomino la directory
-                        Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                        logger.log(Level.INFO,"Directory rinominata con successo (" + oldProfilePicDirectoryPath + " -> " + newProfilePicDirectoryPath +").");
-                    } catch (Exception e) {
-                        logger.log(Level.SEVERE,"Errore nella rinomina della cartella (" + oldProfilePicDirectoryPath + " -> " + newProfilePicDirectoryPath +"): " + e);
-                    }
-                }
-
-                saveProfilePicInFileSystem(request.getPart("image"),username);
+                Part filePart = request.getPart("image");
+                if (filePart != null) fs.createFile(filePart, fs.getUserProfilePicPath(user.getUserID()));
 
             }
             catch (DuplicatedObjectException de){
@@ -462,6 +458,7 @@ public class UserManagement {
         User loggedUser;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
@@ -484,8 +481,8 @@ public class UserManagement {
                 try {
                     userDAO.delete(bannedUser);
 
-                    //Elimino la foto profilo dell'utente
-                    deleteProfilePicInFileSystem(bannedUser);
+                    //Elimino la directory della foto profilo dell'utente (insieme al suo contenuto)
+                    fs.deleteDirectory(fs.getUserProfilePicDirectoryPath(bannedUser.getUserID()));
                 }
                 catch (Exception e){
                     logger.log(Level.SEVERE, "Errore di cancellazione dell'utente!" + e);
@@ -527,36 +524,4 @@ public class UserManagement {
             catch (Throwable t){}
         }
     }
-    
-    private static void saveProfilePicInFileSystem(Part filePart, String username) throws IOException {
-        String profilePicDirectoryPath = ProfilePicPath.profilePicPath(username, true);
-        File uploadDir = new File(profilePicDirectoryPath);
-        
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
-        String profilePicPath = ProfilePicPath.profilePicPath(username, false);
-        try (InputStream fileContent = filePart.getInputStream()) {
-            Files.copy(fileContent, Paths.get(profilePicPath), StandardCopyOption.REPLACE_EXISTING);
-        }
-    }
-
-    private static void deleteProfilePicInFileSystem(User user) {
-        String directoryPath = ProfilePicPath.profilePicPath(user.getUsername(), true);
-        File directory = new File(directoryPath);
-
-        if (directory.isDirectory()) {
-            String[] entries = directory.list();
-            for(String s: entries){
-                File currentFile = new File(directory.getPath(),s);
-                currentFile.delete();
-            }
-            directory.delete();
-        }
-        else {
-            System.out.println("Il path " + directoryPath + " non è una directory!");
-        }
-    }
-
 }

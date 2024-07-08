@@ -1,14 +1,14 @@
 <%@ page session="false"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.forums.forums.model.mo.User" %>
-<%@ page import="com.forums.forums.services.profilepicpath.ProfilePicPath" %>
+<%@ page import="com.forums.forums.services.filesystemservice.FileSystemService" %>
 
 <%
     boolean loggedOn = (Boolean) request.getAttribute("loggedOn");
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     User user = (loggedUser !=null) ? (User) request.getAttribute("user") : null;
-    String imagePath = (loggedUser !=null) ? (String) request.getAttribute("imagePath") : null;
+    String profilePicPath = (loggedUser !=null) ? (String) request.getAttribute("profilePicPath") : null;
     String menuActiveLink = (loggedUser !=null) ? "Account" : "Registrati";
     String action = (loggedUser !=null) ? "modify" : "insert";
 %>
@@ -195,7 +195,7 @@
             <div class="field clearfix">
                 <label for="image">Immagine del profilo</label>
                 <input type="file" id="image" name="image" onchange="previewFile()" accept="image/png"/>
-                <img id="preview" src="<%=(action.equals("modify")) ? imagePath : ""%>">
+                <img id="preview" src="<%=(action.equals("modify")) ? profilePicPath : ""%>">
             </div>
 
             <input type="hidden" id="role" name="role" value="<%=(action.equals("modify")) ? user.getRole() : "User"%>"/>
