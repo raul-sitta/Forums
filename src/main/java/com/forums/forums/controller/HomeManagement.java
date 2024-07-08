@@ -94,6 +94,7 @@ public class HomeManagement {
                 loggedUser=null;
             } else {
                 loggedUser = sessionUserDAO.create(user.getUsername(), null, user.getFirstname(), user.getSurname(), null, null, user.getRole());
+                applicationMessage = "Logon effettuato correttamente!";
             }
 
             daoFactory.commitTransaction();
@@ -123,9 +124,12 @@ public class HomeManagement {
 
     }
 
-    public static void logout(HttpServletRequest request, HttpServletResponse response) {
+    public static void logonView(HttpServletRequest request, HttpServletResponse response) {
 
         DAOFactory sessionDAOFactory= null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        String applicationMessage = null;
 
         Logger logger = LogService.getApplicationLogger();
 
@@ -138,12 +142,60 @@ public class HomeManagement {
             sessionDAOFactory.beginTransaction();
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedUser", loggedUser);
+            request.setAttribute("applicationMessage", applicationMessage);
+            request.setAttribute("viewUrl", "homeManagement/logonView");
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Controller Error", e);
+            try {
+                if (daoFactory != null) daoFactory.rollbackTransaction();
+                if (sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            } catch (Throwable t) {
+            }
+            throw new RuntimeException(e);
+
+        } finally {
+            try {
+                if (daoFactory != null) daoFactory.closeTransaction();
+                if (sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            } catch (Throwable t) {
+            }
+        }
+
+    }
+
+    public static void logout(HttpServletRequest request, HttpServletResponse response) {
+
+        DAOFactory sessionDAOFactory= null;
+
+        Logger logger = LogService.getApplicationLogger();
+
+        String applicationMessage = null;
+
+        try {
+
+            Map sessionFactoryParameters=new HashMap<String,Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL,sessionFactoryParameters);
+            sessionDAOFactory.beginTransaction();
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             sessionUserDAO.delete(null);
+
+            applicationMessage = "Logout effettuato correttamente!";
 
             sessionDAOFactory.commitTransaction();
 
             request.setAttribute("loggedOn",false);
             request.setAttribute("loggedUser", null);
+            request.setAttribute("applicationMessage", applicationMessage);
             request.setAttribute("viewUrl", "homeManagement/view");
 
         } catch (Exception e) {
