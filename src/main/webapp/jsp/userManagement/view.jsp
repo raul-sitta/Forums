@@ -4,6 +4,8 @@
 <%
     boolean loggedOn = (Boolean) request.getAttribute("loggedOn");
     User loggedUser = (User) request.getAttribute("loggedUser");
+    String profilePicPath = (loggedUser !=null) ? (String) request.getAttribute("profilePicPath") : null;
+    String defaultProfilePicPath = "../../images/defaultProfilePic.png";
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     String action = (loggedUser!=null) ? "modify" : "insert";
     String menuActiveLink = (loggedUser!=null) ? "Account" : "Registrati";
@@ -53,6 +55,37 @@
         #deleteUserButton:hover {
             background-color: #b72230;
         }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #ccc;
+            margin-right: 20px;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: auto;
+        }
+
+        .profile-info h3 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .profile-info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
     </style>
     <script>
         function insertUser(){
@@ -86,6 +119,18 @@
     <%}%>
 
     <%if (loggedOn){%>
+    <section id="userProfilePreview">
+        <div class="profile-container">
+            <div class="profile-pic">
+                <img src="<%= (profilePicPath != null) ? profilePicPath : defaultProfilePicPath %>" alt="Foto Profilo" />
+            </div>
+            <div class="profile-info">
+                <h3><%="@" + loggedUser.getUsername() %></h3>
+                <p><%=loggedUser.getFirstname() %> <%=loggedUser.getSurname() %></p>
+                <p><%=loggedUser.getRole() %></p>
+            </div>
+        </div>
+    </section>
     <section id="modifyUserButtonSelection">
         <input type="button" id="modifyUserButton" name="modifyUserButton"
                class="button" value="Modifica i dati" onclick="modifyUser()"/>

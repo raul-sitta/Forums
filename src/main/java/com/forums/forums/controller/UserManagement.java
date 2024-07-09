@@ -32,8 +32,10 @@ public class UserManagement {
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
         User loggedUser;
+        String fullProfilePicPath = null, profilePicPath = null;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
@@ -45,12 +47,18 @@ public class UserManagement {
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             loggedUser = sessionUserDAO.findLoggedUser();
 
+            fullProfilePicPath = fs.getUserProfilePicPath(loggedUser.getUserID());
+            if (fs.fileExists(fullProfilePicPath)) {
+                profilePicPath = fullProfilePicPath.substring(fullProfilePicPath.indexOf("/Uploads"));
+            }
+
             daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
             daoFactory.beginTransaction();
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
+            request.setAttribute("profilePicPath", profilePicPath);
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("applicationMessage",applicationMessage);
@@ -160,20 +168,24 @@ public class UserManagement {
             UserDAO userDAO = daoFactory.getUserDAO();
 
             String username = request.getParameter("username").toLowerCase();
+            String firstname = request.getParameter("firstname");
+            firstname = firstname.substring(0, 1).toUpperCase() + firstname.substring(1).toLowerCase();
+            String surname = request.getParameter("surname");
+            surname = surname.substring(0, 1).toUpperCase() + surname.substring(1).toLowerCase();
             
             try {
                 user = userDAO.create(
                         null,
                         username,
                         request.getParameter("password"),
-                        request.getParameter("firstname"),
-                        request.getParameter("surname"),
+                        firstname,
+                        surname,
                         request.getParameter("email"),
                         Date.valueOf(request.getParameter("birthDate")),
                         request.getParameter("role")
                 );
 
-                loggedUser = sessionUserDAO.create(user.getUserID(),username, null, request.getParameter("firstname"), request.getParameter("surname"), null, null, request.getParameter("role"));
+                loggedUser = sessionUserDAO.create(user.getUserID(),username, null, firstname, surname, null, null, request.getParameter("role"));
 
                 //Creo le directory dell'utente e salvo la foto profilo
                 fs.createDirectory(fs.getUserMediaDirectoryPath(user.getUserID()));
@@ -341,16 +353,21 @@ public class UserManagement {
             User user = userDAO.findByUsername(loggedUser.getUsername());
 
             String username = request.getParameter("username").toLowerCase();
+            String firstname = request.getParameter("firstname");
+            firstname = firstname.substring(0, 1).toUpperCase() + firstname.substring(1).toLowerCase();
+            String surname = request.getParameter("surname");
+            surname = surname.substring(0, 1).toUpperCase() + surname.substring(1).toLowerCase();
+
             user.setUsername(username);
             user.setPassword(request.getParameter("password"));
-            user.setFirstname(request.getParameter("firstname"));
-            user.setSurname(request.getParameter("surname"));
+            user.setFirstname(firstname);
+            user.setSurname(surname);
             user.setEmail(request.getParameter("email"));
             user.setBirthDate(Date.valueOf(request.getParameter("birthDate")));
             user.setRole(request.getParameter("role"));
-            loggedUser.setUsername(request.getParameter("username"));
-            loggedUser.setFirstname(request.getParameter("firstname"));
-            loggedUser.setSurname(request.getParameter("surname"));
+            loggedUser.setUsername(username);
+            loggedUser.setFirstname(firstname);
+            loggedUser.setSurname(surname);
             loggedUser.setRole(request.getParameter("role"));
 
             try {

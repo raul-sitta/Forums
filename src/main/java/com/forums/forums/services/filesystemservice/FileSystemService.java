@@ -55,7 +55,7 @@ public class FileSystemService {
         }
     }
 
-    public static boolean fileExists(String filePath) {
+    public boolean fileExists(String filePath) {
         Path path = Paths.get(filePath);
         return Files.exists(path) && Files.isRegularFile(path);
     }
@@ -98,7 +98,7 @@ public class FileSystemService {
         }
     }
 
-    public static boolean directoryExists(String directoryPath) {
+    public boolean directoryExists(String directoryPath) {
         Path path = Paths.get(directoryPath);
         return Files.exists(path) && Files.isDirectory(path);
     }
