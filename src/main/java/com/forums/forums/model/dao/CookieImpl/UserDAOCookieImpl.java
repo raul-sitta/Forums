@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.forums.forums.model.dao.UserDAO;
 import com.forums.forums.model.mo.User;
 
-import java.sql.Date;
+import java.sql.*;
 import java.util.List;
 
 
@@ -30,6 +30,7 @@ public class UserDAOCookieImpl implements UserDAO {
             String surname,
             String email,
             Date birthDate,
+            Timestamp registrationTimestamp,
             String role) {
 
         User loggedUser = new User();

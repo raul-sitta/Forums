@@ -29,10 +29,8 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             String surname,
             String email,
             Date birthDate,
+            Timestamp registrationTimestamp,
             String role) throws DuplicatedObjectException {
-
-        // Ottengo il timestamp corrente
-        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
 
         PreparedStatement ps;
         User user = new User();
@@ -42,7 +40,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         user.setSurname(surname);
         user.setEmail(email);
         user.setBirthDate(birthDate);
-        user.setRegistrationTimestamp(currentTimestamp);
+        user.setRegistrationTimestamp(registrationTimestamp);
         user.setRole(role);
         user.setDeleted(false);
 

@@ -95,9 +95,15 @@
         firstname = capitalizeFirstLetter(firstname);
         surname = capitalizeFirstLetter(surname);
 
+        // Assegno i valori validati ai campi del form
         f.username.value = username;
         f.firstname.value = firstname;
         f.surname.value = surname;
+
+        // Controllo se lo status è 'insert' e assegno il timestamp corrente
+        if (status === "insert") {
+            f.registrationTimestamp.value = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        }
 
         f.controllerAction.value = "UserManagement." + status;
     }
@@ -259,6 +265,7 @@
                 <input type="button" name="deleteImageButton" class="button" value="Reimposta"/>
             </div>
 
+            <input type="hidden" id="registrationTimestamp" name="registrationTimestamp" value=""/>
             <input type="hidden" id="role" name="role" value="<%=(action.equals("modify")) ? user.getRole() : "User"%>"/>
             <input type="hidden" id="deleted" name="deleted" value="<%=(action.equals("modify")) ? user.getDeleted() : "N"%>"/>
             <input type="hidden" name="deleteImage" id="deleteImage" value="false">

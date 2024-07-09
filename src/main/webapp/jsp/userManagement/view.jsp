@@ -56,13 +56,13 @@
             background-color: #b72230;
         }
 
-        .profile-container {
+        #profileContainer {
             display: flex;
             align-items: center;
             margin-bottom: 20px;
         }
 
-        .profile-pic {
+        #profilePic img {
             width: 100px;
             height: 100px;
             border-radius: 50%;
@@ -71,17 +71,12 @@
             margin-right: 20px;
         }
 
-        .profile-pic img {
-            width: 100%;
-            height: auto;
-        }
-
-        .profile-info h3 {
+        #profileInfo h2 {
             margin: 0;
             font-size: 24px;
         }
 
-        .profile-info p {
+        #profileInfo p {
             margin: 5px 0;
             font-size: 16px;
         }
@@ -120,12 +115,12 @@
 
     <%if (loggedOn){%>
     <section id="userProfilePreview">
-        <div class="profile-container">
-            <div class="profile-pic">
+        <div class="profileContainer" id="profileContainer">
+            <div class="profilePic" id="profilePic">
                 <img src="<%=profilePicPath%>" alt="Foto Profilo" />
             </div>
-            <div class="profile-info">
-                <h3><%="@" + loggedUser.getUsername() %></h3>
+            <div class="profileInfo" id="profileInfo">
+                <h2><%="@" + loggedUser.getUsername() %></h2>
                 <p><%=loggedUser.getFirstname() %> <%=loggedUser.getSurname() %></p>
                 <p><%=loggedUser.getRole() %></p>
             </div>

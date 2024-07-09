@@ -93,7 +93,7 @@ public class HomeManagement {
                 applicationMessage = "Username e password errati!";
                 loggedUser=null;
             } else {
-                loggedUser = sessionUserDAO.create(user.getUserID(), user.getUsername(), null, user.getFirstname(), user.getSurname(), null, null, user.getRole());
+                loggedUser = sessionUserDAO.create(user.getUserID(), user.getUsername(), null, user.getFirstname(), user.getSurname(), null, null,null, user.getRole());
                 applicationMessage = "Logon effettuato correttamente!";
             }
 

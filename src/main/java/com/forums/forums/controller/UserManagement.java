@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.sql.Date;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -174,10 +174,11 @@ public class UserManagement {
                         surname,
                         request.getParameter("email"),
                         Date.valueOf(request.getParameter("birthDate")),
+                        Timestamp.valueOf(request.getParameter("registrationTimestamp")),
                         request.getParameter("role")
                 );
 
-                loggedUser = sessionUserDAO.create(user.getUserID(),username, null, firstname, surname, null, null, request.getParameter("role"));
+                loggedUser = sessionUserDAO.create(user.getUserID(),username, null, firstname, surname, null, null,null, request.getParameter("role"));
 
                 //Creo le directory dell'utente e salvo la foto profilo
                 fs.createDirectory(fs.getUserMediaDirectoryPath(user.getUserID()));
