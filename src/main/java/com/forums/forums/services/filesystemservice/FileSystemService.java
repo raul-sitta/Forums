@@ -40,21 +40,6 @@ public class FileSystemService {
 
     }
 
-    public boolean createDirectory(String path) {
-        Logger logger = LogService.getApplicationLogger();
-        try {
-            File dir = new File(path);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-        }
-        catch (Exception e) {
-            logger.log(Level.SEVERE, "Errore nella creazione della cartella " + path + ": ", e);
-            return false;
-        }
-        return true;
-    }
-
     public void createFile(Part filePart, String path) throws IOException {
         try (InputStream fileContent = filePart.getInputStream()) {
             Files.copy(fileContent, Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
@@ -68,6 +53,26 @@ public class FileSystemService {
         } else {
             throw new IOException("File non trovato: " + path);
         }
+    }
+
+    public static boolean fileExists(String filePath) {
+        Path path = Paths.get(filePath);
+        return Files.exists(path) && Files.isRegularFile(path);
+    }
+
+    public boolean createDirectory(String path) {
+        Logger logger = LogService.getApplicationLogger();
+        try {
+            File dir = new File(path);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+        }
+        catch (Exception e) {
+            logger.log(Level.SEVERE, "Errore nella creazione della cartella " + path + ": ", e);
+            return false;
+        }
+        return true;
     }
 
     public void deleteDirectory(String path) throws IOException {
@@ -91,6 +96,11 @@ public class FileSystemService {
         } else {
             throw new IllegalArgumentException("Path does not exist or is not a directory: " + path);
         }
+    }
+
+    public static boolean directoryExists(String directoryPath) {
+        Path path = Paths.get(directoryPath);
+        return Files.exists(path) && Files.isDirectory(path);
     }
 
     public String getUserDirectoryPath(Long userID) {

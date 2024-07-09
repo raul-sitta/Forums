@@ -176,10 +176,14 @@ public class UserManagement {
                 loggedUser = sessionUserDAO.create(user.getUserID(),username, null, request.getParameter("firstname"), request.getParameter("surname"), null, null, request.getParameter("role"));
 
                 //Creo le directory dell'utente e salvo la foto profilo
-                fs.createDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
                 fs.createDirectory(fs.getUserMediaDirectoryPath(user.getUserID()));
                 Part filePart = request.getPart("image");
-                if (filePart != null) fs.createFile(filePart, fs.getUserProfilePicPath(user.getUserID()));
+
+                // Creo la foto profilo (nel caso in cui sia da creare)
+                if (Boolean.parseBoolean(request.getParameter("updateImage"))) {
+                    fs.createDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
+                    fs.createFile(request.getPart("image"), fs.getUserProfilePicPath(user.getUserID()));
+                }
                 
                 applicationMessage = "Account creato correttamente!";
                 
@@ -284,7 +288,9 @@ public class UserManagement {
             user = userDAO.findByUsername(loggedUser.getUsername());
 
             fullProfilePicPath = fs.getUserProfilePicPath(user.getUserID());
-            profilePicPath = fullProfilePicPath.substring(fullProfilePicPath.indexOf("/Uploads"));
+            if (fs.fileExists(fullProfilePicPath)) {
+                profilePicPath = fullProfilePicPath.substring(fullProfilePicPath.indexOf("/Uploads"));
+            }
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
@@ -352,9 +358,16 @@ public class UserManagement {
 
                 sessionUserDAO.update(loggedUser);
 
-                Part filePart = request.getPart("image");
-                if (filePart != null) fs.createFile(filePart, fs.getUserProfilePicPath(user.getUserID()));
+                // Aggiorno la foto profilo (nel caso in cui sia da aggiornare)
+                if (Boolean.parseBoolean(request.getParameter("updateImage"))) {
+                    fs.createDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
+                    fs.createFile(request.getPart("image"), fs.getUserProfilePicPath(user.getUserID()));
+                }
 
+                // Resetto la foto profilo (nel caso in cui sia da resettare)
+                if (Boolean.parseBoolean(request.getParameter("deleteImage"))) {
+                    fs.deleteDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
+                }
             }
             catch (DuplicatedObjectException de){
                 // Scopro se l'attributo duplicato è l'username o l'email
@@ -362,14 +375,14 @@ public class UserManagement {
                 if (de.getDuplicatedAttribute() != null) {
                     // Stampa in maiuscolo dell'iniziale rispettivamente di Username o Email seguita dall'attributo
                     applicationMessage = duplicatedAttribute.substring(0, 1).toUpperCase() + duplicatedAttribute.substring(1) + " " + request.getParameter(duplicatedAttribute) + " già in uso!";
-                    logger.log(Level.SEVERE, "Errore nella creazione dell'utente:" + request.getParameter(duplicatedAttribute) + de);
+                    logger.log(Level.SEVERE, "Errore nella modifica dell'utente:" + request.getParameter(duplicatedAttribute) + de);
                 }
                 else {
                     applicationMessage = "Utente non creato!";
-                    logger.log(Level.SEVERE, "Errore generico nella creazione dell'utente:" + de);
+                    logger.log(Level.SEVERE, "Errore generico nella modifica dell'utente:" + de);
                 }
             }catch (Exception e){
-                logger.log(Level.SEVERE, "Errore nella creazione dell'utente @" + request.getParameter("username") + ": " + e);
+                logger.log(Level.SEVERE, "Errore nella modifica dell'utente @" + request.getParameter("username") + ": " + e);
             }
 
             daoFactory.commitTransaction();

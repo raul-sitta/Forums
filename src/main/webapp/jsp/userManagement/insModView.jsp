@@ -81,6 +81,8 @@
 <script>
     var status  = "<%=action%>";
 
+    var defaultImage = "../../images/defaultProfilePic.png";
+
     function submitUser(){
         let f;
         f = document.insModForm;
@@ -103,45 +105,85 @@
         usernameInput.reportValidity();
     }
 
-    function previewFile() {
-        var preview = document.querySelector('#preview');
+    function validateImage() {
         var fileInput = document.querySelector('input[type=file]');
         var file = fileInput.files[0];
+
+        const maxFileSize = 5 * 1024 * 1024; // 5 MB
+        const minWidth = 250;
+        const minHeight = 250;
+        const maxWidth = 2500;
+        const maxHeight = 2500;
+
+        if (file.size > maxFileSize) {
+            fileInput.setCustomValidity('La dimensione del file non deve superare i 5 MB.');
+            setPreview("");
+            return;
+        }
+
+        if (file.type !== 'image/png') {
+            fileInput.setCustomValidity('L\'immagine deve essere in formato PNG.');
+            setPreview("");
+            return;
+        }
+
         var reader = new FileReader();
-
-        reader.onloadend = function () {
-            if (file.type !== 'image/png') {
-                fileInput.setCustomValidity('L\'immagine deve essere in formato png.');
-                preview.src = ""; // Pulisci l'anteprima se il tipo di file non è accettabile
-                return; // Interrompi l'esecuzione se il file non è un PNG
-            }
-
+        reader.onload = function (e) {
             var image = new Image();
-            image.src = reader.result;
             image.onload = function () {
-                // Controlla se le dimensioni dell'immagine sono almeno 250x250
-                if (image.width < 250 || image.height < 250) {
+                setPreview(e.target.result);
+                if (image.width > maxWidth || image.height > maxHeight) {
+                    fileInput.setCustomValidity('Le dimensioni dell\'immagine non devono superare 2500x2500 pixel.');
+                } else if (image.width < minWidth || image.height < minHeight) {
                     fileInput.setCustomValidity('L\'immagine deve essere almeno di 250x250 pixel.');
                 } else {
-                    fileInput.setCustomValidity(''); // Resetta la validità in caso di successo
+                    fileInput.setCustomValidity(''); // L'immagine è valida
+                    setDeleteFlag(false);
+                    setUpdateFlag(true);
                 }
-                preview.src = reader.result; // Mostra l'immagine di anteprima
             };
+            image.src = e.target.result;
         };
-
-        if (file) {
-            reader.readAsDataURL(file);
-        } else {
-            preview.src = "";
-            fileInput.setCustomValidity(''); // Assicurati di resettare la validità se non viene caricato alcun file
-        }
+        reader.readAsDataURL(file);
     }
 
+    function requestImageDeletion() {
+        setDeleteFlag(true);
+        setUpdateFlag(false);
+        setPreview(defaultImage);
+        // Rimuovo temporaneamente il listener per evitare trigger non desiderati
+        var fileInput = document.getElementById('image');
+        fileInput.removeEventListener('change', validateImage);
 
+        // Resetto il campo file
+        fileInput.value = "";
+
+        // Resetto la validità
+        fileInput.setCustomValidity("");
+
+        // Riaggancio il listener di change
+        fileInput.addEventListener('change', validateImage);
+    }
+
+    function setPreview(image) {
+        preview.src = image;
+    }
+
+    function setDeleteFlag(state) {
+        var f = document.insModForm;
+        f.deleteImage.value = state ? "true" : "false";
+    }
+
+    function setUpdateFlag(state) {
+        var f = document.insModForm;
+        f.updateImage.value = state ? "true" : "false";
+    }
 
     function mainOnLoadHandler(){
         document.insModForm.addEventListener("submit",submitUser);
         document.insModForm.backButton.addEventListener("click", goBack);
+        document.insModForm.image.addEventListener('change', validateImage);
+        document.insModForm.deleteImageButton.addEventListener("click", requestImageDeletion);
     }
 </script>
 <body>
@@ -194,12 +236,15 @@
             </div>
             <div class="field clearfix">
                 <label for="image">Immagine del profilo</label>
-                <input type="file" id="image" name="image" onchange="previewFile()" accept="image/png"/>
-                <img id="preview" src="<%=(action.equals("modify")) ? profilePicPath : ""%>">
+                <input type="file" id="image" name="image" accept="image/png"/>
+                <img id="preview" src="<%=(action.equals("modify") && profilePicPath != null) ? profilePicPath : "../../images/defaultProfilePic.png"%>">
+                <input type="button" name="deleteImageButton" class="button" value="Reimposta"/>
             </div>
 
             <input type="hidden" id="role" name="role" value="<%=(action.equals("modify")) ? user.getRole() : "User"%>"/>
             <input type="hidden" id="deleted" name="deleted" value="<%=(action.equals("modify")) ? user.getDeleted() : "N"%>"/>
+            <input type="hidden" name="deleteImage" id="deleteImage" value="false">
+            <input type="hidden" name="updateImage" id="updateImage" value="false">
 
             <div class="field clearfix">
                 <label>&#160;</label>
