@@ -1,6 +1,6 @@
 <%@ page session="false"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="com.forums.forums.model.mo.User" %>
+<%@ page import="com.forums.forums.model.mo.*" %>
 <%@ page import="com.forums.forums.services.filesystemservice.FileSystemService" %>
 
 <%

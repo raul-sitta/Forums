@@ -209,10 +209,6 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             throw new IllegalArgumentException("Errore: il parametro sortNewestFirst non può essere null");
         }
 
-        if (isAnonymous == null) {
-            throw new IllegalArgumentException("Errore: il parametro isAnonymous non può essere null");
-        }
-
         PreparedStatement ps;
 
         List<Topic> topics = new ArrayList<>();
@@ -239,7 +235,9 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             if (olderThan != null) {
                 whereClause += addCondition(whereClause, "T.creationTimestamp < ?");
             }
-            whereClause += addCondition(whereClause, "T.anonymous = ?");
+            if (isAnonymous != null) {
+                whereClause += addCondition(whereClause, "T.anonymous = ?");
+            }
 
             if (!whereClause.isEmpty()) {
                 sql += "WHERE " + whereClause + " ";
@@ -271,7 +269,9 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             if (olderThan != null) {
                 ps.setDate(i++, new java.sql.Date(olderThan.getTime()));
             }
-            ps.setString(i++, isAnonymous ? "Y" : "N");
+            if (isAnonymous != null) {
+                ps.setString(i++, isAnonymous ? "Y" : "N");
+            }
             if (pageIndex != null) {
                 ps.setLong(i++, ITEMS_PER_PAGE); // Limit
                 ps.setLong(i++, pageIndex * ITEMS_PER_PAGE); // Offset

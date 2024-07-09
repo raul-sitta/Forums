@@ -25,6 +25,9 @@
         <li <%=menuActiveLink.equals("Account")?"class=\"active\"":""%>>
           <a href="Dispatcher?controllerAction=UserManagement.view">Account</a>
         </li>
+      <li <%=menuActiveLink.equals("Topics")?"class=\"active\"":""%>>
+        <a href="Dispatcher?controllerAction=TopicManagement.view">Topics</a>
+      </li>
         <li><a href="javascript:logoutForm.submit()">Logout</a></li>
       <%}%>
     </ul>
