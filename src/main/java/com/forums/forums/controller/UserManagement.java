@@ -32,7 +32,6 @@ public class UserManagement {
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
         User loggedUser;
-        String fullProfilePicPath = null, profilePicPath = null;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
         FileSystemService fs = new FileSystemService();
@@ -47,18 +46,13 @@ public class UserManagement {
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             loggedUser = sessionUserDAO.findLoggedUser();
 
-            fullProfilePicPath = fs.getUserProfilePicPath(loggedUser.getUserID());
-            if (fs.fileExists(fullProfilePicPath)) {
-                profilePicPath = fullProfilePicPath.substring(fullProfilePicPath.indexOf("/Uploads"));
-            }
-
             daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
             daoFactory.beginTransaction();
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("profilePicPath", profilePicPath);
+            request.setAttribute("profilePicPath", fs.getActualProfilePicPath(loggedUser));
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("applicationMessage",applicationMessage);
@@ -167,11 +161,9 @@ public class UserManagement {
 
             UserDAO userDAO = daoFactory.getUserDAO();
 
-            String username = request.getParameter("username").toLowerCase();
+            String username = request.getParameter("username");
             String firstname = request.getParameter("firstname");
-            firstname = firstname.substring(0, 1).toUpperCase() + firstname.substring(1).toLowerCase();
             String surname = request.getParameter("surname");
-            surname = surname.substring(0, 1).toUpperCase() + surname.substring(1).toLowerCase();
             
             try {
                 user = userDAO.create(
@@ -245,6 +237,7 @@ public class UserManagement {
         User loggedUser;
 
         Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
             sessionFactoryParameters.put("request",request);
@@ -255,6 +248,7 @@ public class UserManagement {
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             loggedUser = sessionUserDAO.findLoggedUser();
 
+            request.setAttribute("profilePicPath", fs.getActualProfilePicPath(loggedUser));
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("viewUrl","userManagement/insModView");
@@ -279,7 +273,6 @@ public class UserManagement {
         DAOFactory daoFactory = null;
         User loggedUser;
         User user;
-        String fullProfilePicPath = null, profilePicPath = null;
 
         Logger logger = LogService.getApplicationLogger();
         FileSystemService fs = new FileSystemService();
@@ -299,15 +292,10 @@ public class UserManagement {
             UserDAO userDAO = daoFactory.getUserDAO();
             user = userDAO.findByUsername(loggedUser.getUsername());
 
-            fullProfilePicPath = fs.getUserProfilePicPath(user.getUserID());
-            if (fs.fileExists(fullProfilePicPath)) {
-                profilePicPath = fullProfilePicPath.substring(fullProfilePicPath.indexOf("/Uploads"));
-            }
-
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("profilePicPath", profilePicPath);
+            request.setAttribute("profilePicPath", fs.getActualProfilePicPath(loggedUser));
             request.setAttribute("loggedOn", loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("user",user);
@@ -352,11 +340,9 @@ public class UserManagement {
             UserDAO userDAO = daoFactory.getUserDAO();
             User user = userDAO.findByUsername(loggedUser.getUsername());
 
-            String username = request.getParameter("username").toLowerCase();
+            String username = request.getParameter("username");
             String firstname = request.getParameter("firstname");
-            firstname = firstname.substring(0, 1).toUpperCase() + firstname.substring(1).toLowerCase();
             String surname = request.getParameter("surname");
-            surname = surname.substring(0, 1).toUpperCase() + surname.substring(1).toLowerCase();
 
             user.setUsername(username);
             user.setPassword(request.getParameter("password"));
@@ -405,6 +391,7 @@ public class UserManagement {
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
+            request.setAttribute("profilePicPath", fs.getActualProfilePicPath(loggedUser));
             request.setAttribute("loggedOn", loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("user",user);
@@ -436,6 +423,7 @@ public class UserManagement {
         User user;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();

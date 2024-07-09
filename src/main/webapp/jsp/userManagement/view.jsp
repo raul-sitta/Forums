@@ -1,11 +1,11 @@
 <%@ page session="false"%>
 <%@ page import="com.forums.forums.model.mo.User" %>
+<%@ page import="com.forums.forums.services.filesystemservice.FileSystemService" %>
 
 <%
     boolean loggedOn = (Boolean) request.getAttribute("loggedOn");
     User loggedUser = (User) request.getAttribute("loggedUser");
-    String profilePicPath = (loggedUser !=null) ? (String) request.getAttribute("profilePicPath") : null;
-    String defaultProfilePicPath = "../../images/defaultProfilePic.png";
+    String profilePicPath = (String) request.getAttribute("profilePicPath");
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     String action = (loggedUser!=null) ? "modify" : "insert";
     String menuActiveLink = (loggedUser!=null) ? "Account" : "Registrati";
@@ -122,7 +122,7 @@
     <section id="userProfilePreview">
         <div class="profile-container">
             <div class="profile-pic">
-                <img src="<%= (profilePicPath != null) ? profilePicPath : defaultProfilePicPath %>" alt="Foto Profilo" />
+                <img src="<%=profilePicPath%>" alt="Foto Profilo" />
             </div>
             <div class="profile-info">
                 <h3><%="@" + loggedUser.getUsername() %></h3>

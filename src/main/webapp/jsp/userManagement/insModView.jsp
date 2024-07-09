@@ -8,7 +8,7 @@
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     User user = (loggedUser !=null) ? (User) request.getAttribute("user") : null;
-    String profilePicPath = (loggedUser !=null) ? (String) request.getAttribute("profilePicPath") : null;
+    String profilePicPath = (String) request.getAttribute("profilePicPath");
     String menuActiveLink = (loggedUser !=null) ? "Account" : "Registrati";
     String action = (loggedUser !=null) ? "modify" : "insert";
 %>
@@ -81,13 +81,31 @@
 <script>
     var status  = "<%=action%>";
 
-    var defaultImage = "../../images/defaultProfilePic.png";
+    var defaultImage = "<%=FileSystemService.DEFAULT_PROFILE_PIC_PATH%>";
 
-    function submitUser(){
-        let f;
-        f = document.insModForm;
-        f.controllerAction.value = "UserManagement."+status;
+    function submitUser() {
+        let f = document.insModForm;
+
+        let username = f.username.value;
+        let firstname = f.firstname.value;
+        let surname = f.surname.value;
+
+        // Formatto i parametri già validati
+        username = username.toLowerCase();
+        firstname = capitalizeFirstLetter(firstname);
+        surname = capitalizeFirstLetter(surname);
+
+        f.username.value = username;
+        f.firstname.value = firstname;
+        f.surname.value = surname;
+
+        f.controllerAction.value = "UserManagement." + status;
     }
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    }
+
     function goBack(){
         document.backForm.submit();
     }
@@ -237,7 +255,7 @@
             <div class="field clearfix">
                 <label for="image">Immagine del profilo</label>
                 <input type="file" id="image" name="image" accept="image/png"/>
-                <img id="preview" src="<%=(action.equals("modify") && profilePicPath != null) ? profilePicPath : "../../images/defaultProfilePic.png"%>">
+                <img id="preview" src="<%=profilePicPath%>">
                 <input type="button" name="deleteImageButton" class="button" value="Reimposta"/>
             </div>
 

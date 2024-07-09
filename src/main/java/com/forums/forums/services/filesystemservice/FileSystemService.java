@@ -1,5 +1,6 @@
 package com.forums.forums.services.filesystemservice;
 
+import com.forums.forums.model.mo.User;
 import com.forums.forums.services.logservice.LogService;
 import jakarta.servlet.http.Part;
 
@@ -31,10 +32,13 @@ import java.util.logging.Logger;
 
 public class FileSystemService {
 
-    private static final String BASE_DIR_PATH = File.separator + "opt" +
+    private final String BASE_DIR_PATH = File.separator + "opt" +
                                                 File.separator + "tomcat" +
                                                 File.separator + "webapps" +
                                                 File.separator + "Uploads";
+
+    public static final String DEFAULT_PROFILE_PIC_PATH = File.separator + "images" +
+                                                    File.separator + "defaultProfilePic.png";
 
     public FileSystemService() {
 
@@ -122,4 +126,18 @@ public class FileSystemService {
     public String getUserProfilePicPath(Long userID) {
         return (getUserProfilePicDirectoryPath(userID) + File.separator + "profilePic.png");
     }
+
+    public String getActualProfilePicPath(User user) {
+        if (user == null) {
+            return DEFAULT_PROFILE_PIC_PATH;
+        }
+
+        String profilePicPath = getUserProfilePicPath(user.getUserID());
+        if (fileExists(profilePicPath)) {
+            return profilePicPath.substring(profilePicPath.indexOf("/Uploads"));
+        } else {
+            return DEFAULT_PROFILE_PIC_PATH;
+        }
+    }
+
 }
