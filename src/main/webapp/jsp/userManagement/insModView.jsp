@@ -268,8 +268,8 @@
             <input type="hidden" id="registrationTimestamp" name="registrationTimestamp" value=""/>
             <input type="hidden" id="role" name="role" value="<%=(action.equals("modify")) ? user.getRole() : "User"%>"/>
             <input type="hidden" id="deleted" name="deleted" value="<%=(action.equals("modify")) ? user.getDeleted() : "N"%>"/>
-            <input type="hidden" name="deleteImage" id="deleteImage" value="false">
-            <input type="hidden" name="updateImage" id="updateImage" value="false">
+            <input type="hidden" name="deleteImage" id="deleteImage" value="false"/>
+            <input type="hidden" name="updateImage" id="updateImage" value="false"/>
 
             <div class="field clearfix">
                 <label>&#160;</label>

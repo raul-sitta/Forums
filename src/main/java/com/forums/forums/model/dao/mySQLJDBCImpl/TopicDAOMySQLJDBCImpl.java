@@ -217,7 +217,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             String sql = "SELECT * FROM TOPIC AS T " +
                          "LEFT JOIN USER AS U ON T.authorID = U.userID " +
                          "LEFT JOIN CATEGORY AS C ON T.categoryID = C.categoryID ";
-            String whereClause = "";
+            String whereClause = "T.deleted = 'N'";
 
             // Costruzione dinamica della query
             if (title != null && !title.trim().isEmpty()) {
@@ -304,33 +304,90 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         return topics;
     }
 
-    public Long countPagesByCategory (Category category) {
+    private String addCondition(String whereClause, String condition) {
+        if (!whereClause.isEmpty()) {
+            return " AND " + condition;
+        }
+        return condition;
+    }
+
+    @Override
+    public Long countPagesByParameters(
+            String title,
+            String authorName,
+            String categoryName,
+            Date moreRecentThan,
+            Date olderThan,
+            Boolean isAnonymous) {
+
         PreparedStatement ps;
-        long pageCount = 0L;
+
+        Long pageCount = 0L;
 
         try {
-            String sql = "SELECT COUNT(*) FROM TOPIC ";
+            String sql = "SELECT COUNT(*) AS total FROM TOPIC AS T " +
+                    "LEFT JOIN USER AS U ON T.authorID = U.userID " +
+                    "LEFT JOIN CATEGORY AS C ON T.categoryID = C.categoryID ";
+            String whereClause = "T.deleted = 'N'";
 
-            if (category != null) {
-                sql += "WHERE categoryID = ? ";
+            // Costruzione dinamica della query
+            if (title != null && !title.trim().isEmpty()) {
+                whereClause += addCondition(whereClause, "T.title LIKE ?");
+            }
+            if (authorName != null && !authorName.trim().isEmpty()) {
+                whereClause += addCondition(whereClause, "U.username LIKE ?");
+            }
+            if (categoryName != null && !categoryName.trim().isEmpty()) {
+                whereClause += addCondition(whereClause, "C.name LIKE ?");
+            }
+            if (moreRecentThan != null) {
+                whereClause += addCondition(whereClause, "T.creationTimestamp > ?");
+            }
+            if (olderThan != null) {
+                whereClause += addCondition(whereClause, "T.creationTimestamp < ?");
+            }
+            if (isAnonymous != null) {
+                whereClause += addCondition(whereClause, "T.anonymous = ?");
+            }
+
+            if (!whereClause.isEmpty()) {
+                sql += "WHERE " + whereClause + " ";
             }
 
             ps = conn.prepareStatement(sql);
 
             int i = 1;
-            if (category != null) {
-                ps.setLong(i++, category.getCategoryID());
+
+            if (title != null && !title.trim().isEmpty()) {
+                ps.setString(i++, "%" + title + "%");
+            }
+            if (authorName != null && !authorName.trim().isEmpty()) {
+                ps.setString(i++, "%" + authorName + "%");
+            }
+            if (categoryName != null && !categoryName.trim().isEmpty()) {
+                ps.setString(i++, "%" + categoryName + "%");
+            }
+            if (moreRecentThan != null) {
+                ps.setDate(i++, new java.sql.Date(moreRecentThan.getTime()));
+            }
+            if (olderThan != null) {
+                ps.setDate(i++, new java.sql.Date(olderThan.getTime()));
+            }
+            if (isAnonymous != null) {
+                ps.setString(i++, isAnonymous ? "Y" : "N");
             }
 
             ResultSet resultSet = ps.executeQuery();
 
             if (resultSet.next()) {
-                long totalItems = resultSet.getLong(1);
+                long totalItems = resultSet.getLong("total");
                 pageCount = (totalItems + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
             }
 
             resultSet.close();
+
             ps.close();
+
         }
         catch (SQLException e){
             throw new RuntimeException(e);
@@ -363,13 +420,6 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         }
 
         return topics;
-    }
-
-    private String addCondition(String whereClause, String condition) {
-        if (!whereClause.isEmpty()) {
-            return " AND " + condition;
-        }
-        return condition;
     }
 
     Topic read(ResultSet rs) {

@@ -27,6 +27,12 @@ public interface TopicDAO {
             Date moreRecentThan,
             Date olderThan,
             Boolean isAnonymous);
-    public Long countPagesByCategory (Category category);
+    public Long countPagesByParameters(
+            String title,
+            String authorName,
+            String categoryName,
+            Date moreRecentThan,
+            Date olderThan,
+            Boolean isAnonymous);
     public List<Topic> getAll();
 }

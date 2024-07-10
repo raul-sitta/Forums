@@ -29,6 +29,7 @@ public class TopicManagement {
         Logger logger = LogService.getApplicationLogger();
         FileSystemService fs = new FileSystemService();
         List<Topic> topics;
+        Long pageCount;
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
@@ -46,11 +47,13 @@ public class TopicManagement {
             TopicDAO topicDAO = daoFactory.getTopicDAO();
 
             topics = topicDAO.findByParameters(0L,true,null,null,null,null,null,null);
+            pageCount = topicDAO.countPagesByParameters(null, null, null, null, null, null);
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
             request.setAttribute("topics",topics);
+            request.setAttribute("pageCount",pageCount);
             request.setAttribute("searchResultFlag",false);
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
