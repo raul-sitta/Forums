@@ -25,11 +25,23 @@ public class TopicManagement {
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
         User loggedUser;
+        TopicSearchFilter topicSearchFilter;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
         FileSystemService fs = new FileSystemService();
         List<Topic> topics;
         Long pageCount;
+
+        String currentPageIndexStr = request.getParameter("currentPageIndex");
+        Long currentPageIndex = 1L;
+
+        if (currentPageIndexStr != null) {
+            try {
+                currentPageIndex = Long.parseLong(currentPageIndexStr);
+            } catch (NumberFormatException e) {
+                currentPageIndex = 1L;
+            }
+        }
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
@@ -39,19 +51,27 @@ public class TopicManagement {
             sessionDAOFactory.beginTransaction();
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            TopicSearchFilterDAO topicSearchFilterDAO = sessionDAOFactory.getTopicSearchFilterDAO();
+
             loggedUser = sessionUserDAO.findLoggedUser();
+            topicSearchFilter = topicSearchFilterDAO.findTopicSearchFilter();
+
+            //Ricerca di default (quando l'utente apre la pagina dei topic senza aver ancora eseguito ricerche)
+            if (topicSearchFilter == null) {
+                topicSearchFilter = topicSearchFilterDAO.create(null, null,null, null, null, null, true);
+            }
 
             daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
             daoFactory.beginTransaction();
 
             TopicDAO topicDAO = daoFactory.getTopicDAO();
 
-            topics = topicDAO.findByParameters(0L,true,null,null,null,null,null,null);
-            pageCount = topicDAO.countPagesByParameters(null, null, null, null, null, null);
-
+            topics = topicDAO.findByParameters(currentPageIndex,topicSearchFilter);
+            pageCount = topicDAO.countPagesByParameters(topicSearchFilter);
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
+            request.setAttribute("currentPageIndex", currentPageIndex);
             request.setAttribute("topics",topics);
             request.setAttribute("pageCount",pageCount);
             request.setAttribute("searchResultFlag",false);
@@ -59,6 +79,7 @@ public class TopicManagement {
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("applicationMessage",applicationMessage);
             request.setAttribute("viewUrl","topicManagement/view");
+
         }
         catch (Exception e){
             logger.log(Level.SEVERE, "Topic Controller Error / view", e);

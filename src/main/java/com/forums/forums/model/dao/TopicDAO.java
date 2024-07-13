@@ -2,7 +2,7 @@ package com.forums.forums.model.dao;
 
 import com.forums.forums.model.mo.*;
 
-import java.sql.Date;
+import java.sql.*;
 import java.util.List;
 
 public interface TopicDAO {
@@ -20,19 +20,8 @@ public interface TopicDAO {
              Boolean sortNewestFirst);
     public List<Topic> findByParameters(
             Long pageIndex,
-            Boolean sortNewestFirst,
-            String title,
-            String authorName,
-            String categoryName,
-            Date moreRecentThan,
-            Date olderThan,
-            Boolean isAnonymous);
+            TopicSearchFilter topicSearchFilter);
     public Long countPagesByParameters(
-            String title,
-            String authorName,
-            String categoryName,
-            Date moreRecentThan,
-            Date olderThan,
-            Boolean isAnonymous);
+            TopicSearchFilter topicSearchFilter);
     public List<Topic> getAll();
 }

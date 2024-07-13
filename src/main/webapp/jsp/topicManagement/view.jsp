@@ -9,9 +9,19 @@
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     List<Topic> topics = (List<Topic>) request.getAttribute("topics");
+    Long currentPageIndex = (Long) request.getAttribute("currentPageIndex");
     Long pageCount = (Long) request.getAttribute("pageCount");
-    String menuActiveLink = "Topics";
     Boolean searchResultFlag = (Boolean) request.getAttribute("searchResultFlag");
+    String menuActiveLink = "Topics";
+
+    //Parametri della ricerca
+    String sortNewestFirst = (String) request.getAttribute("sortNewestFirst");
+    String title = (String) request.getAttribute("title");
+    String authorName = (String) request.getAttribute("authorName");
+    String categoryName = (String) request.getAttribute("categoryName");
+    String moreRecentThan = (String) request.getAttribute("moreRecentThan");
+    String olderThan = (String) request.getAttribute("olderThan");
+    String isAnonymous = (String) request.getAttribute("isAnonymous");
 %>
 <!DOCTYPE html>
 <html>
@@ -88,30 +98,25 @@
     }
 
     .pageNumber {
-        font-size: 30px;
+        font-size: 20px;
         min-width: 50px;
         text-align: center;
         background-size: cover;
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 50px;
+        width: 150px;
         height: 50px;
         color: black;
+        background-image: url('images/pageBox.png');
     }
 
 </style>
 <script>
-    function navigateTo(direction) {
-        var currentPage = parseInt(document.getElementById("pageNumber").textContent);
-        if (direction === 'next') {
-            currentPage += 1;
-        } else if (direction === 'prev' && currentPage > 1) {
-            currentPage -= 1;
-        }
-        document.getElementById("pageNumber").textContent = currentPage;
-        // Qui potresti aggiungere il codice per effettivamente caricare i contenuti della pagina
-        console.log("Navigating to page: " + currentPage);
+    function navigateTo(nextPageIndex) {
+        let currentPageInput = document.getElementById('currentPageIndex');
+        currentPageInput.value = nextPageIndex.toString();
+        document.changePageForm.submit();
     }
 
     function insertTopic() {
@@ -163,15 +168,30 @@
         <%}%>
     </section>
 
-    <section class="navigationContainer">
-        <img src="images/previousPage.png" alt="<-" class="navigationButton" onclick="navigateTo('prev')">
-        <div class="pageNumber" id="pageNumber" style="background-image: url('images/pageBox.png');">1</div>
-        <img src="images/nextPage.png" alt="->" class="navigationButton" onclick="navigateTo('next')">
-    </section>
+    <form name="changePageForm" method="post" action="Dispatcher">
 
+        <section class="navigationContainer" id="navigationContainer">
+            <% if (currentPageIndex > 1) {%>
+                <img src="images/previousPage.png" alt="<-" class="navigationButton" onclick="navigateTo(<%= currentPageIndex - 1L%>)">
+            <%}%>
+            <div class="pageNumber" id="pageNumber">
+                <%= "Pagina " + currentPageIndex + " di " + pageCount%>
+            </div>
+            <% if (currentPageIndex < pageCount) {%>
+                <img src="images/nextPage.png" alt="->" class="navigationButton" onclick="navigateTo(<%= currentPageIndex + 1L%>)">
+            <%}%>
+        </section>
 
-    <form name="backForm" method="post" action="Dispatcher">
-        <input type="hidden" name="controllerAction" value="UserManagement.view">
+        <input type="hidden" name="currentPageIndex" id="currentPageIndex"  value="<%= currentPageIndex.toString() %>"/>
+        <input type="hidden" name="sortNewestFirst" id="sortNewestFirst" value="<%= sortNewestFirst %>"/>
+        <input type="hidden" name="title" id="title" value="<%= title %>"/>
+        <input type="hidden" name="authorName" id="authorName" value="<%= authorName %>"/>
+        <input type="hidden" name="categoryName" id="categoryName" value="<%= categoryName %>"/>
+        <input type="hidden" name="moreRecentThan" id="moreRecentThan" value="<%= moreRecentThan%>"/>
+        <input type="hidden" name="olderThan" id="olderThan" value="<%= olderThan%>"/>
+        <input type="hidden" name="isAnonymous" id="isAnonymous" value="<%= isAnonymous%>"/>
+
+        <input type="hidden" name="controllerAction" value="TopicManagement.view">
     </form>
 
 </main>

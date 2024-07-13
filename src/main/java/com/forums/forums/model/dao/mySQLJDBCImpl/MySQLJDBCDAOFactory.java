@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
+import com.forums.forums.model.mo.TopicSearchFilter;
 import com.forums.forums.services.config.Configuration;
 
 import com.forums.forums.model.dao.*;
@@ -86,6 +87,11 @@ public class MySQLJDBCDAOFactory extends DAOFactory {
     @Override
     public TopicDAO getTopicDAO() {
         return new TopicDAOMySQLJDBCImpl(connection);
+    }
+
+    @Override
+    public TopicSearchFilterDAO getTopicSearchFilterDAO() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

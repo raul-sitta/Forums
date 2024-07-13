@@ -8,6 +8,7 @@ import com.forums.forums.model.mo.Topic;
 import com.forums.forums.model.dao.TopicDAO;
 
 import com.forums.forums.model.mo.Category;
+import com.forums.forums.model.mo.TopicSearchFilter;
 import com.forums.forums.model.mo.User;
 
 public class TopicDAOMySQLJDBCImpl implements TopicDAO {
@@ -192,20 +193,14 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
     @Override
     public List<Topic> findByParameters(
             Long pageIndex,
-            Boolean sortNewestFirst,
-            String title,
-            String authorName,
-            String categoryName,
-            Date moreRecentThan,
-            Date olderThan,
-            Boolean isAnonymous) {
+            TopicSearchFilter topicSearchFilter) {
 
         // Controllo degli argomenti
-        if (pageIndex != null && pageIndex < 0) {
-            throw new IllegalArgumentException("Errore: il parametro pageIndex non può essere negativo");
+        if (pageIndex != null && pageIndex < 1) {
+            throw new IllegalArgumentException("Errore: il parametro pageIndex non può essere minore di 1");
         }
 
-        if (sortNewestFirst == null) {
+        if (topicSearchFilter.getSortNewestFirst() == null) {
             throw new IllegalArgumentException("Errore: il parametro sortNewestFirst non può essere null");
         }
 
@@ -220,22 +215,22 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             String whereClause = "T.deleted = 'N'";
 
             // Costruzione dinamica della query
-            if (title != null && !title.trim().isEmpty()) {
+            if (topicSearchFilter.getTitle() != null) {
                 whereClause += addCondition(whereClause, "T.title LIKE ?");
             }
-            if (authorName != null && !authorName.trim().isEmpty()) {
+            if (topicSearchFilter.getAuthorName() != null) {
                 whereClause += addCondition(whereClause, "U.username LIKE ?");
             }
-            if (categoryName != null && !categoryName.trim().isEmpty()) {
+            if (topicSearchFilter.getCategoryName() != null) {
                 whereClause += addCondition(whereClause, "C.name LIKE ?");
             }
-            if (moreRecentThan != null) {
+            if (topicSearchFilter.getMoreRecentThan() != null) {
                 whereClause += addCondition(whereClause, "T.creationTimestamp > ?");
             }
-            if (olderThan != null) {
+            if (topicSearchFilter.getOlderThan() != null) {
                 whereClause += addCondition(whereClause, "T.creationTimestamp < ?");
             }
-            if (isAnonymous != null) {
+            if (topicSearchFilter.getAnonymous() != null) {
                 whereClause += addCondition(whereClause, "T.anonymous = ?");
             }
 
@@ -243,7 +238,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                 sql += "WHERE " + whereClause + " ";
             }
 
-            String orderBy = sortNewestFirst ? "DESC" : "ASC";
+            String orderBy = topicSearchFilter.getSortNewestFirst() ? "DESC" : "ASC";
             sql += "ORDER BY T.creationTimestamp " + orderBy + " ";
 
             if (pageIndex != null) {
@@ -254,27 +249,27 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
             int i = 1;
 
-            if (title != null && !title.trim().isEmpty()) {
-                ps.setString(i++, "%" + title + "%");
+            if (topicSearchFilter.getTitle() != null) {
+                ps.setString(i++, "%" + topicSearchFilter.getTitle() + "%");
             }
-            if (authorName != null && !authorName.trim().isEmpty()) {
-                ps.setString(i++, "%" + authorName + "%");
+            if (topicSearchFilter.getAuthorName() != null) {
+                ps.setString(i++, "%" + topicSearchFilter.getAuthorName() + "%");
             }
-            if (categoryName != null && !categoryName.trim().isEmpty()) {
-                ps.setString(i++, "%" + categoryName + "%");
+            if (topicSearchFilter.getCategoryName() != null) {
+                ps.setString(i++, "%" + topicSearchFilter.getCategoryName() + "%");
             }
-            if (moreRecentThan != null) {
-                ps.setDate(i++, new java.sql.Date(moreRecentThan.getTime()));
+            if (topicSearchFilter.getMoreRecentThan() != null) {
+                ps.setTimestamp(i++, topicSearchFilter.getMoreRecentThan());
             }
-            if (olderThan != null) {
-                ps.setDate(i++, new java.sql.Date(olderThan.getTime()));
+            if (topicSearchFilter.getOlderThan() != null) {
+                ps.setTimestamp(i++, topicSearchFilter.getOlderThan());
             }
-            if (isAnonymous != null) {
-                ps.setString(i++, isAnonymous ? "Y" : "N");
+            if (topicSearchFilter.getAnonymous() != null) {
+                ps.setString(i++, topicSearchFilter.getAnonymous() ? "Y" : "N");
             }
             if (pageIndex != null) {
                 ps.setLong(i++, ITEMS_PER_PAGE); // Limit
-                ps.setLong(i++, pageIndex * ITEMS_PER_PAGE); // Offset
+                ps.setLong(i++, (pageIndex - 1) * ITEMS_PER_PAGE); // Offset
             }
 
             ResultSet resultSet = ps.executeQuery();
@@ -313,12 +308,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
     @Override
     public Long countPagesByParameters(
-            String title,
-            String authorName,
-            String categoryName,
-            Date moreRecentThan,
-            Date olderThan,
-            Boolean isAnonymous) {
+            TopicSearchFilter topicSearchFilter) {
 
         PreparedStatement ps;
 
@@ -331,22 +321,22 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             String whereClause = "T.deleted = 'N'";
 
             // Costruzione dinamica della query
-            if (title != null && !title.trim().isEmpty()) {
+            if (topicSearchFilter.getTitle() != null) {
                 whereClause += addCondition(whereClause, "T.title LIKE ?");
             }
-            if (authorName != null && !authorName.trim().isEmpty()) {
+            if (topicSearchFilter.getAuthorName() != null) {
                 whereClause += addCondition(whereClause, "U.username LIKE ?");
             }
-            if (categoryName != null && !categoryName.trim().isEmpty()) {
+            if (topicSearchFilter.getCategoryName() != null) {
                 whereClause += addCondition(whereClause, "C.name LIKE ?");
             }
-            if (moreRecentThan != null) {
+            if (topicSearchFilter.getMoreRecentThan() != null) {
                 whereClause += addCondition(whereClause, "T.creationTimestamp > ?");
             }
-            if (olderThan != null) {
+            if (topicSearchFilter.getOlderThan() != null) {
                 whereClause += addCondition(whereClause, "T.creationTimestamp < ?");
             }
-            if (isAnonymous != null) {
+            if (topicSearchFilter.getAnonymous() != null) {
                 whereClause += addCondition(whereClause, "T.anonymous = ?");
             }
 
@@ -358,23 +348,23 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
             int i = 1;
 
-            if (title != null && !title.trim().isEmpty()) {
-                ps.setString(i++, "%" + title + "%");
+            if (topicSearchFilter.getTitle() != null) {
+                ps.setString(i++, "%" + topicSearchFilter.getTitle() + "%");
             }
-            if (authorName != null && !authorName.trim().isEmpty()) {
-                ps.setString(i++, "%" + authorName + "%");
+            if (topicSearchFilter.getAuthorName() != null) {
+                ps.setString(i++, "%" + topicSearchFilter.getAuthorName() + "%");
             }
-            if (categoryName != null && !categoryName.trim().isEmpty()) {
-                ps.setString(i++, "%" + categoryName + "%");
+            if (topicSearchFilter.getCategoryName() != null) {
+                ps.setString(i++, "%" + topicSearchFilter.getCategoryName() + "%");
             }
-            if (moreRecentThan != null) {
-                ps.setDate(i++, new java.sql.Date(moreRecentThan.getTime()));
+            if (topicSearchFilter.getMoreRecentThan() != null) {
+                ps.setTimestamp(i++, topicSearchFilter.getMoreRecentThan());
             }
-            if (olderThan != null) {
-                ps.setDate(i++, new java.sql.Date(olderThan.getTime()));
+            if (topicSearchFilter.getOlderThan() != null) {
+                ps.setTimestamp(i++, topicSearchFilter.getOlderThan());
             }
-            if (isAnonymous != null) {
-                ps.setString(i++, isAnonymous ? "Y" : "N");
+            if (topicSearchFilter.getAnonymous() != null) {
+                ps.setString(i++, topicSearchFilter.getAnonymous() ? "Y" : "N");
             }
 
             ResultSet resultSet = ps.executeQuery();

@@ -64,6 +64,11 @@ public class CookieDAOFactory extends DAOFactory {
     }
 
     @Override
+    public TopicSearchFilterDAO getTopicSearchFilterDAO() {
+        return new TopicSearchFilterDAOCookieImpl(request,response);
+    }
+
+    @Override
     public UserDAO getUserDAO() {
         return new UserDAOCookieImpl(request,response);
     }
