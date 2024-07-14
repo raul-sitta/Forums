@@ -116,7 +116,6 @@
     }
 
     function validateImage() {
-        let validity = document.getElementById('displayImageValidity');
         let fileInput = document.querySelector('input[type=file]');
         let file = fileInput.files[0];
 
@@ -127,13 +126,13 @@
         const maxHeight = 2500;
 
         if (file.size > maxFileSize) {
-            validity.setCustomValidity('La dimensione del file non deve superare i 5 MB.');
+            fileInput.setCustomValidity('La dimensione del file non deve superare i 5 MB.');
             setPreview("");
             return;
         }
 
         if (file.type !== 'image/png') {
-            validity.setCustomValidity('L\'immagine deve essere in formato PNG.');
+            fileInput.setCustomValidity('L\'immagine deve essere in formato PNG.');
             setPreview("");
             return;
         }
@@ -144,11 +143,11 @@
             image.onload = function () {
                 setPreview(e.target.result);
                 if (image.width > maxWidth || image.height > maxHeight) {
-                    validity.setCustomValidity('Le dimensioni dell\'immagine non devono superare 2500x2500 pixel.');
+                    fileInput.setCustomValidity('Le dimensioni dell\'immagine non devono superare 2500x2500 pixel.');
                 } else if (image.width < minWidth || image.height < minHeight) {
-                    validity.setCustomValidity('L\'immagine deve essere almeno di 250x250 pixel.');
+                    fileInput.setCustomValidity('L\'immagine deve essere almeno di 250x250 pixel.');
                 } else {
-                    validity.setCustomValidity(''); // L'immagine è valida
+                    fileInput.setCustomValidity(''); // L'immagine è valida
                     setDeleteFlag(false);
                     setUpdateFlag(true);
                 }
@@ -168,14 +167,13 @@
         setPreview(defaultImage);
         // Rimuovo temporaneamente il listener per evitare trigger non desiderati
         let fileInput = document.getElementById('image');
-        let validity = document.getElementById('displayImageValidity');
         fileInput.removeEventListener('change', validateImage);
 
         // Resetto il campo file
         fileInput.value = "";
 
         // Resetto la validità
-        validity.setCustomValidity("");
+        fileInput.setCustomValidity("");
 
         // Riaggancio il listener di change
         fileInput.addEventListener('change', validateImage);
@@ -253,11 +251,9 @@
             <div class="field clearfix">
                 <label for="image">Immagine del profilo</label>
                 <section class="buttonContainer">
-                    <input type="file" id="image" name="image" accept="image/png" class="hidden"/>
                     <input type="button" name="uploadImageButton" id="uploadImageButton" class="button blue" value="Scegli Foto"/>
                     <input type="button" name="deleteImageButton" id="deleteImageButton" class="button red" value="Reimposta"/>
-                    <label for="displayImageValidity"></label>
-                    <input type="text" id="displayImageValidity" name="displayImageValidity" class="invisible"/>
+                    <input type="file" id="image" name="image" accept="image/png" class="invisible"/>
                 </section>
                 <img id="preview" src="<%=profilePicPath%>">
             </div>
