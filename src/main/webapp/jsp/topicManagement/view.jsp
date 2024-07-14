@@ -2,6 +2,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.forums.forums.model.mo.*" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 
 <%
     int i = 0;
@@ -12,16 +13,8 @@
     Long currentPageIndex = (Long) request.getAttribute("currentPageIndex");
     Long pageCount = (Long) request.getAttribute("pageCount");
     Boolean searchResultFlag = (Boolean) request.getAttribute("searchResultFlag");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     String menuActiveLink = "Topics";
-
-    //Parametri della ricerca
-    String sortNewestFirst = (String) request.getAttribute("sortNewestFirst");
-    String title = (String) request.getAttribute("title");
-    String authorName = (String) request.getAttribute("authorName");
-    String categoryName = (String) request.getAttribute("categoryName");
-    String moreRecentThan = (String) request.getAttribute("moreRecentThan");
-    String olderThan = (String) request.getAttribute("olderThan");
-    String isAnonymous = (String) request.getAttribute("isAnonymous");
 %>
 <!DOCTYPE html>
 <html>
@@ -29,40 +22,23 @@
     <%@include file="/include/htmlHead.jsp"%>
 </head>
 <style>
-    /* Allinea gli elementi del form in colonne */
-    .field {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 10px;
-    }
-
-    /* Aggiusta lo stile delle etichette dei campi */
-    .field label {
-        font-weight: bold;
-    }
-
-    /* Stile degli input */
-    .field input[type="text"],
-    .field input[type="password"],
-    .field input[type="date"],
-    .field input[type="email"] {
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 14px;
-    }
 
     /* Stile dei pulsanti */
-    .field input[type="submit"],
-    .field input[type="button"] {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        font-size: 14px;
+    .button {
+        padding: 12px 24px;
+        font-size: 16px;
         cursor: pointer;
-        margin-top: 10px;
+        transition: background-color 0.3s ease;
+        margin-bottom: 12px;
+    }
+
+    /* Stile specifico per il pulsante "Nuovo Topic" */
+    #insertTopicButton {
+        background-color: #28a745;
+    }
+
+    #insertTopicButton:hover {
+        background-color: #1f9233;
     }
 
     /* Stile del pulsante "Indietro" */
@@ -111,6 +87,60 @@
         background-image: url('images/pageBox.png');
     }
 
+    .topic {
+        display: flex;
+        border: 2px solid #ccc; /* Bordo completo per ogni elemento */
+        padding: 10px;
+        margin-bottom: 0; /* Rimuovi il margine inferiore */
+    }
+
+    .topic + .topic {
+        border-top: none; /* Rimuovi il bordo superiore per gli elementi successivi al primo */
+    }
+
+    .categoryImage {
+        flex: 0 0 100px; /* Fixed width for image */
+        height: 100px; /* Fixed height for image */
+        border: 2px solid #ccc;
+        margin-right: 15px;
+    }
+
+    .categoryImage img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .topicContent {
+        flex: 1;
+    }
+
+    .topicHeader h1 {
+        font-size: 18px;
+        margin: 0 0 5px 0;
+    }
+
+    .topicDetails {
+        font-size: 14px;
+        color: #666;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .topicDetails .author,
+    .topicDetails .creationDate {
+        display: block;
+    }
+
+    .topicDetails .category {
+        font-weight: bold;
+    }
+
+    .topicsNotFound {
+        font-size: 20px;
+    }
+
 </style>
 <script>
     function navigateTo(nextPageIndex) {
@@ -134,7 +164,7 @@
     }
 
     function mainOnLoadHandler(){
-        document.querySelector("#newTopicButton").addEventListener("click",insertTopic);
+        document.querySelector("#insertTopicButton").addEventListener("click",insertTopic);
     }
 
 </script>
@@ -147,52 +177,59 @@
         </h1>
     </section>
 
-    <section id="newTopicButtonSection">
-        <input type="button" id="newTopicButton" name="newTopicButton"
-               class="button" value="Nuovo Topic"/>
-    </section>
+    <% if (searchResultFlag.equals(false)) {%>
+        <section id="insertTopicButtonSection">
+            <input type="button" id="insertTopicButton" name="insertTopicButton"
+                   class="button" value="Nuovo Topic"/>
+        </section>
+    <%}%>
 
     <section id="topics" class="clearfix">
-        <%for (i = 0; i < topics.size(); i++) {%>
-        <article class="title">
-            <h1>
-                <a href="javascript:viewTopic(<%=topics.get(i).getTopicID()%>)">
-                    <%=topics.get(i).getTitle()%>
-                </a>
-            </h1>
-            <span class="author"><%= topics.get(i).getAnonymous() ? "Utente Anonimo" : "@" + topics.get(i).getAuthor().getUsername()%></span>
-            <br/>
-            <span class="category"><%= topics.get(i).getCategory().getName()%></span>
+        <% if (!topics.isEmpty()) {%>
+            <% for (i = 0; i < topics.size(); i++) {%>
+            <article class="topic">
+                <div class="categoryImage">
+                    <img src="<%= (!topics.get(i).getAnonymous()) ?
+                    "images/categoryImages/" + topics.get(i).getCategory().getCategoryID() + ".png" :
+                    "images/categoryImages/anonymous.png"%>" alt="Immagine Categoria"/>
+                </div>
+                <div class="topicContent">
+                    <span class="topicHeader">
+                        <h1><%=topics.get(i).getTitle()%></h1>
+                    </span>
+                    <div class="topicDetails">
+                        <span class="author"><%=(!topics.get(i).getAnonymous()) ? "@" + topics.get(i).getAuthor().getUsername() : "Utente Anonimo"%></span>
+                        <span class="creationDate"><%=sdf.format(topics.get(i).getCreationTimestamp())%></span>
+                        <span class="category">Categoria: <%=topics.get(i).getCategory().getName()%></span>
+                    </div>
+                </div>
+            </article>
+            <%}%>
 
-        </article>
+            <form name="changePageForm" method="post" action="Dispatcher">
+
+                <section class="navigationContainer" id="navigationContainer">
+                    <% if (currentPageIndex > 1) {%>
+                    <img src="images/previousPage.png" alt="<-" class="navigationButton" onclick="navigateTo(<%= currentPageIndex - 1L%>)" />
+                    <%}%>
+                    <div class="pageNumber" id="pageNumber">
+                        <%= "Pagina " + currentPageIndex + " di " + pageCount%>
+                    </div>
+                    <% if (currentPageIndex < pageCount) {%>
+                    <img src="images/nextPage.png" alt="->" class="navigationButton" onclick="navigateTo(<%= currentPageIndex + 1L%>)" />
+                    <%}%>
+                </section>
+
+                <input type="hidden" name="currentPageIndex" id="currentPageIndex"  value="<%= currentPageIndex.toString() %>"/>
+                <input type="hidden" name="controllerAction" value="TopicManagement.view" />
+            </form>
+
+        <%} else {%>
+            <span class="topicsNotFound" id="topicsNotFound">
+                Nessun topic trovato con i parametri forniti!
+            </span>
         <%}%>
     </section>
-
-    <form name="changePageForm" method="post" action="Dispatcher">
-
-        <section class="navigationContainer" id="navigationContainer">
-            <% if (currentPageIndex > 1) {%>
-                <img src="images/previousPage.png" alt="<-" class="navigationButton" onclick="navigateTo(<%= currentPageIndex - 1L%>)">
-            <%}%>
-            <div class="pageNumber" id="pageNumber">
-                <%= "Pagina " + currentPageIndex + " di " + pageCount%>
-            </div>
-            <% if (currentPageIndex < pageCount) {%>
-                <img src="images/nextPage.png" alt="->" class="navigationButton" onclick="navigateTo(<%= currentPageIndex + 1L%>)">
-            <%}%>
-        </section>
-
-        <input type="hidden" name="currentPageIndex" id="currentPageIndex"  value="<%= currentPageIndex.toString() %>"/>
-        <input type="hidden" name="sortNewestFirst" id="sortNewestFirst" value="<%= sortNewestFirst %>"/>
-        <input type="hidden" name="title" id="title" value="<%= title %>"/>
-        <input type="hidden" name="authorName" id="authorName" value="<%= authorName %>"/>
-        <input type="hidden" name="categoryName" id="categoryName" value="<%= categoryName %>"/>
-        <input type="hidden" name="moreRecentThan" id="moreRecentThan" value="<%= moreRecentThan%>"/>
-        <input type="hidden" name="olderThan" id="olderThan" value="<%= olderThan%>"/>
-        <input type="hidden" name="isAnonymous" id="isAnonymous" value="<%= isAnonymous%>"/>
-
-        <input type="hidden" name="controllerAction" value="TopicManagement.view">
-    </form>
 
 </main>
 <%@include file="/include/footer.inc"%>
