@@ -41,31 +41,6 @@
         font-size: 14px;
     }
 
-    /* Stile dei pulsanti */
-    .field input[type="submit"],
-    .field input[type="button"] {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        font-size: 14px;
-        cursor: pointer;
-        margin-top: 10px;
-    }
-
-    /* Stile del pulsante "Annulla" */
-    .field input[name="backButton"] {
-        background-color: #dc3545;
-    }
-
-    /* Allinea il pulsante "Annulla" a destra */
-    .field label:last-child {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-    }
-
     /* Aggiusta il margine superiore del titolo della sezione */
     #pageTitle h1 {
         margin-top: 0;
@@ -82,6 +57,15 @@
     var status  = "<%=action%>";
 
     var defaultImage = "<%=FileSystemService.DEFAULT_PROFILE_PIC_PATH%>";
+
+    function validateForm() {
+        let f = document.insModForm;
+        if (f.checkValidity()) {
+            submitUser();
+        } else {
+            f.reportValidity();
+        }
+    }
 
     function submitUser() {
         let f = document.insModForm;
@@ -106,6 +90,8 @@
         }
 
         f.controllerAction.value = "UserManagement." + status;
+
+        f.submit();
     }
 
     function capitalizeFirstLetter(string) {
@@ -130,8 +116,9 @@
     }
 
     function validateImage() {
-        var fileInput = document.querySelector('input[type=file]');
-        var file = fileInput.files[0];
+        let validity = document.getElementById('displayImageValidity');
+        let fileInput = document.querySelector('input[type=file]');
+        let file = fileInput.files[0];
 
         const maxFileSize = 5 * 1024 * 1024; // 5 MB
         const minWidth = 250;
@@ -140,13 +127,13 @@
         const maxHeight = 2500;
 
         if (file.size > maxFileSize) {
-            fileInput.setCustomValidity('La dimensione del file non deve superare i 5 MB.');
+            validity.setCustomValidity('La dimensione del file non deve superare i 5 MB.');
             setPreview("");
             return;
         }
 
         if (file.type !== 'image/png') {
-            fileInput.setCustomValidity('L\'immagine deve essere in formato PNG.');
+            validity.setCustomValidity('L\'immagine deve essere in formato PNG.');
             setPreview("");
             return;
         }
@@ -157,11 +144,11 @@
             image.onload = function () {
                 setPreview(e.target.result);
                 if (image.width > maxWidth || image.height > maxHeight) {
-                    fileInput.setCustomValidity('Le dimensioni dell\'immagine non devono superare 2500x2500 pixel.');
+                    validity.setCustomValidity('Le dimensioni dell\'immagine non devono superare 2500x2500 pixel.');
                 } else if (image.width < minWidth || image.height < minHeight) {
-                    fileInput.setCustomValidity('L\'immagine deve essere almeno di 250x250 pixel.');
+                    validity.setCustomValidity('L\'immagine deve essere almeno di 250x250 pixel.');
                 } else {
-                    fileInput.setCustomValidity(''); // L'immagine è valida
+                    validity.setCustomValidity(''); // L'immagine è valida
                     setDeleteFlag(false);
                     setUpdateFlag(true);
                 }
@@ -171,19 +158,24 @@
         reader.readAsDataURL(file);
     }
 
+    function requestImageUpload() {
+        document.getElementById('image').click();
+    }
+
     function requestImageDeletion() {
         setDeleteFlag(true);
         setUpdateFlag(false);
         setPreview(defaultImage);
         // Rimuovo temporaneamente il listener per evitare trigger non desiderati
-        var fileInput = document.getElementById('image');
+        let fileInput = document.getElementById('image');
+        let validity = document.getElementById('displayImageValidity');
         fileInput.removeEventListener('change', validateImage);
 
         // Resetto il campo file
         fileInput.value = "";
 
         // Resetto la validità
-        fileInput.setCustomValidity("");
+        validity.setCustomValidity("");
 
         // Riaggancio il listener di change
         fileInput.addEventListener('change', validateImage);
@@ -204,10 +196,11 @@
     }
 
     function mainOnLoadHandler(){
-        document.insModForm.addEventListener("submit",submitUser);
-        document.insModForm.backButton.addEventListener("click", goBack);
-        document.insModForm.image.addEventListener('change', validateImage);
-        document.insModForm.deleteImageButton.addEventListener("click", requestImageDeletion);
+        document.getElementById('submitUserButton').addEventListener("click",validateForm);
+        document.getElementById('backButton').addEventListener("click", goBack);
+        document.getElementById('image').addEventListener('change', validateImage);
+        document.getElementById('uploadImageButton').addEventListener("click", requestImageUpload);
+        document.getElementById('deleteImageButton').addEventListener("click", requestImageDeletion);
     }
 </script>
 <body>
@@ -221,7 +214,6 @@
 
     <section id="insModFormSection">
         <form name="insModForm" action="Dispatcher" method="post" enctype="multipart/form-data">
-
             <div class="field clearfix">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username"
@@ -260,9 +252,14 @@
             </div>
             <div class="field clearfix">
                 <label for="image">Immagine del profilo</label>
-                <input type="file" id="image" name="image" accept="image/png"/>
+                <section class="buttonContainer">
+                    <input type="file" id="image" name="image" accept="image/png" class="hidden"/>
+                    <input type="button" name="uploadImageButton" id="uploadImageButton" class="button blue" value="Scegli Foto"/>
+                    <input type="button" name="deleteImageButton" id="deleteImageButton" class="button red" value="Reimposta"/>
+                    <label for="displayImageValidity"></label>
+                    <input type="text" id="displayImageValidity" name="displayImageValidity" class="invisible"/>
+                </section>
                 <img id="preview" src="<%=profilePicPath%>">
-                <input type="button" name="deleteImageButton" class="button" value="Reimposta"/>
             </div>
 
             <input type="hidden" id="registrationTimestamp" name="registrationTimestamp" value=""/>
@@ -271,14 +268,13 @@
             <input type="hidden" name="deleteImage" id="deleteImage" value="false"/>
             <input type="hidden" name="updateImage" id="updateImage" value="false"/>
 
-            <div class="field clearfix">
-                <label>&#160;</label>
-                <input type="submit" class="button" value="Invia"/>
-                <input type="button" name="backButton" class="button" value="Annulla"/>
-            </div>
-
             <input type="hidden" name="controllerAction"/>
         </form>
+    </section>
+
+    <section class="buttonContainer large">
+        <input type="button" name="submitUserButton" id="submitUserButton" class="button blue" value="Invia"/>
+        <input type="button" name="backButton" id="backButton" class="button red" value="Annulla"/>
     </section>
 
     <form name="backForm" method="post" action="Dispatcher">

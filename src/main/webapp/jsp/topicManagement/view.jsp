@@ -23,57 +23,6 @@
 </head>
 <style>
 
-    #buttonContainer {
-        display: flex;  /* Imposta il layout flexibile */
-        justify-content: start;  /* Allinea i pulsanti all'inizio del contenitore */
-        gap: 10px;  /* Aggiunge uno spazio tra i pulsanti */
-    }
-
-    /* Stile dei pulsanti */
-    .button {
-        padding: 12px 24px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin-bottom: 12px;
-    }
-
-    /* Stile specifico per il pulsante "Nuovo Topic" */
-    #insertTopicButton {
-        background-color: #28a745;
-    }
-
-    #insertTopicButton:hover {
-        background-color: #1f9233;
-    }
-
-    /* Stile specifico per il pulsante "Rierca Topic" */
-    #searchTopicButton {
-        background-color: #007bff;
-    }
-
-    #searchTopicButton:hover {
-        background-color: #0056b3;
-    }
-
-    /* Stile del pulsante "Indietro" */
-    .field input[name="backButton"] {
-        background-color: #dc3545;
-    }
-
-    /* Allinea il pulsante "Indietro" a destra */
-    .field label:last-child {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-    }
-
-    /* Aggiusta il margine superiore del titolo della sezione */
-    #pageTitle h1 {
-        margin-top: 0;
-        font-size: 24px;
-    }
-
     .navigationContainer {
         display: flex;
         justify-content: center;
@@ -130,9 +79,10 @@
         flex: 1;
     }
 
-    .topicHeader h1 {
+    .topicHeader {
         font-size: 18px;
         margin: 0 0 5px 0;
+        font-weight: bold;
     }
 
     .topicDetails {
@@ -192,12 +142,12 @@
         </h1>
     </section>
 
-    <section id="buttonContainer">
+    <section class="buttonContainer">
         <% if (searchResultFlag.equals(false)) {%>
 
-            <input type="button" id="insertTopicButton" name="insertTopicButton" class="button" value="Nuovo Topic"/>
+            <input type="button" id="insertTopicButton" name="insertTopicButton" class="button green" value="Nuovo Topic"/>
 
-            <input type="button" id="searchTopicButton" name="searchTopicButton" class="button" value="Ricerca Topic"/>
+            <input type="button" id="searchTopicButton" name="searchTopicButton" class="button blue" value="Ricerca Topic"/>
 
         <%}%>
     </section>
@@ -213,7 +163,7 @@
                 </div>
                 <div class="topicContent">
                     <span class="topicHeader">
-                        <h1><%=topics.get(i).getTitle()%></h1>
+                        <%=topics.get(i).getTitle()%>
                     </span>
                     <div class="topicDetails">
                         <span class="author"><%=(!topics.get(i).getAnonymous()) ? "@" + topics.get(i).getAuthor().getUsername() : "Utente Anonimo"%></span>

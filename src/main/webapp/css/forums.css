@@ -135,13 +135,69 @@ main {
     font-weight: normal;
 }
 
+.buttonContainer {
+    display: flex;
+    justify-content: start;
+    gap: 10px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
 .button {
-    padding: 5px 10px;
-    background-color: #005c99; /* Updated color */
     color: #ffffff;
     border-radius: 8px;
     cursor: pointer;
     border: none;
+    padding: 12px 24px;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+.large {
+    display: flex;
+    flex-direction: column;
+}
+
+.large > .button {
+    margin-top: 0;
+}
+
+.large > .button + .button {
+    margin-top: 6px;
+}
+
+.green {
+    background-color: #4CAF50; /* Un verde vivace ma non troppo scuro */
+}
+
+.green:hover {
+    background-color: #45A049; /* Leggermente più scuro per l'hover */
+}
+
+.blue {
+    background-color: #2196F3; /* Un blu brillante */
+}
+
+.blue:hover {
+    background-color: #1E88E5; /* Leggermente più scuro per l'hover */
+}
+
+.red {
+    background-color: #f44336; /* Un rosso brillante */
+}
+
+.red:hover {
+    background-color: #d32f2f; /* Leggermente più scuro per l'hover */
+}
+.invisible {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    z-index: -1;
+}
+
+.hidden {
+    display: none;
 }
 
 /* Footer Section */
