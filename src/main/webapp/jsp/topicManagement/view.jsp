@@ -13,7 +13,7 @@
     Long currentPageIndex = (Long) request.getAttribute("currentPageIndex");
     Long pageCount = (Long) request.getAttribute("pageCount");
     Boolean searchResultFlag = (Boolean) request.getAttribute("searchResultFlag");
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     String menuActiveLink = "Topics";
 %>
 <!DOCTYPE html>
@@ -22,6 +22,12 @@
     <%@include file="/include/htmlHead.jsp"%>
 </head>
 <style>
+
+    #buttonContainer {
+        display: flex;  /* Imposta il layout flexibile */
+        justify-content: start;  /* Allinea i pulsanti all'inizio del contenitore */
+        gap: 10px;  /* Aggiunge uno spazio tra i pulsanti */
+    }
 
     /* Stile dei pulsanti */
     .button {
@@ -39,6 +45,15 @@
 
     #insertTopicButton:hover {
         background-color: #1f9233;
+    }
+
+    /* Stile specifico per il pulsante "Rierca Topic" */
+    #searchTopicButton {
+        background-color: #007bff;
+    }
+
+    #searchTopicButton:hover {
+        background-color: #0056b3;
     }
 
     /* Stile del pulsante "Indietro" */
@@ -89,13 +104,13 @@
 
     .topic {
         display: flex;
-        border: 2px solid #ccc; /* Bordo completo per ogni elemento */
+        border: 2px solid #ccc;
         padding: 10px;
-        margin-bottom: 0; /* Rimuovi il margine inferiore */
+        margin-bottom: 0;
     }
 
     .topic + .topic {
-        border-top: none; /* Rimuovi il bordo superiore per gli elementi successivi al primo */
+        border-top: none;
     }
 
     .categoryImage {
@@ -177,12 +192,15 @@
         </h1>
     </section>
 
-    <% if (searchResultFlag.equals(false)) {%>
-        <section id="insertTopicButtonSection">
-            <input type="button" id="insertTopicButton" name="insertTopicButton"
-                   class="button" value="Nuovo Topic"/>
-        </section>
-    <%}%>
+    <section id="buttonContainer">
+        <% if (searchResultFlag.equals(false)) {%>
+
+            <input type="button" id="insertTopicButton" name="insertTopicButton" class="button" value="Nuovo Topic"/>
+
+            <input type="button" id="searchTopicButton" name="searchTopicButton" class="button" value="Ricerca Topic"/>
+
+        <%}%>
+    </section>
 
     <section id="topics" class="clearfix">
         <% if (!topics.isEmpty()) {%>
