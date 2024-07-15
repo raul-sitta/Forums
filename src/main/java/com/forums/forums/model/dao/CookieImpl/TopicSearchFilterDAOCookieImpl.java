@@ -92,33 +92,32 @@ public class TopicSearchFilterDAOCookieImpl implements TopicSearchFilterDAO {
     }
 
     private String encode(TopicSearchFilter topicSearchFilter) {
-
         String encodedTopicSearchFilter;
-        encodedTopicSearchFilter = (topicSearchFilter.getTitle() != null ? topicSearchFilter.getTitle() : "null") + "#" +
-                (topicSearchFilter.getAuthorName() != null ? topicSearchFilter.getAuthorName() : "null") + "#" +
-                (topicSearchFilter.getCategoryName() != null ? topicSearchFilter.getCategoryName() : "null") + "#" +
-                (topicSearchFilter.getMoreRecentThan() != null ? topicSearchFilter.getMoreRecentThan().toString() : "null") + "#" +
-                (topicSearchFilter.getOlderThan() != null ? topicSearchFilter.getOlderThan().toString() : "null") + "#" +
-                (topicSearchFilter.getAnonymous() != null ? topicSearchFilter.getAnonymous().toString() : "null") + "#" +
-                (topicSearchFilter.getSortNewestFirst() != null ? topicSearchFilter.getSortNewestFirst().toString() : "null");
+        encodedTopicSearchFilter =
+                (topicSearchFilter.getTitle() != null ? topicSearchFilter.getTitle().replace(" ", "_") : "null") + "#" +
+                        (topicSearchFilter.getAuthorName() != null ? topicSearchFilter.getAuthorName().replace(" ", "_") : "null") + "#" +
+                        (topicSearchFilter.getCategoryName() != null ? topicSearchFilter.getCategoryName().replace(" ", "_") : "null") + "#" +
+                        (topicSearchFilter.getMoreRecentThan() != null ? topicSearchFilter.getMoreRecentThan().toString().replace(" ", "_") : "null") + "#" +
+                        (topicSearchFilter.getOlderThan() != null ? topicSearchFilter.getOlderThan().toString().replace(" ", "_") : "null") + "#" +
+                        (topicSearchFilter.getAnonymous() != null ? topicSearchFilter.getAnonymous().toString().replace(" ", "_") : "null") + "#" +
+                        (topicSearchFilter.getSortNewestFirst() != null ? topicSearchFilter.getSortNewestFirst().toString().replace(" ", "_") : "null");
 
         return encodedTopicSearchFilter;
-
     }
 
     private TopicSearchFilter decode(String encodedTopicSearchFilter) {
-
         TopicSearchFilter topicSearchFilter = new TopicSearchFilter();
 
         String[] values = encodedTopicSearchFilter.split("#");
 
-        topicSearchFilter.setTitle(!"null".equals(values[0]) ? values[0] : null);
-        topicSearchFilter.setAuthorName(!"null".equals(values[1]) ? values[1] : null);
-        topicSearchFilter.setCategoryName(!"null".equals(values[2]) ? values[2] : null);
+        topicSearchFilter.setTitle(!"null".equals(values[0]) ? values[0].replace('_', ' ') : null);
+        topicSearchFilter.setAuthorName(!"null".equals(values[1]) ? values[1].replace('_', ' ') : null);
+        topicSearchFilter.setCategoryName(!"null".equals(values[2]) ? values[2].replace('_', ' ') : null);
 
         if (!"null".equals(values[3])) {
             try {
-                topicSearchFilter.setMoreRecentThan(Timestamp.valueOf(values[3]));
+                String dateTimeReplaced = values[3].replace('_', ' ');
+                topicSearchFilter.setMoreRecentThan(Timestamp.valueOf(dateTimeReplaced));
             } catch (IllegalArgumentException e) {
                 topicSearchFilter.setMoreRecentThan(null);
             }
@@ -128,7 +127,8 @@ public class TopicSearchFilterDAOCookieImpl implements TopicSearchFilterDAO {
 
         if (!"null".equals(values[4])) {
             try {
-                topicSearchFilter.setOlderThan(Timestamp.valueOf(values[4]));
+                String dateTimeReplaced = values[4].replace('_', ' ');
+                topicSearchFilter.setOlderThan(Timestamp.valueOf(dateTimeReplaced));
             } catch (IllegalArgumentException e) {
                 topicSearchFilter.setOlderThan(null);
             }
@@ -140,7 +140,5 @@ public class TopicSearchFilterDAOCookieImpl implements TopicSearchFilterDAO {
         topicSearchFilter.setSortNewestFirst(!"null".equals(values[6]) ? Boolean.parseBoolean(values[6]) : null);
 
         return topicSearchFilter;
-
     }
-
 }

@@ -118,18 +118,18 @@
         document.insertForm.submit();
     }
 
+    function searchTopic() {
+        document.searchForm.submit();
+    }
+
     function viewTopic(topicID) {
-        f = document.viewForm;
+        let f = document.viewForm;
         f.topicID.value = topicID;
         f.submit();
     }
 
     function goBack(){
         document.backForm.submit();
-    }
-
-    function mainOnLoadHandler(){
-        document.querySelector("#insertTopicButton").addEventListener("click",insertTopic);
     }
 
 </script>
@@ -145,9 +145,13 @@
     <section class="buttonContainer">
         <% if (searchResultFlag.equals(false)) {%>
 
-            <input type="button" id="insertTopicButton" name="insertTopicButton" class="button green" value="Nuovo Topic"/>
+            <input type="button" id="insertTopicButton" name="insertTopicButton" class="button green" value="Nuovo Topic" onclick="javascript:insertTopic()" />
 
-            <input type="button" id="searchTopicButton" name="searchTopicButton" class="button blue" value="Ricerca Topic"/>
+            <input type="button" id="searchTopicButton" name="searchTopicButton" class="button blue" value="Ricerca Topic" onclick="javascript:searchTopic()" />
+
+        <%} else {%>
+
+            <input type="button" name="backButton" id="backButton" class="button red" value="Indietro" onclick="javascript:goBack()"/>
 
         <%}%>
     </section>
@@ -189,15 +193,33 @@
                 </section>
 
                 <input type="hidden" name="currentPageIndex" id="currentPageIndex"  value="<%= currentPageIndex.toString() %>"/>
-                <input type="hidden" name="controllerAction" value="TopicManagement.view" />
+                <input type="hidden" name="searchResultFlag" id="searchResultFlag"  value="<%= searchResultFlag.toString() %>"/>
+                <input type="hidden" name="controllerAction" value="TopicManagement.changePageView" />
             </form>
 
         <%} else {%>
-            <span class="topicsNotFound" id="topicsNotFound">
+            <p class="topicsNotFound" id="topicsNotFound">
                 Nessun topic trovato con i parametri forniti!
-            </span>
+            </p>
         <%}%>
     </section>
+
+    <form name="insertForm" method="post" action="Dispatcher">
+        <input type="hidden" name="controllerAction" value="TopicManagement.insert"/>
+    </form>
+
+    <form name="searchForm" method="post" action="Dispatcher">
+        <input type="hidden" name="controllerAction" value="TopicManagement.searchView"/>
+    </form>
+
+    <form name="backForm" method="post" action="Dispatcher">
+        <input type="hidden" name="controllerAction" value="TopicManagement.searchView">
+    </form>
+
+    <form name="viewForm" method="post" action="Dispatcher">
+        <input type="hidden" name="topicID"/>
+        <input type="hidden" name="controllerAction" value="PostManagement.view"/>
+    </form>
 
 </main>
 <%@include file="/include/footer.inc"%>

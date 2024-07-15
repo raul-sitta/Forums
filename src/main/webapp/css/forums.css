@@ -131,8 +131,31 @@ main {
 }
 
 #pageTitle h1 {
-    font-size: 1.3em;
+    font-size: 24px;
     font-weight: normal;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.field label {
+    font-weight: bold;
+}
+
+.field input[type="text"],
+.field input[type="password"],
+.field input[type="date"],
+.field input[type="email"],
+.field input[type="datetime-local"],
+.field input[type="radio"],
+.field input[type="checkbox"]{
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
 }
 
 .buttonContainer {
@@ -141,6 +164,15 @@ main {
     gap: 10px;
     margin-top: 12px;
     margin-bottom: 12px;
+}
+
+.large {
+    display: flex;
+    flex-direction: column;
+}
+
+.buttonContainer.large {
+    margin-top: 36px;
 }
 
 .button {
@@ -153,11 +185,6 @@ main {
     transition: background-color 0.3s ease;
 }
 
-.large {
-    display: flex;
-    flex-direction: column;
-}
-
 .large > .button {
     margin-top: 0;
 }
@@ -167,27 +194,27 @@ main {
 }
 
 .green {
-    background-color: #4CAF50; /* Un verde vivace ma non troppo scuro */
+    background-color: #4CAF50;
 }
 
 .green:hover {
-    background-color: #45A049; /* Leggermente più scuro per l'hover */
+    background-color: #45A049;
 }
 
 .blue {
-    background-color: #2196F3; /* Un blu brillante */
+    background-color: #2196F3;
 }
 
 .blue:hover {
-    background-color: #1E88E5; /* Leggermente più scuro per l'hover */
+    background-color: #1E88E5;
 }
 
 .red {
-    background-color: #f44336; /* Un rosso brillante */
+    background-color: #f44336;
 }
 
 .red:hover {
-    background-color: #d32f2f; /* Leggermente più scuro per l'hover */
+    background-color: #d32f2f;
 }
 .invisible {
     width: 1px;

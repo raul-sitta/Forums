@@ -18,35 +18,6 @@
     <%@include file="/include/htmlHead.jsp"%>
 </head>
 <style>
-    /* Allinea gli elementi del form in colonne */
-    .field {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 10px;
-    }
-
-    /* Aggiusta lo stile delle etichette dei campi */
-    .field label {
-        font-weight: bold;
-    }
-
-    /* Stile degli input */
-    .field input[type="text"],
-    .field input[type="password"],
-    .field input[type="date"],
-    .field input[type="email"] {
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 14px;
-    }
-
-    /* Aggiusta il margine superiore del titolo della sezione */
-    #pageTitle h1 {
-        margin-top: 0;
-        font-size: 24px;
-    }
-
     /* Preview dell'immagine */
     #preview{
         width: 250px;
@@ -57,15 +28,6 @@
     var status  = "<%=action%>";
 
     var defaultImage = "<%=FileSystemService.DEFAULT_PROFILE_PIC_PATH%>";
-
-    function validateForm() {
-        let f = document.insModForm;
-        if (f.checkValidity()) {
-            submitUser();
-        } else {
-            f.reportValidity();
-        }
-    }
 
     function submitUser() {
         let f = document.insModForm;
@@ -90,8 +52,6 @@
         }
 
         f.controllerAction.value = "UserManagement." + status;
-
-        f.submit();
     }
 
     function capitalizeFirstLetter(string) {
@@ -104,12 +64,12 @@
 
     function validateUsername() {
         var usernameInput = document.getElementById('username');
-        var regex = /^[a-zA-Z0-9_]+$/; // Permette solo lettere, numeri e trattini bassi
+        var regex = /^[a-zA-Z0-9.]+$/;
 
         usernameInput.setCustomValidity('');
 
         if (!regex.test(usernameInput.value)) {
-            usernameInput.setCustomValidity("L'username può contenere solo lettere, numeri e trattini bassi.");
+            usernameInput.setCustomValidity("L'username può contenere solo lettere, numeri e punti.");
         }
 
         usernameInput.reportValidity();
@@ -194,7 +154,7 @@
     }
 
     function mainOnLoadHandler(){
-        document.getElementById('submitUserButton').addEventListener("click",validateForm);
+        document.getElementById('submitUserButton').addEventListener("click",submitUser);
         document.getElementById('backButton').addEventListener("click", goBack);
         document.getElementById('image').addEventListener('change', validateImage);
         document.getElementById('uploadImageButton').addEventListener("click", requestImageUpload);
@@ -212,42 +172,49 @@
 
     <section id="insModFormSection">
         <form name="insModForm" action="Dispatcher" method="post" enctype="multipart/form-data">
+
             <div class="field clearfix">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username"
                        value="<%=(action.equals("modify")) ? user.getUsername() : ""%>"
                        required size="20" maxlength="40" onchange="validateUsername()">
             </div>
+
             <div class="field clearfix">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password"
                        value="<%=(action.equals("modify")) ? user.getPassword() : ""%>"
                        required size="20" maxlength="40"/>
             </div>
+
             <div class="field clearfix">
                 <label for="firstname">Nome</label>
                 <input type="text" id="firstname" name="firstname"
                        value="<%=(action.equals("modify")) ? user.getFirstname() : ""%>"
                        required size="20" maxlength="50"/>
             </div>
+
             <div class="field clearfix">
                 <label for="surname">Cognome</label>
                 <input type="text" id="surname" name="surname"
                        value="<%=(action.equals("modify")) ? user.getSurname() : ""%>"
                        required size="20" maxlength="50"/>
             </div>
+
             <div class="field clearfix">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email"
                        value="<%=(action.equals("modify")) ? user.getEmail() : ""%>"
                        required size="20" maxlength="100"/>
             </div>
+
             <div class="field clearfix">
                 <label for="birthDate">Data di Nascita</label>
                 <input type="date" id="birthDate" name="birthDate"
                        value="<%=(action.equals("modify")) ? user.getBirthDate() : ""%>"
                        required />
             </div>
+
             <div class="field clearfix">
                 <label for="image">Immagine del profilo</label>
                 <section class="buttonContainer">
@@ -255,7 +222,12 @@
                     <input type="button" name="deleteImageButton" id="deleteImageButton" class="button red" value="Reimposta"/>
                     <input type="file" id="image" name="image" accept="image/png" class="invisible"/>
                 </section>
-                <img id="preview" src="<%=profilePicPath%>">
+                <img id="preview" src="<%=profilePicPath%>" alt="Immagine profilo">
+            </div>
+
+            <div class="buttonContainer large">
+                <input type="submit" name="submitUserButton" id="submitUserButton" class="button blue" value="Invia"/>
+                <input type="button" name="backButton" id="backButton" class="button red" value="Annulla"/>
             </div>
 
             <input type="hidden" id="registrationTimestamp" name="registrationTimestamp" value=""/>
@@ -266,11 +238,6 @@
 
             <input type="hidden" name="controllerAction"/>
         </form>
-    </section>
-
-    <section class="buttonContainer large">
-        <input type="button" name="submitUserButton" id="submitUserButton" class="button blue" value="Invia"/>
-        <input type="button" name="backButton" id="backButton" class="button red" value="Annulla"/>
     </section>
 
     <form name="backForm" method="post" action="Dispatcher">
