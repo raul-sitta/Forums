@@ -34,7 +34,18 @@
         cursor: pointer;
         width: 50px;
         height: 50px;
-        margin: 0 10px;
+        margin: 0 5px;
+        transition: filter 0.3s ease;
+        z-index: 2;
+    }
+
+    .adjusted {
+        margin: 0 -12px;
+        z-index: 1;
+    }
+
+    .navigationButton:hover {
+        filter: brightness(85%);
     }
 
     .pageNumber {
@@ -47,7 +58,7 @@
         align-items: center;
         width: 150px;
         height: 50px;
-        color: black;
+        color: white;
         background-image: url('images/pageBox.png');
     }
 
@@ -181,15 +192,13 @@
             <form name="changePageForm" method="post" action="Dispatcher">
 
                 <section class="navigationContainer" id="navigationContainer">
-                    <% if (currentPageIndex > 1) {%>
-                    <img src="images/previousPage.png" alt="<-" class="navigationButton" onclick="navigateTo(<%= currentPageIndex - 1L%>)" />
-                    <%}%>
+                    <img src="images/firstPage.png" alt="<<-" class="navigationButton adjusted" style="<%= currentPageIndex > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(1)" />
+                    <img src="images/previousPage.png" alt="<-" class="navigationButton" style="<%= currentPageIndex > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= currentPageIndex - 1L %>)" />
                     <div class="pageNumber" id="pageNumber">
-                        <%= "Pagina " + currentPageIndex + " di " + pageCount%>
+                        <%= "Pagina " + currentPageIndex + " di " + pageCount %>
                     </div>
-                    <% if (currentPageIndex < pageCount) {%>
-                    <img src="images/nextPage.png" alt="->" class="navigationButton" onclick="navigateTo(<%= currentPageIndex + 1L%>)" />
-                    <%}%>
+                    <img src="images/nextPage.png" alt="->" class="navigationButton" style="<%= currentPageIndex < pageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= currentPageIndex + 1L %>)" />
+                    <img src="images/lastPage.png" alt="->>" class="navigationButton adjusted" style="<%= currentPageIndex < pageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= pageCount %>)" />
                 </section>
 
                 <input type="hidden" name="currentPageIndex" id="currentPageIndex"  value="<%= currentPageIndex.toString() %>"/>
