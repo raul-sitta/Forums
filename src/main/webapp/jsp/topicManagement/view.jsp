@@ -63,8 +63,8 @@
     }
 
     .categoryImage {
-        flex: 0 0 100px; /* Fixed width for image */
-        height: 100px; /* Fixed height for image */
+        flex: 0 0 100px;
+        height: 100px;
         border: 2px solid #ccc;
         margin-right: 15px;
     }
@@ -205,7 +205,7 @@
     </section>
 
     <form name="insertForm" method="post" action="Dispatcher">
-        <input type="hidden" name="controllerAction" value="TopicManagement.insert"/>
+        <input type="hidden" name="controllerAction" value="TopicManagement.insertView"/>
     </form>
 
     <form name="searchForm" method="post" action="Dispatcher">

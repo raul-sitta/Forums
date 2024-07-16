@@ -24,17 +24,16 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
     @Override
     public Topic create(
             String title,
+            Timestamp creationTimestamp,
             User author,
             Category category,
             Boolean anonymous
     ) {
-        // Ottengo il timestamp corrente
-        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
 
         PreparedStatement ps;
         Topic topic = new Topic();
         topic.setTitle(title);
-        topic.setCreationTimestamp(currentTimestamp);
+        topic.setCreationTimestamp(creationTimestamp);
         topic.setAuthor(author);
         topic.setCategory(category);
         topic.setAnonymous(anonymous);
@@ -222,7 +221,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                 whereClause += addCondition(whereClause, "U.username LIKE ?");
             }
             if (topicSearchFilter.getCategoryName() != null) {
-                whereClause += addCondition(whereClause, "C.name LIKE ?");
+                whereClause += addCondition(whereClause, "C.name = ?");
             }
             if (topicSearchFilter.getMoreRecentThan() != null) {
                 whereClause += addCondition(whereClause, "T.creationTimestamp > ?");
@@ -256,7 +255,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                 ps.setString(i++, "%" + topicSearchFilter.getAuthorName() + "%");
             }
             if (topicSearchFilter.getCategoryName() != null) {
-                ps.setString(i++, "%" + topicSearchFilter.getCategoryName() + "%");
+                ps.setString(i++, topicSearchFilter.getCategoryName());
             }
             if (topicSearchFilter.getMoreRecentThan() != null) {
                 ps.setTimestamp(i++, topicSearchFilter.getMoreRecentThan());
@@ -328,7 +327,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                 whereClause += addCondition(whereClause, "U.username LIKE ?");
             }
             if (topicSearchFilter.getCategoryName() != null) {
-                whereClause += addCondition(whereClause, "C.name LIKE ?");
+                whereClause += addCondition(whereClause, "C.name = ?");
             }
             if (topicSearchFilter.getMoreRecentThan() != null) {
                 whereClause += addCondition(whereClause, "T.creationTimestamp > ?");
@@ -355,7 +354,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                 ps.setString(i++, "%" + topicSearchFilter.getAuthorName() + "%");
             }
             if (topicSearchFilter.getCategoryName() != null) {
-                ps.setString(i++, "%" + topicSearchFilter.getCategoryName() + "%");
+                ps.setString(i++, topicSearchFilter.getCategoryName());
             }
             if (topicSearchFilter.getMoreRecentThan() != null) {
                 ps.setTimestamp(i++, topicSearchFilter.getMoreRecentThan());

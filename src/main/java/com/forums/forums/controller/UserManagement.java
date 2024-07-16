@@ -242,6 +242,8 @@ public class UserManagement {
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             loggedUser = sessionUserDAO.findLoggedUser();
 
+            sessionDAOFactory.commitTransaction();
+
             request.setAttribute("profilePicPath", fs.getActualProfilePicPath(loggedUser));
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);

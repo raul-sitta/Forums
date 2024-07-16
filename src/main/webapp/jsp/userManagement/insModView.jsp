@@ -38,8 +38,8 @@
 
         // Formatto i parametri già validati
         username = username.toLowerCase();
-        firstname = capitalizeFirstLetter(firstname);
-        surname = capitalizeFirstLetter(surname);
+        firstname = capitalizeWords(firstname);
+        surname = capitalizeWords(surname);
 
         // Assegno i valori validati ai campi del form
         f.username.value = username;
@@ -54,8 +54,10 @@
         f.controllerAction.value = "UserManagement." + status;
     }
 
-    function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    function capitalizeWords(string) {
+        return string.split(' ').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ).join(' ');
     }
 
     function goBack(){

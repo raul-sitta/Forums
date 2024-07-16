@@ -151,11 +151,21 @@ main {
 .field input[type="email"],
 .field input[type="datetime-local"],
 .field input[type="radio"],
-.field input[type="checkbox"]{
+.field input[type="checkbox"] {
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
+}
+
+.field select {
+    width: 140px;
+    height: 35px;
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 .buttonContainer {

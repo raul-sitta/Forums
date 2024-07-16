@@ -8,6 +8,7 @@ import java.util.List;
 public interface TopicDAO {
     public Topic create(
             String title,
+            Timestamp creationTimestamp,
             User author,
             Category category,
             Boolean anonymous

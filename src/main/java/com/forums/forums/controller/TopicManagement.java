@@ -175,8 +175,10 @@ public class TopicManagement {
 
     public static void searchView(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
         User loggedUser;
         TopicSearchFilter topicSearchFilter;
+        List<Category> categories;
 
         Logger logger = LogService.getApplicationLogger();
         FileSystemService fs = new FileSystemService();
@@ -197,6 +199,16 @@ public class TopicManagement {
                 topicSearchFilter = topicSearchFilterDAO.create(null, null,null, null, null, null, true);
             }
 
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            CategoryDAO categoryDAO = daoFactory.getCategoryDAO();
+            categories = categoryDAO.getAll();
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("categories",categories);
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("topicSearchFilter", topicSearchFilter);
@@ -205,6 +217,7 @@ public class TopicManagement {
         catch (Exception e){
             logger.log(Level.SEVERE, "Controller / TopicManagement / searchView", e);
             try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
             }
             catch (Throwable t){}
@@ -212,6 +225,7 @@ public class TopicManagement {
         }
         finally {
             try {
+                if(daoFactory != null) daoFactory.closeTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
             }
             catch (Throwable t){}
@@ -365,6 +379,130 @@ public class TopicManagement {
         }
         catch (Exception e){
             logger.log(Level.SEVERE, "Topic Controller Error / search", e);
+            try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            }
+            catch (Throwable t){}
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if(daoFactory != null) daoFactory.closeTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            }
+            catch (Throwable t){}
+        }
+    }
+
+    public static void insertView(HttpServletRequest request, HttpServletResponse response){
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        List<Category> categories;
+
+        Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+            sessionDAOFactory.beginTransaction();
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            CategoryDAO categoryDAO = daoFactory.getCategoryDAO();
+            categories = categoryDAO.getAll();
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("categories", categories);
+            request.setAttribute("action", "insert");
+            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("viewUrl","topicManagement/insModView");
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE, "Controller / UserManagement / insertView", e);
+            try {
+                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            }
+            catch (Throwable t){}
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            }
+            catch (Throwable t){}
+        }
+    }
+
+    public static void insert(HttpServletRequest request, HttpServletResponse response){
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        Topic topic = null;
+        Category category;
+        String isAnonymousStr;
+        Boolean isAnonymous = false;
+        String categoryName;
+        String applicationMessage = null;
+        Logger logger = LogService.getApplicationLogger();
+
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+            sessionDAOFactory.beginTransaction();
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            CategoryDAO categoryDAO = daoFactory.getCategoryDAO();
+            categoryName = request.getParameter("category");
+            category = categoryDAO.findByName(categoryName);
+
+            isAnonymousStr = request.getParameter("isAnonymous");
+            if (isAnonymousStr != null) {
+                isAnonymous = Boolean.valueOf(isAnonymousStr);
+            }
+
+            TopicDAO topicDAO = daoFactory.getTopicDAO();
+
+            try {
+                topic = topicDAO.create(
+                        request.getParameter("title"),
+                        Timestamp.valueOf(request.getParameter("creationTimestamp")),
+                        loggedUser,
+                        category,
+                        isAnonymous
+                );
+
+            }catch (Exception e){
+                logger.log(Level.SEVERE, "Errore nella creazione del topic: " + e);
+            }
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("applicationMessage",applicationMessage);
+            request.setAttribute("viewUrl","homeManagement/view");
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE, "Controller / TopicManagement / insert", e);
             try {
                 if(daoFactory != null) daoFactory.rollbackTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
