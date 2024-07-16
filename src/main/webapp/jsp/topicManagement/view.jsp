@@ -23,45 +23,6 @@
 </head>
 <style>
 
-    .navigationContainer {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 20px;
-    }
-
-    .navigationButton {
-        cursor: pointer;
-        width: 50px;
-        height: 50px;
-        margin: 0 5px;
-        transition: filter 0.3s ease;
-        z-index: 2;
-    }
-
-    .adjusted {
-        margin: 0 -12px;
-        z-index: 1;
-    }
-
-    .navigationButton:hover {
-        filter: brightness(85%);
-    }
-
-    .pageNumber {
-        font-size: 20px;
-        min-width: 50px;
-        text-align: center;
-        background-size: cover;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 150px;
-        height: 50px;
-        color: white;
-        background-image: url('images/pageBox.png');
-    }
-
     .topic {
         display: flex;
         border: 2px solid #ccc;

@@ -1,5 +1,7 @@
 package com.forums.forums.model.mo;
 
+import java.util.List;
+
 public class Category {
 
     private Long categoryID;
@@ -7,7 +9,7 @@ public class Category {
     private Boolean deleted;
 
     /* 1:N */
-    private Topic[] topics;
+    private List<Topic> topics;
 
     public Long getCategoryID() {
         return categoryID;
@@ -33,11 +35,11 @@ public class Category {
         this.deleted = deleted;
     }
 
-    public Topic[] getTopics() {
+    public List<Topic> getTopics() {
         return topics;
     }
 
-    public void setTopics(Topic[] topics) {
+    public void setTopics(List<Topic> topics) {
         this.topics = topics;
     }
 }

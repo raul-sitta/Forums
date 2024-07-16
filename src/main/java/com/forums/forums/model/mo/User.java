@@ -2,6 +2,7 @@ package com.forums.forums.model.mo;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class User {
 
@@ -17,11 +18,11 @@ public class User {
     private Boolean deleted;
 
     /* 1:N */
-    private Topic[] topics;
-    private Post[] posts;
-    private Media[] medias;
-    private Report[] reportsCreated;
-    private Report[] reportsReceived;
+    private List<Topic> topics;
+    private List<Post> posts;
+    private List<Media> medias;
+    private List<Report> reportsCreated;
+    private List<Report> reportsReceived;
 
     public Long getUserID() {
         return userID;
@@ -103,43 +104,43 @@ public class User {
         this.deleted = deleted;
     }
 
-    public Topic[] getTopics() {
+    public List<Topic> getTopics() {
         return topics;
     }
 
-    public void setTopics(Topic[] topics) {
+    public void setTopics(List<Topic> topics) {
         this.topics = topics;
     }
 
-    public Post[] getPosts() {
+    public List<Post> getPosts() {
         return posts;
     }
 
-    public void setPosts(Post[] posts) {
+    public void setPosts(List<Post> posts) {
         this.posts = posts;
     }
 
-    public Media[] getMedias() {
+    public List<Media> getMedias() {
         return medias;
     }
 
-    public void setMedias(Media[] medias) {
+    public void setMedias(List<Media> medias) {
         this.medias = medias;
     }
 
-    public Report[] getReportsCreated() {
+    public List<Report> getReportsCreated() {
         return reportsCreated;
     }
 
-    public void setReportsCreated(Report[] reportsCreated) {
+    public void setReportsCreated(List<Report> reportsCreated) {
         this.reportsCreated = reportsCreated;
     }
 
-    public Report[] getReportsReceived() {
+    public List<Report> getReportsReceived() {
         return reportsReceived;
     }
 
-    public void setReportsReceived(Report[] reportsReceived) {
+    public void setReportsReceived(List<Report> reportsReceived) {
         this.reportsReceived = reportsReceived;
     }
 }

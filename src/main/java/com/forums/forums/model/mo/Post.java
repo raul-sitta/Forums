@@ -1,6 +1,7 @@
 package com.forums.forums.model.mo;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public class Post {
 
@@ -15,8 +16,8 @@ public class Post {
     private Post parentPost;
 
     /* 1:N */
-    private Media[] medias;
-    private Post[] childrenPosts;
+    private List<Media> medias;
+    private List<Media> childrenPosts;
 
     public Long getPostID() {
         return postID;
@@ -74,19 +75,19 @@ public class Post {
         this.parentPost = parentPost;
     }
 
-    public Media[] getMedias() {
+    public List<Media> getMedias() {
         return medias;
     }
 
-    public void setMedias(Media[] medias) {
+    public void setMedias(List<Media> medias) {
         this.medias = medias;
     }
 
-    public Post[] getChildrenPosts() {
+    public List<Media> getChildrenPosts() {
         return childrenPosts;
     }
 
-    public void setChildrenPosts(Post[] childrenPosts) {
+    public void setChildrenPosts(List<Media> childrenPosts) {
         this.childrenPosts = childrenPosts;
     }
 }

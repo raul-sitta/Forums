@@ -1,6 +1,7 @@
 package com.forums.forums.model.mo;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public class Topic {
 
@@ -15,7 +16,7 @@ public class Topic {
     private Category category;
 
     /* 1:N */
-    private Post[] posts;
+    private List<Post> posts;
 
     public Long getTopicID() {
         return topicID;
@@ -73,11 +74,11 @@ public class Topic {
         this.deleted = deleted;
     }
 
-    public Post[] getPosts() {
+    public List<Post> getPosts() {
         return posts;
     }
 
-    public void setPosts(Post[] posts) {
+    public void setPosts(List<Post> posts) {
         this.posts = posts;
     }
 }

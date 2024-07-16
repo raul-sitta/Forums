@@ -24,5 +24,6 @@ public interface TopicDAO {
             TopicSearchFilter topicSearchFilter);
     public Long countPagesByParameters(
             TopicSearchFilter topicSearchFilter);
+    public Topic findByTopicIDWithPosts(Long pageIndex, Long topicID);
     public List<Topic> getAll();
 }
