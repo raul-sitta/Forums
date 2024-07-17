@@ -28,6 +28,7 @@
         border: 2px solid #ccc;
         padding: 10px;
         margin-bottom: 0;
+        border-radius: 8px;
     }
 
     .topic + .topic {
@@ -39,6 +40,7 @@
         height: 100px;
         border: 2px solid #ccc;
         margin-right: 15px;
+        border-radius: 8px;
     }
 
     .categoryImage img {
@@ -49,20 +51,36 @@
 
     .topicContent {
         flex: 1;
-    }
-
-    .topicHeader {
-        font-size: 18px;
-        margin: 0 0 5px 0;
-        font-weight: bold;
-    }
-
-    .topicDetails {
-        font-size: 14px;
-        color: #666;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+    }
+
+    .topicHeader {
+        font-size: 22px;
+        margin: 0 0 5px 0;
+        font-weight: bold;
+        color: #666;
+    }
+
+    .topicHeader:hover {
+        text-decoration: underline;
+    }
+
+    .topicDetails {
+        font-size: 16px;
+        color: #666;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+    .topicDetails span {
+        margin-bottom: 6px;
+    }
+
+    .topicDetails span:last-child {
+        margin-bottom: 0;
+        margin-top: 0;
     }
 
     .topicDetails .author,
@@ -70,12 +88,17 @@
         display: block;
     }
 
-    .topicDetails .category {
+    .topicDetails .category,
+    .topicDetails .author {
         font-weight: bold;
     }
 
     .topicsNotFound {
         font-size: 20px;
+    }
+
+    .pageNumber {
+        background-image: url('images/pageBox.png');
     }
 
 </style>
@@ -138,9 +161,9 @@
                     "images/categoryImages/anonymous.png"%>" alt="Immagine Categoria"/>
                 </div>
                 <div class="topicContent">
-                    <span class="topicHeader">
+                    <a class="topicHeader" href="javascript:viewTopic(<%=topics.get(i).getTopicID()%>)">
                         <%=topics.get(i).getTitle()%>
-                    </span>
+                    </a>
                     <div class="topicDetails">
                         <span class="author"><%=(!topics.get(i).getAnonymous()) ? "@" + topics.get(i).getAuthor().getUsername() : "Utente Anonimo"%></span>
                         <span class="creationDate"><%=sdf.format(topics.get(i).getCreationTimestamp())%></span>
@@ -169,7 +192,7 @@
 
         <%} else {%>
             <p class="topicsNotFound" id="topicsNotFound">
-                Nessun topic trovato con i parametri forniti!
+                Nessun topic trovato con i parametri forniti.
             </p>
         <%}%>
     </section>
@@ -187,6 +210,8 @@
     </form>
 
     <form name="viewForm" method="post" action="Dispatcher">
+        <input type="hidden" name="topicsCurrentPageIndex" value="<%=currentPageIndex%>"/>
+        <input type="hidden" name="topicsSearchResultFlag" value="<%=searchResultFlag%>"/>
         <input type="hidden" name="topicID"/>
         <input type="hidden" name="controllerAction" value="PostManagement.view"/>
     </form>

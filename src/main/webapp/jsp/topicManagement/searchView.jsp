@@ -68,7 +68,7 @@
                 <label for="title">Titolo</label>
                 <input type="text" id="title" name="title"
                        value="<%=(topicSearchFilter.getTitle() != null) ? topicSearchFilter.getTitle() : ""%>"
-                       size="20" maxlength="100" />
+                       size="20" maxlength="50" />
             </div>
 
             <div class="field clearfix">

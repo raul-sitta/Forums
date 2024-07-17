@@ -19,7 +19,7 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
     }
 
     @Override
-    public Post create(String content, Timestamp creationTimestamp, User author, Topic topic, Post parentPost) {
+    public Post create(String content, Timestamp creationTimestamp, User author, Topic topic) {
         Post post = new Post();
         post.setContent(content);
         post.setCreationTimestamp(creationTimestamp);
@@ -51,9 +51,8 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
                     + "creationTimestamp, "
                     + "authorID, "
                     + "topicID, "
-                    + "parentPostID, "
                     + "deleted) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    + "VALUES (?, ?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
             int i = 1;
@@ -62,11 +61,6 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
             ps.setTimestamp(i++, post.getCreationTimestamp());
             ps.setLong(i++, post.getAuthor().getUserID());
             ps.setLong(i++, post.getTopic().getTopicID());
-            if (post.getParentPost() != null && post.getParentPost().getPostID() != null) {
-                ps.setLong(i++, post.getParentPost().getPostID());
-            } else {
-                ps.setNull(i++, Types.BIGINT);
-            }
             ps.setString(i++,"N");
 
             ps.executeUpdate();
@@ -168,42 +162,6 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
     }
 
     @Override
-    public Long countPagesByTopic (Topic topic) {
-
-        //Controllo gli argomenti
-        if (topic == null) {
-            throw new IllegalArgumentException("Errore: il parametro topic non può essere null");
-        }
-
-        PreparedStatement ps;
-        long pageCount = 0L;
-
-        try {
-            String sql = "SELECT COUNT(*) FROM POST WHERE topicID = ?";
-
-            ps = conn.prepareStatement(sql);
-
-            int i = 1;
-            ps.setLong(i++, topic.getTopicID());
-
-            ResultSet resultSet = ps.executeQuery();
-
-            if (resultSet.next()) {
-                long totalItems = resultSet.getLong(1);
-                pageCount = (totalItems + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
-            }
-
-            resultSet.close();
-            ps.close();
-        }
-        catch (SQLException e){
-            throw new RuntimeException(e);
-        }
-
-        return pageCount;
-    }
-
-    @Override
     public List<Post> getAll() {
         PreparedStatement ps;
         List<Post> posts = new ArrayList<>();
@@ -237,103 +195,103 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
 
         post.setAuthor(author);
         post.setTopic(topic);
-        post.setParentPost(parentPost);
 
         try {
             post.setPostID(rs.getLong("postID"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
             post.setContent(rs.getString("content"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
             post.setCreationTimestamp(rs.getTimestamp("creationTimestamp"));
         } catch (SQLException sqle) {
-                throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
             post.getAuthor().setUserID(rs.getLong("authorID"));
         }
         catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
             post.getTopic().setTopicID(rs.getLong("topicID"));
         }
         catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
-        }
-
-        try {
-            post.getParentPost().setPostID(rs.getLong("parentPostID"));
-        }
-        catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
             post.setDeleted(rs.getString("deleted").equals("Y"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
+
 
         return post;
     }
 
     Post readParent(ResultSet rs) {
-        Post post = new Post();
+        Post parentPost = new Post();
         User author = new User();
         Topic topic = new Topic();
-        Post parentPost = new Post();
 
-        post.setAuthor(author);
-        post.setTopic(topic);
-        post.setParentPost(parentPost);
+        parentPost.setAuthor(author);
+        parentPost.setTopic(topic);
 
         try {
-            parentPost.setPostID(rs.getLong("parentPostID"));
+            Long parentPostID = rs.getObject("parentPostID", Long.class);
+            if (parentPostID != null) {
+                parentPost.setPostID(parentPostID);
+            }
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
             parentPost.setContent(rs.getString("parentContent"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
             parentPost.setCreationTimestamp(rs.getTimestamp("parentCreationTimestamp"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
-            parentPost.getAuthor().setUserID(rs.getLong("parentAuthorID"));
+            Long parentAuthorID = rs.getObject("parentAuthorID", Long.class);
+            if (parentAuthorID != null) {
+                parentPost.getAuthor().setUserID(parentAuthorID);
+            }
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
-            parentPost.getTopic().setTopicID(rs.getLong("parentTopicID"));
+            Long parentTopicID = rs.getObject("parentTopicID", Long.class);
+            if (parentTopicID != null) {
+                parentPost.getTopic().setTopicID(parentTopicID);
+            }
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
         }
 
         try {
-            parentPost.setDeleted(rs.getString("parentDeleted").equals("Y"));
+            String parentDeleted = rs.getString("parentDeleted");
+            if (parentDeleted != null) {
+                parentPost.setDeleted(parentDeleted.equals("Y"));
+            } else {
+                parentPost.setDeleted(null);
+            }
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Post", sqle);
+        }
+
+        if (parentPost.getPostID() == null && parentPost.getContent() == null &&
+                parentPost.getCreationTimestamp() == null && parentPost.getAuthor().getUserID() == null &&
+                parentPost.getTopic().getTopicID() == null && parentPost.getDeleted() == null) {
+            parentPost = null;
         }
 
         return parentPost;
     }
+
 
 }

@@ -13,11 +13,9 @@ public class Post {
     /* N:1 */
     private User author;
     private Topic topic;
-    private Post parentPost;
 
     /* 1:N */
     private List<Media> medias;
-    private List<Media> childrenPosts;
 
     public Long getPostID() {
         return postID;
@@ -67,27 +65,11 @@ public class Post {
         this.topic = topic;
     }
 
-    public Post getParentPost() {
-        return parentPost;
-    }
-
-    public void setParentPost(Post parentPost) {
-        this.parentPost = parentPost;
-    }
-
     public List<Media> getMedias() {
         return medias;
     }
 
     public void setMedias(List<Media> medias) {
         this.medias = medias;
-    }
-
-    public List<Media> getChildrenPosts() {
-        return childrenPosts;
-    }
-
-    public void setChildrenPosts(List<Media> childrenPosts) {
-        this.childrenPosts = childrenPosts;
     }
 }

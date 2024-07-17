@@ -304,7 +304,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
     }
 
     @Override
-    public Long countPagesByParameters(
+    public Long countTopicPagesByParameters(
             TopicSearchFilter topicSearchFilter) {
 
         PreparedStatement ps;
@@ -384,7 +384,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
     }
 
     @Override
-    public Topic findByTopicIDWithPosts(Long pageIndex, Long topicID) {
+    public Topic findByIDWithPosts(Long pageIndex, Long topicID) {
         if (topicID == null) {
             throw new IllegalArgumentException("Errore: il parametro topicID non può essere null");
         }
@@ -392,35 +392,24 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             throw new IllegalArgumentException("Errore: il parametro pageIndex non può essere minore di 1");
         }
 
-        Topic topic = null;
-        List<Post> posts = new ArrayList<>();
+        Topic topic = new Topic();
+        List<Post> posts = null;
         PreparedStatement ps;
 
         try {
-            String sql ="SELECT T.*, P.*, U.*, " +
-                        "PP.postID AS parentPostID, " +
-                        "PP.content AS parentContent, " +
-                        "PP.creationTimestamp AS parentCreationTimestamp, " +
-                        "PP.authorID AS parentAuthorID, " +
-                        "PP.topicID AS parentTopicID, " +
-                        "PP.deleted AS parentDeleted, " +
-                        "PU.userID AS parentUserUserID, " +
-                        "PU.username AS parentUserUsername, " +
-                        "PU.password AS parentUserPassword, " +
-                        "PU.firstname AS parentUserFirstname, " +
-                        "PU.surname AS parentUserSurname, " +
-                        "PU.email AS parentUserEmail, " +
-                        "PU.birthDate AS parentUserBirthDate, " +
-                        "PU.registrationTimestamp AS parentUserRegistrationTimestamp, " +
-                        "PU.role AS parentUserRole, " +
-                        "PU.deleted AS parentUserDeleted " +
-                        "FROM TOPIC AS T " +
-                        "LEFT JOIN POST AS P ON T.topicID = P.topicID " +
-                        "LEFT JOIN USER AS U ON U.userID = P.authorID " +
-                        "LEFT JOIN POST AS PP ON P.parentPostID = PP.postID " +
-                        "LEFT JOIN USER AS PU ON PP.authorID = PU.userID " +
-                        "WHERE T.topicID = ? AND T.deleted = 'N' " +
-                        "ORDER BY P.creationTimestamp ASC";
+            String sql = "SELECT T.topicID, T.title, T.authorID, T.categoryID, T.anonymous, T.deleted, " +
+                         "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, " +
+                         "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.deleted, " +
+                         "COUNT(M.mediaID) AS mediaCount " +
+                         "FROM TOPIC AS T " +
+                         "LEFT JOIN POST AS P ON T.topicID = P.topicID " +
+                         "LEFT JOIN USER AS U ON U.userID = P.authorID " +
+                         "LEFT JOIN MEDIA AS M ON P.postID = M.postID " +
+                         "WHERE T.topicID = ? AND T.deleted = 'N' AND (P.deleted = 'N' OR P.deleted IS NULL) " +
+                         "GROUP BY T.topicID, T.title, T.authorID, T.categoryID, T.anonymous, T.deleted, " +
+                         "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, " +
+                         "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.deleted " +
+                         "ORDER BY P.creationTimestamp ASC ";
 
             if (pageIndex != null) {
                 sql += "LIMIT ? OFFSET ? ";
@@ -440,36 +429,35 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             PostDAOMySQLJDBCImpl postDAOMySQLJDBC = new PostDAOMySQLJDBCImpl(this.conn);
             UserDAOMySQLJDBCImpl userDAOMySQLJDBC = new UserDAOMySQLJDBCImpl(this.conn);
             while (resultSet.next()) {
+
                 topic = read(resultSet);
 
-                Post post = postDAOMySQLJDBC.read(resultSet);
-                User author = userDAOMySQLJDBC.read(resultSet);
+                if (resultSet.getObject("postID", Long.class) != null) {
 
-                Post parentPost = postDAOMySQLJDBC.readParent(resultSet);
+                    if (posts == null) posts = new ArrayList<>();
 
-                if (parentPost.getPostID() == null && parentPost.getContent() == null &&
-                        parentPost.getCreationTimestamp() == null && parentPost.getAuthor().getUserID() == null &&
-                        parentPost.getTopic().getTopicID() == null && parentPost.getDeleted() == null) {
-                    parentPost = null;
+                    Post post = postDAOMySQLJDBC.read(resultSet);
+
+                    Media hasMediaFlag;
+                    List<Media> medias = new ArrayList<>();
+
+                    if (resultSet.getLong("mediaCount") > 0) {
+                        hasMediaFlag = new Media();
+                        hasMediaFlag.setPath("hasMediaFlag");
+                        medias.add(hasMediaFlag);
+                        post.setMedias(medias);
+                    }
+
+                    User author;
+
+                    author = userDAOMySQLJDBC.read(resultSet);
+                    post.setAuthor(author);
+                    posts.add(post);
+
                 }
-
-                User parentAuthor = userDAOMySQLJDBC.readParent(resultSet);
-
-                if (parentAuthor.getUserID() == null && parentAuthor.getUsername() == null &&
-                        parentAuthor.getPassword() == null && parentAuthor.getFirstname() == null &&
-                        parentAuthor.getSurname() == null && parentAuthor.getEmail() == null &&
-                        parentAuthor.getBirthDate() == null && parentAuthor.getRegistrationTimestamp() == null &&
-                        parentAuthor.getRole() == null && parentAuthor.getDeleted() == null) {
-                    parentAuthor = null;
-                }
-
-                post.setAuthor(author);
-                if (parentPost != null) parentPost.setAuthor(parentAuthor);
-                post.setParentPost(parentPost);
-                posts.add(post);
             }
 
-            if (topic!=null) topic.setPosts(posts);
+            if (posts!=null) topic.setPosts(posts);
 
             resultSet.close();
 
@@ -480,6 +468,43 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         }
 
         return topic;
+    }
+
+    @Override
+    public Long countPostPagesByTopicID (Long topicID) {
+        PreparedStatement ps;
+
+        Long pageCount = 0L;
+
+        try {
+            String sql = "SELECT COUNT(*) AS total " +
+                    "FROM TOPIC AS T " +
+                    "LEFT JOIN POST AS P ON T.topicID = P.topicID " +
+                    "WHERE T.topicID = ? AND T.deleted = 'N' AND P.deleted = 'N' ";
+
+
+            ps = conn.prepareStatement(sql);
+
+            int i = 1;
+            ps.setLong(i++, topicID);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                long totalItems = resultSet.getLong("total");
+                pageCount = (totalItems + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE;
+            }
+
+            resultSet.close();
+
+            ps.close();
+
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return pageCount;
     }
 
     @Override
@@ -519,26 +544,32 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         topic.setCategory(category);
 
         try {
-
             topic.setTopicID(rs.getLong("topicID"));
+        } catch (SQLException sqle) {}
 
+        try {
             topic.setTitle(rs.getString("title"));
+        } catch (SQLException sqle) {}
 
+        try {
             topic.setCreationTimestamp(rs.getTimestamp("creationTimestamp"));
+        } catch (SQLException sqle) {}
 
+        try {
             topic.getAuthor().setUserID(rs.getLong("authorID"));
+        } catch (SQLException sqle) {}
 
+        try {
             topic.getCategory().setCategoryID(rs.getLong("categoryID"));
+        } catch (SQLException sqle) {}
 
+        try {
             topic.setAnonymous(rs.getBoolean("anonymous"));
+        } catch (SQLException sqle) {}
 
+        try {
             topic.setDeleted(rs.getString("deleted").equals("Y"));
-
-        } catch (SQLException sqle) {
-
-            throw new RuntimeException("Error: read rs - Topic", sqle);
-
-        }
+        } catch (SQLException sqle) {}
 
         return topic;
     }

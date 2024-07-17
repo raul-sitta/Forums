@@ -418,132 +418,123 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         try {
             user.setUserID(rs.getLong("userID"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         try {
             user.setUsername(rs.getString("username"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         try {
             user.setPassword(rs.getString("password"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         try {
             user.setFirstname(rs.getString("firstname"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         try {
             user.setSurname(rs.getString("surname"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         try {
             user.setEmail(rs.getString("email"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         try {
             user.setBirthDate(rs.getDate("birthDate"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         try {
             user.setRegistrationTimestamp(rs.getTimestamp("registrationTimestamp"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         try {
             user.setRole(rs.getString("role"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         try {
             user.setDeleted(rs.getString("deleted").equals("Y"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
         }
 
         return user;
     }
 
     User readParent(ResultSet rs) {
-
         User user = new User();
 
         try {
-            user.setUserID(rs.getLong("parentUserUserID"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
-        }
+            Long userID = rs.getObject("parentUserUserID", Long.class);
+            if (userID != null) {
+                user.setUserID(userID);
+            }
+        } catch (SQLException sqle) {}
 
         try {
-            user.setUsername(rs.getString("parentUserUsername"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
-        }
+            String username = rs.getString("parentUserUsername");
+            user.setUsername(username);
+        } catch (SQLException sqle) {}
 
         try {
-            user.setPassword(rs.getString("parentUserPassword"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
-        }
+            String password = rs.getString("parentUserPassword");
+            user.setPassword(password);
+        } catch (SQLException sqle) {}
 
         try {
-            user.setFirstname(rs.getString("parentUserFirstname"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
-        }
+            String firstname = rs.getString("parentUserFirstname");
+            user.setFirstname(firstname);
+        } catch (SQLException sqle) {}
 
         try {
-            user.setSurname(rs.getString("parentUserSurname"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
-        }
+            String surname = rs.getString("parentUserSurname");
+            user.setSurname(surname);
+        } catch (SQLException sqle) {}
 
         try {
-            user.setEmail(rs.getString("parentUserEmail"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
-        }
+            String email = rs.getString("parentUserEmail");
+            user.setEmail(email);
+        } catch (SQLException sqle) {}
 
         try {
-            user.setBirthDate(rs.getDate("parentUserBirthDate"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
-        }
+            Date birthDate = rs.getDate("parentUserBirthDate");
+            user.setBirthDate(birthDate);
+        } catch (SQLException sqle) {}
 
         try {
-            user.setRegistrationTimestamp(rs.getTimestamp("parentUserRegistrationTimestamp"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
-        }
+            Timestamp registrationTimestamp = rs.getTimestamp("parentUserRegistrationTimestamp");
+            user.setRegistrationTimestamp(registrationTimestamp);
+        } catch (SQLException sqle) {}
 
         try {
-            user.setRole(rs.getString("parentUserRole"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
-        }
+            String role = rs.getString("parentUserRole");
+            user.setRole(role);
+        } catch (SQLException sqle) {}
 
         try {
-            user.setDeleted(rs.getString("parentUserDeleted").equals("Y"));
-        } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - User", sqle);
+            String deleted = rs.getString("parentUserDeleted");
+            if (deleted != null) {
+                user.setDeleted("Y".equals(deleted));
+            } else {
+                user.setDeleted(null);
+            }
+        } catch (SQLException sqle) {}
+
+        if (user.getUserID() == null && user.getUsername() == null &&
+                user.getPassword() == null && user.getFirstname() == null &&
+                user.getSurname() == null && user.getEmail() == null &&
+                user.getBirthDate() == null && user.getRegistrationTimestamp() == null &&
+                user.getRole() == null && user.getDeleted() == null) {
+            user = null;
         }
 
         return user;
     }
-
-
 }

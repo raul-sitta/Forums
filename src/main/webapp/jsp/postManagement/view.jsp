@@ -13,8 +13,8 @@
     List<String> profilePicPaths = (List<String>) request.getAttribute("profilePicPaths");
     Long currentPageIndex = (Long) request.getAttribute("currentPageIndex");
     Long pageCount = (Long) request.getAttribute("pageCount");
-    Long topicsCurrentPageIndex = (Long) request.getAttribute("topicsCurrentPageIndex");
-    Boolean topicsSearchResultFlag = (Boolean) request.getAttribute("topicsSearchResultFlag");
+    Long topicsCurrentPageIndex = (request.getAttribute("topicsCurrentPageIndex") != null) ? (Long) request.getAttribute("topicsCurrentPageIndex") : 1L;
+    Boolean topicsSearchResultFlag = (request.getAttribute("topicsSearchResultFlag") != null) ? (Boolean) request.getAttribute("topicsSearchResultFlag") : false;
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     String menuActiveLink = "Topics";
 %>
@@ -25,8 +25,75 @@
 </head>
 <style>
 
+    .post {
+        display: flex;
+        align-items: flex-start;
+        border: 2px solid #ccc;
+        padding: 25px;
+        border-radius: 8px;
+    }
+
+    .post + .post {
+        border-top: none;
+    }
+
+    .authorProfile {
+        width: 250px;
+        text-align: center;
+    }
+
+    .authorProfilePic {
+        width: 250px;
+        height: 250px;
+        margin: 0 auto;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+    }
+
+    .authorProfilePic img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .authorDetails {
+        margin-top: 10px;
+        font-size: 18px;
+        color: #666;
+    }
+
+    .username, .role, .creationDate {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 16px;
+    }
+
+    .postContent {
+        flex-grow: 1;
+        padding-left: 25px;
+    }
+
+    .content {
+        white-space: pre-wrap;
+        font-size: 20px;
+    }
+
+    .username {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .role, .creationDate {
+        font-size: 18px;
+        color: #666;
+    }
+
     .postsNotFound {
         font-size: 20px;
+    }
+
+    .pageNumber {
+        background-image: url('images/pageBox.png');
     }
 
 </style>
@@ -77,22 +144,24 @@
     </section>
 
     <section id="posts" class="clearfix">
-        <% if (!topic.getPosts().isEmpty()) {%>
+        <% if (topic.getPosts() != null && !topic.getPosts().isEmpty()) {%>
         <% for (i = 0; i < topic.getPosts().size(); i++) {%>
         <article class="post">
-            <div class="authorProfilePic">
-                <img src="<%= (profilePicPaths.get(i)) %>" alt="Foto profilo di @<%=topic.getPosts().get(i).getAuthor().getUsername()%>"/>
-            </div>
-
-            <div class="postDetails">
-                <span class="author">
-                    <%= (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) && topic.getAnonymous()) ? "Utente Anonimo" :
+            <div class="authorProfile">
+                <div class="authorProfilePic">
+                    <img src="<%= (profilePicPaths.get(i)) %>" alt="Foto profilo di @<%=topic.getPosts().get(i).getAuthor().getUsername()%>"/>
+                </div>
+                <div class="authorDetails">
+                    <span class="username"><%= (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) && topic.getAnonymous()) ? "Utente Anonimo" :
                             "@" + topic.getPosts().get(i).getAuthor().getUsername() +
-                                    (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) ? " (Autore)" : "")
-                    %>
-                </span>
-                &middot;
-                <span class="creationDate"><%=sdf.format(topic.getPosts().get(i).getCreationTimestamp())%></span>
+                                    (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) ? " (Autore)" : "") +
+                                        ((loggedUser.getUserID() == topic.getPosts().get(i).getAuthor().getUserID()) ? " (Tu)" : "")%>
+                    </span>
+                    <span class="role"><%=topic.getPosts().get(i).getAuthor().getRole()%></span>
+                    <span class="creationDate"><%=sdf.format(topic.getPosts().get(i).getCreationTimestamp())%></span>
+                </div>
+            </div>
+            <div class="postContent">
                 <span class="content"><%= (topic.getPosts().get(i).getContent())%></span>
             </div>
         </article>
@@ -110,8 +179,11 @@
                 <img src="images/lastPage.png" alt="->>" class="navigationButton adjusted" style="<%= currentPageIndex < pageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= pageCount %>)" />
             </section>
 
+            <input type="hidden" name="topicID" value="<%=topic.getTopicID()%>"/>
+            <input type="hidden" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
+            <input type="hidden" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
             <input type="hidden" name="currentPageIndex" id="currentPageIndex"  value="<%= currentPageIndex.toString() %>"/>
-            <input type="hidden" name="controllerAction" value="TopicManagement.changePageView" />
+            <input type="hidden" name="controllerAction" value="PostManagement.view" />
         </form>
 
         <%} else {%>

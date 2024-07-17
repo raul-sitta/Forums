@@ -10,13 +10,11 @@ public interface PostDAO {
             String content,
             Timestamp creationTimestamp,
             User author,
-            Topic Topic,
-            Post parentPost
+            Topic Topic
     );
     public void update(Post post);
     public void delete(Post post);
     public List<Post> findByTopic
             (Long pageIndex, Topic topic);
-    public Long countPagesByTopic (Topic topic);
     public List<Post> getAll();
 }

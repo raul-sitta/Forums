@@ -58,7 +58,7 @@
                 <label for="title">Titolo</label>
                 <input type="text" id="title" name="title"
                        value="<%=(action.equals("modify")) ? topic.getTitle() : ""%>"
-                       required size="20" maxlength="100" />
+                       required size="20" maxlength="50" />
             </div>
 
             <div class="field clearfix">

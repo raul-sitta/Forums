@@ -56,7 +56,7 @@ public class TopicManagement {
             TopicDAO topicDAO = daoFactory.getTopicDAO();
 
             topics = topicDAO.findByParameters(currentPageIndex,topicSearchFilter);
-            pageCount = topicDAO.countPagesByParameters(topicSearchFilter);
+            pageCount = topicDAO.countTopicPagesByParameters(topicSearchFilter);
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
@@ -141,7 +141,7 @@ public class TopicManagement {
             TopicDAO topicDAO = daoFactory.getTopicDAO();
 
             topics = topicDAO.findByParameters(currentPageIndex,topicSearchFilter);
-            pageCount = topicDAO.countPagesByParameters(topicSearchFilter);
+            pageCount = topicDAO.countTopicPagesByParameters(topicSearchFilter);
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
@@ -363,7 +363,7 @@ public class TopicManagement {
             TopicDAO topicDAO = daoFactory.getTopicDAO();
 
             topics = topicDAO.findByParameters(currentPageIndex,topicSearchFilter);
-            pageCount = topicDAO.countPagesByParameters(topicSearchFilter);
+            pageCount = topicDAO.countTopicPagesByParameters(topicSearchFilter);
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
@@ -496,10 +496,16 @@ public class TopicManagement {
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
+            request.setAttribute("topic", topic);
+            request.setAttribute("profilePicPaths", null);
+            request.setAttribute("currentPageIndex", 1L);
+            request.setAttribute("pageCount", 1L);
+            request.setAttribute("topicsCurrentPageIndex", null);
+            request.setAttribute("topicsSearchResultFlag", null);
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("applicationMessage",applicationMessage);
-            request.setAttribute("viewUrl","homeManagement/view");
+            request.setAttribute("viewUrl","postManagement/view");
         }
         catch (Exception e){
             logger.log(Level.SEVERE, "Controller / TopicManagement / insert", e);
