@@ -1,5 +1,6 @@
 package com.forums.forums.model.dao.CookieImpl;
 
+import com.forums.forums.services.filesystemservice.FileSystemService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,7 +32,8 @@ public class UserDAOCookieImpl implements UserDAO {
             String email,
             Date birthDate,
             Timestamp registrationTimestamp,
-            String role) {
+            String role,
+            Boolean hasProfilePic) {
 
         User loggedUser = new User();
         loggedUser.setUserID(userID);
@@ -39,6 +41,9 @@ public class UserDAOCookieImpl implements UserDAO {
         loggedUser.setFirstname(firstname);
         loggedUser.setSurname(surname);
         loggedUser.setRole(role);
+        loggedUser.setProfilePicPath((hasProfilePic) ?
+                FileSystemService.getUserRelativeProfilePicPath(loggedUser.getUserID()) :
+                FileSystemService.DEFAULT_PROFILE_PIC_PATH);
 
         Cookie cookie;
         cookie = new Cookie("loggedUser", encode(loggedUser));
@@ -116,7 +121,7 @@ public class UserDAOCookieImpl implements UserDAO {
     private String encode(User loggedUser) {
 
         String encodedLoggedUser;
-        encodedLoggedUser = loggedUser.getUserID() + "#" + loggedUser.getUsername() + "#" + loggedUser.getFirstname() + "#" + loggedUser.getSurname() + "#" + loggedUser.getRole();
+        encodedLoggedUser = loggedUser.getUserID() + "#" + loggedUser.getUsername() + "#" + loggedUser.getFirstname() + "#" + loggedUser.getSurname() + "#" + loggedUser.getRole() + "#" + loggedUser.getProfilePicPath();
         encodedLoggedUser = encodedLoggedUser.replace(" ", "_");
         return encodedLoggedUser;
 
@@ -133,6 +138,7 @@ public class UserDAOCookieImpl implements UserDAO {
         loggedUser.setFirstname(values[2].replace("_", " "));
         loggedUser.setSurname(values[3].replace("_", " "));
         loggedUser.setRole(values[4].replace("_", " "));
+        loggedUser.setProfilePicPath(values[5].replace("_", ""));
 
         return loggedUser;
 

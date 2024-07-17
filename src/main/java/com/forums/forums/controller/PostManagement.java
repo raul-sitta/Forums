@@ -36,7 +36,6 @@ public class PostManagement {
         Boolean topicsSearchResultFlag = null;
         Long topicID = null;
         Topic topic;
-        List<String> profilePicPaths = new ArrayList<>();
         Long postsCurrentPageIndex;
         Long postsPageCount;
 
@@ -111,15 +110,9 @@ public class PostManagement {
             logger.log(Level.SEVERE, "Deleted: {0}", topic.getPosts().get(0).getDeleted());
              */
 
-            if (topic.getPosts() != null) {
-                for (int i = 0; i < topic.getPosts().size(); i++) {
-                    profilePicPaths.add(fs.getActualProfilePicPath(topic.getPosts().get(i).getAuthor()));
-                }
-            }
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("profilePicPaths", profilePicPaths);
             request.setAttribute("topicsCurrentPageIndex",topicsCurrentPageIndex);
             request.setAttribute("topicsSearchResultFlag",topicsSearchResultFlag);
             request.setAttribute("postsCurrentPageIndex", postsCurrentPageIndex);

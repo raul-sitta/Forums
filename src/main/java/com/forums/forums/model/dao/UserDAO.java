@@ -17,7 +17,8 @@ public interface UserDAO {
             String email,
             Date birthDate,
             Timestamp registrationTimestamp,
-            String role) throws DuplicatedObjectException;
+            String role,
+            Boolean hasProfilePic) throws DuplicatedObjectException;
 
     public void update(User user) throws DuplicatedObjectException;
 

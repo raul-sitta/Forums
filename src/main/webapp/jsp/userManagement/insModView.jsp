@@ -8,7 +8,6 @@
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     User user = (loggedUser !=null) ? (User) request.getAttribute("user") : null;
-    String profilePicPath = (String) request.getAttribute("profilePicPath");
     String menuActiveLink = (loggedUser !=null) ? "Account" : "Registrati";
     String action = (loggedUser !=null) ? "modify" : "insert";
 %>
@@ -224,7 +223,7 @@
                     <input type="button" name="deleteImageButton" id="deleteImageButton" class="button red" value="Reimposta"/>
                     <input type="file" id="image" name="image" accept="image/png" class="invisible"/>
                 </section>
-                <img id="preview" src="<%=profilePicPath%>" alt="Immagine profilo">
+                <img id="preview" src="<%=(loggedUser != null) ? loggedUser.getProfilePicPath() : FileSystemService.DEFAULT_PROFILE_PIC_PATH%>" alt="Immagine profilo">
             </div>
 
             <div class="buttonContainer large">

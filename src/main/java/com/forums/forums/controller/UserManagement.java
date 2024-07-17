@@ -39,13 +39,8 @@ public class UserManagement {
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             loggedUser = sessionUserDAO.findLoggedUser();
 
-            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
-            daoFactory.beginTransaction();
-
-            daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("profilePicPath", fs.getActualProfilePicPath(loggedUser));
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("applicationMessage",applicationMessage);
@@ -159,6 +154,8 @@ public class UserManagement {
             String surname = request.getParameter("surname");
             
             try {
+                Boolean updateImage = Boolean.parseBoolean(request.getParameter("updateImage"));
+
                 user = userDAO.create(
                         null,
                         username,
@@ -168,17 +165,17 @@ public class UserManagement {
                         request.getParameter("email"),
                         Date.valueOf(request.getParameter("birthDate")),
                         Timestamp.valueOf(request.getParameter("registrationTimestamp")),
-                        request.getParameter("role")
+                        request.getParameter("role"),
+                        updateImage
                 );
 
-                loggedUser = sessionUserDAO.create(user.getUserID(),username, null, firstname, surname, null, null,null, request.getParameter("role"));
+                loggedUser = sessionUserDAO.create(user.getUserID(),username, null, firstname, surname, null, null,null, request.getParameter("role"), updateImage);
 
                 //Creo le directory dell'utente e salvo la foto profilo
                 fs.createDirectory(fs.getUserMediaDirectoryPath(user.getUserID()));
-                Part filePart = request.getPart("image");
 
                 // Creo la foto profilo (nel caso in cui sia da creare)
-                if (Boolean.parseBoolean(request.getParameter("updateImage"))) {
+                if (updateImage) {
                     fs.createDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
                     fs.createFile(request.getPart("image"), fs.getUserProfilePicPath(user.getUserID()));
                 }
@@ -231,7 +228,6 @@ public class UserManagement {
         User loggedUser;
 
         Logger logger = LogService.getApplicationLogger();
-        FileSystemService fs = new FileSystemService();
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
             sessionFactoryParameters.put("request",request);
@@ -244,7 +240,6 @@ public class UserManagement {
 
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("profilePicPath", fs.getActualProfilePicPath(loggedUser));
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("viewUrl","userManagement/insModView");
@@ -271,7 +266,6 @@ public class UserManagement {
         User user;
 
         Logger logger = LogService.getApplicationLogger();
-        FileSystemService fs = new FileSystemService();
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
             sessionFactoryParameters.put("request",request);
@@ -291,7 +285,6 @@ public class UserManagement {
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("profilePicPath", fs.getActualProfilePicPath(loggedUser));
             request.setAttribute("loggedOn", loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("user",user);
@@ -353,18 +346,26 @@ public class UserManagement {
             loggedUser.setRole(request.getParameter("role"));
 
             try {
-                userDAO.update(user);
+                Boolean updateImage = Boolean.parseBoolean(request.getParameter("updateImage"));
+                Boolean deleteImage = Boolean.parseBoolean(request.getParameter("deleteImage"));
 
-                sessionUserDAO.update(loggedUser);
-
-                // Aggiorno la foto profilo (nel caso in cui sia da aggiornare)
-                if (Boolean.parseBoolean(request.getParameter("updateImage"))) {
-                    fs.createDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
-                    fs.createFile(request.getPart("image"), fs.getUserProfilePicPath(user.getUserID()));
+                if (deleteImage) {
+                    user.setProfilePicPath(FileSystemService.DEFAULT_PROFILE_PIC_PATH);
+                    loggedUser.setProfilePicPath(FileSystemService.DEFAULT_PROFILE_PIC_PATH);
                 }
 
-                // Resetto la foto profilo (nel caso in cui sia da resettare)
-                if (Boolean.parseBoolean(request.getParameter("deleteImage"))) {
+                if (updateImage) {
+                    user.setProfilePicPath(FileSystemService.getUserRelativeProfilePicPath(user.getUserID()));
+                    loggedUser.setProfilePicPath(FileSystemService.getUserRelativeProfilePicPath(user.getUserID()));
+                }
+
+                userDAO.update(user);
+                sessionUserDAO.update(loggedUser);
+
+                if (updateImage) {
+                    fs.createDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
+                    fs.createFile(request.getPart("image"), fs.getUserProfilePicPath(user.getUserID()));
+                } else if (deleteImage) {
                     fs.deleteDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
                 }
             }
@@ -387,7 +388,6 @@ public class UserManagement {
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("profilePicPath", fs.getActualProfilePicPath(loggedUser));
             request.setAttribute("loggedOn", loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("user",user);

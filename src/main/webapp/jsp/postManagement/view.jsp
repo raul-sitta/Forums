@@ -10,7 +10,6 @@
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     Topic topic = (Topic) request.getAttribute("topic");
-    List<String> profilePicPaths = (List<String>) request.getAttribute("profilePicPaths");
     Long postsCurrentPageIndex = (Long) request.getAttribute("postsCurrentPageIndex");
     Long postsPageCount = (Long) request.getAttribute("postsPageCount");
     Long topicsCurrentPageIndex = (request.getAttribute("topicsCurrentPageIndex") != null) ? (Long) request.getAttribute("topicsCurrentPageIndex") : 1L;
@@ -149,13 +148,14 @@
         <article class="post">
             <div class="authorProfile">
                 <div class="authorProfilePic">
-                    <img src="<%= (profilePicPaths.get(i)) %>" alt="Foto profilo di @<%=topic.getPosts().get(i).getAuthor().getUsername()%>"/>
+                    <img src="<%= (topic.getPosts().get(i).getAuthor().getProfilePicPath()) %>" alt="Foto profilo di @<%=topic.getPosts().get(i).getAuthor().getUsername()%>"/>
                 </div>
                 <div class="authorDetails">
                     <span class="username"><%= (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) && topic.getAnonymous()) ? "Utente Anonimo" :
                             "@" + topic.getPosts().get(i).getAuthor().getUsername() +
                                     (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) ? " (Autore)" : "") +
-                                        ((loggedUser.getUserID() == topic.getPosts().get(i).getAuthor().getUserID()) ? " (Tu)" : "")%>
+                                        ((loggedUser.getUserID() == topic.getPosts().get(i).getAuthor().getUserID()) ? " (Tu)" : "") +
+                                            ((topic.getPosts().get(i).getAuthor().getDeleted()) ? " (Eliminato)" : "") %>
                     </span>
                     <span class="role"><%=topic.getPosts().get(i).getAuthor().getRole()%></span>
                     <span class="creationDate"><%=sdf.format(topic.getPosts().get(i).getCreationTimestamp())%></span>

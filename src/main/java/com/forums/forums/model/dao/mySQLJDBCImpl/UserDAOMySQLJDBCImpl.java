@@ -10,6 +10,7 @@ import com.forums.forums.model.mo.User;
 import com.forums.forums.model.dao.UserDAO;
 
 import com.forums.forums.model.dao.exception.DuplicatedObjectException;
+import com.forums.forums.services.filesystemservice.FileSystemService;
 
 public class UserDAOMySQLJDBCImpl implements UserDAO {
 
@@ -30,7 +31,8 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             String email,
             Date birthDate,
             Timestamp registrationTimestamp,
-            String role) throws DuplicatedObjectException {
+            String role,
+            Boolean hasProfilePic) throws DuplicatedObjectException {
 
         PreparedStatement ps;
         User user = new User();
@@ -102,8 +104,9 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + "birthDate,"
                     + "registrationTimestamp,"
                     + "role,"
+                    + "profilePicPath,"
                     + "deleted) "
-                    + "VALUES (?,?,?,?,?,?,?,?,?,?)";
+                    + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
             ps = conn.prepareStatement(sql);
 
             i = 1;
@@ -116,6 +119,9 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             ps.setDate(i++, user.getBirthDate());
             ps.setTimestamp(i++, user.getRegistrationTimestamp());
             ps.setString(i++, user.getRole());
+            ps.setString(i++, (hasProfilePic) ?
+                    FileSystemService.getUserRelativeProfilePicPath(user.getUserID()) :
+                    FileSystemService.DEFAULT_PROFILE_PIC_PATH);
             ps.setString(i++, "N");
 
             ps.executeUpdate();
@@ -173,7 +179,8 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     + "surname = ?, "
                     + "email = ?, "
                     + "birthDate = ?, "
-                    + "role = ? "
+                    + "role = ?, "
+                    + "profilePicPath = ? "
                     + "WHERE userID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -185,6 +192,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             ps.setString(i++, user.getEmail());
             ps.setDate(i++, user.getBirthDate());
             ps.setString(i++, user.getRole());
+            ps.setString(i++, user.getProfilePicPath());
             ps.setLong(i++, user.getUserID());
             ps.executeUpdate();
         }
@@ -200,14 +208,15 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         String sql;
 
         try {
-            sql
-                    = "UPDATE USER SET "
-                    + "deleted = ? "
+            sql =     "UPDATE USER SET "
+                    + "deleted = ?, "
+                    + "profilePicPath = ? "
                     + "WHERE userID = ?";
             ps = conn.prepareStatement(sql);
 
             ps.setString(1, "Y");
-            ps.setLong(2, user.getUserID());
+            ps.setString(2, FileSystemService.DELETED_PROFILE_PIC_PATH);
+            ps.setLong(3, user.getUserID());
 
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -457,6 +466,11 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
         try {
             user.setRole(rs.getString("role"));
+        } catch (SQLException sqle) {
+        }
+
+        try {
+            user.setProfilePicPath(rs.getString("profilePicPath"));
         } catch (SQLException sqle) {
         }
 

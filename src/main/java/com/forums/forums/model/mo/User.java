@@ -15,6 +15,7 @@ public class User {
     private Date birthDate;
     private Timestamp registrationTimestamp;
     private String role;
+    private String profilePicPath;
     private Boolean deleted;
 
     /* 1:N */
@@ -94,6 +95,14 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getProfilePicPath() {
+        return profilePicPath;
+    }
+
+    public void setProfilePicPath(String profilePicPath) {
+        this.profilePicPath = profilePicPath;
     }
 
     public Boolean getDeleted() {

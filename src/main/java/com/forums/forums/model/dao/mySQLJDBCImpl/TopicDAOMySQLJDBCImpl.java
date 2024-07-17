@@ -12,7 +12,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
     private final String COUNTER_ID = "topicID";
     private static final long TOPICS_PER_PAGE = 10L;
-    private static final long POSTS_PER_PAGE = 1L;
+    private static final long POSTS_PER_PAGE = 10L;
     Connection conn;
 
     public TopicDAOMySQLJDBCImpl(Connection conn) {
@@ -399,7 +399,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         try {
             String sql = "SELECT T.topicID, T.title, T.authorID, T.categoryID, T.anonymous, T.deleted, " +
                          "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, " +
-                         "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.deleted, " +
+                         "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.profilePicPath, U.deleted, " +
                          "COUNT(M.mediaID) AS mediaCount " +
                          "FROM TOPIC AS T " +
                          "LEFT JOIN POST AS P ON T.topicID = P.topicID " +
@@ -408,7 +408,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                          "WHERE T.topicID = ? AND T.deleted = 'N' AND (P.deleted = 'N' OR P.deleted IS NULL) " +
                          "GROUP BY T.topicID, T.title, T.authorID, T.categoryID, T.anonymous, T.deleted, " +
                          "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, " +
-                         "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.deleted " +
+                         "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.profilePicPath, U.deleted " +
                          "ORDER BY P.creationTimestamp ASC ";
 
             if (pageIndex != null) {
@@ -438,6 +438,11 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
                     Post post = postDAOMySQLJDBC.read(resultSet);
 
+                    //Fix per leggere la giusta colonna deleted
+                    try {
+                        post.setDeleted(resultSet.getString(12).equals("Y"));
+                    } catch (SQLException sqle) {}
+
                     Media hasMediaFlag;
                     List<Media> medias = new ArrayList<>();
 
@@ -451,6 +456,12 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                     User author;
 
                     author = userDAOMySQLJDBC.read(resultSet);
+
+                    //Fix per leggere la giusta colonna deleted
+                    try {
+                        author.setDeleted(resultSet.getString(23).equals("Y"));
+                    } catch (SQLException sqle) {}
+
                     post.setAuthor(author);
                     posts.add(post);
 

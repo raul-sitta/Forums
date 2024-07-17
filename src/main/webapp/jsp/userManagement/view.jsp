@@ -5,7 +5,6 @@
 <%
     boolean loggedOn = (Boolean) request.getAttribute("loggedOn");
     User loggedUser = (User) request.getAttribute("loggedUser");
-    String profilePicPath = (String) request.getAttribute("profilePicPath");
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     String action = (loggedUser!=null) ? "modify" : "insert";
     String menuActiveLink = (loggedUser!=null) ? "Account" : "Registrati";
@@ -77,7 +76,7 @@
     <section id="userProfilePreview">
         <div class="profileContainer" id="profileContainer">
             <div class="profilePic" id="profilePic">
-                <img src="<%=profilePicPath%>" alt="Foto Profilo" />
+                <img src="<%=loggedUser.getProfilePicPath()%>" alt="Foto Profilo" />
             </div>
             <div class="profileInfo" id="profileInfo">
                 <h2><%="@" + loggedUser.getUsername() %></h2>

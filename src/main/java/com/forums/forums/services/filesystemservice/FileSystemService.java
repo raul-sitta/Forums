@@ -32,13 +32,15 @@ import java.util.logging.Logger;
 
 public class FileSystemService {
 
-    private final String BASE_DIR_PATH = File.separator + "opt" +
+    private static final String BASE_DIR_PATH = File.separator + "opt" +
                                                 File.separator + "tomcat" +
-                                                File.separator + "webapps" +
-                                                File.separator + "Uploads";
+                                                File.separator + "webapps";
 
     public static final String DEFAULT_PROFILE_PIC_PATH = File.separator + "images" +
                                                     File.separator + "defaultProfilePic.png";
+
+    public static final String DELETED_PROFILE_PIC_PATH = File.separator + "images" +
+                                                    File.separator + "deletedProfilePic.png";
 
     public FileSystemService() {
 
@@ -110,7 +112,7 @@ public class FileSystemService {
     public String getUserDirectoryPath(Long userID) {
 
         // Costruzione del percorso dell'immagine del profilo
-        String imagePath = BASE_DIR_PATH + File.separator + "forums" + File.separator + "users" + File.separator + userID;
+        String imagePath = BASE_DIR_PATH + File.separator + "Uploads" + File.separator + "forums" + File.separator + "users" + File.separator + userID;
 
         return imagePath;
     }
@@ -125,6 +127,19 @@ public class FileSystemService {
 
     public String getUserProfilePicPath(Long userID) {
         return (getUserProfilePicDirectoryPath(userID) + File.separator + "profilePic.png");
+    }
+
+    public static String getUserRelativeProfilePicPath(Long userID) {
+
+        String profilePicPath = File.separator +
+                           "Uploads" + File.separator +
+                           "forums" + File.separator +
+                           "users" + File.separator +
+                           userID + File.separator +
+                           "profilePic" + File.separator +
+                           "profilePic.png";
+
+        return profilePicPath;
     }
 
     public String getActualProfilePicPath(User user) {

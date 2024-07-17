@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.forums.forums.services.filesystemservice.FileSystemService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -93,7 +95,16 @@ public class HomeManagement {
                 applicationMessage = "Username e password errati!";
                 loggedUser=null;
             } else {
-                loggedUser = sessionUserDAO.create(user.getUserID(), user.getUsername(), null, user.getFirstname(), user.getSurname(), null, null,null, user.getRole());
+                loggedUser = sessionUserDAO.create(user.getUserID(),
+                        user.getUsername(),
+                        null,
+                        user.getFirstname(),
+                        user.getSurname(),
+                        null,
+                        null,
+                        null,
+                        user.getRole(),
+                        !user.getProfilePicPath().equals(FileSystemService.DEFAULT_PROFILE_PIC_PATH));
                 applicationMessage = "Logon effettuato correttamente!";
             }
 

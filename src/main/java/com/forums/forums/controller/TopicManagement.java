@@ -624,7 +624,6 @@ public class TopicManagement {
         String topicsSearchResultFlagStr;
         Long topicsCurrentPageIndex = null;
         Boolean topicsSearchResultFlag = null;
-        List<String> profilePicPaths = new ArrayList<>();
         Logger logger = LogService.getApplicationLogger();
         FileSystemService fs = new FileSystemService();
 
@@ -673,12 +672,6 @@ public class TopicManagement {
             topic = topicDAO.findByIDWithPosts(postsCurrentPageIndex,topicID);
             postsPageCount = topicDAO.countPostPagesByTopicID(topicID);
 
-            if (topic.getPosts() != null) {
-                for (int i = 0; i < topic.getPosts().size(); i++) {
-                    profilePicPaths.add(fs.getActualProfilePicPath(topic.getPosts().get(i).getAuthor()));
-                }
-            }
-
             title = request.getParameter("title");
 
             CategoryDAO categoryDAO = daoFactory.getCategoryDAO();
@@ -698,7 +691,6 @@ public class TopicManagement {
             sessionDAOFactory.commitTransaction();
 
             request.setAttribute("topic", topic);
-            request.setAttribute("profilePicPaths", profilePicPaths);
             request.setAttribute("postsCurrentPageIndex", postsCurrentPageIndex);
             request.setAttribute("postsPageCount", postsPageCount);
             request.setAttribute("topicsCurrentPageIndex", topicsCurrentPageIndex);
