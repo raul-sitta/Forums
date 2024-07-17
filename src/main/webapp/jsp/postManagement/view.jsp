@@ -11,8 +11,8 @@
     User loggedUser = (User) request.getAttribute("loggedUser");
     Topic topic = (Topic) request.getAttribute("topic");
     List<String> profilePicPaths = (List<String>) request.getAttribute("profilePicPaths");
-    Long currentPageIndex = (Long) request.getAttribute("currentPageIndex");
-    Long pageCount = (Long) request.getAttribute("pageCount");
+    Long postsCurrentPageIndex = (Long) request.getAttribute("postsCurrentPageIndex");
+    Long postsPageCount = (Long) request.getAttribute("postsPageCount");
     Long topicsCurrentPageIndex = (request.getAttribute("topicsCurrentPageIndex") != null) ? (Long) request.getAttribute("topicsCurrentPageIndex") : 1L;
     Boolean topicsSearchResultFlag = (request.getAttribute("topicsSearchResultFlag") != null) ? (Boolean) request.getAttribute("topicsSearchResultFlag") : false;
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -99,7 +99,7 @@
 </style>
 <script>
     function navigateTo(nextPageIndex) {
-        let currentPageInput = document.getElementById('currentPageIndex');
+        let currentPageInput = document.getElementById('postsCurrentPageIndex');
         currentPageInput.value = nextPageIndex.toString();
         document.changePageForm.submit();
     }
@@ -170,19 +170,19 @@
         <form name="changePageForm" method="post" action="Dispatcher">
 
             <section class="navigationContainer" id="navigationContainer">
-                <img src="images/firstPage.png" alt="<<-" class="navigationButton adjusted" style="<%= currentPageIndex > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(1)" />
-                <img src="images/previousPage.png" alt="<-" class="navigationButton" style="<%= currentPageIndex > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= currentPageIndex - 1L %>)" />
+                <img src="images/firstPage.png" alt="<<-" class="navigationButton adjusted" style="<%= postsCurrentPageIndex > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(1)" />
+                <img src="images/previousPage.png" alt="<-" class="navigationButton" style="<%= postsCurrentPageIndex > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= postsCurrentPageIndex - 1L %>)" />
                 <div class="pageNumber" id="pageNumber">
-                    <%= "Pagina " + currentPageIndex + " di " + pageCount %>
+                    <%= "Pagina " + postsCurrentPageIndex + " di " + postsPageCount %>
                 </div>
-                <img src="images/nextPage.png" alt="->" class="navigationButton" style="<%= currentPageIndex < pageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= currentPageIndex + 1L %>)" />
-                <img src="images/lastPage.png" alt="->>" class="navigationButton adjusted" style="<%= currentPageIndex < pageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= pageCount %>)" />
+                <img src="images/nextPage.png" alt="->" class="navigationButton" style="<%= postsCurrentPageIndex < postsPageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= postsCurrentPageIndex + 1L %>)" />
+                <img src="images/lastPage.png" alt="->>" class="navigationButton adjusted" style="<%= postsCurrentPageIndex < postsPageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= postsPageCount %>)" />
             </section>
 
             <input type="hidden" name="topicID" value="<%=topic.getTopicID()%>"/>
             <input type="hidden" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
             <input type="hidden" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
-            <input type="hidden" name="currentPageIndex" id="currentPageIndex"  value="<%= currentPageIndex.toString() %>"/>
+            <input type="hidden" name="postsCurrentPageIndex" id="postsCurrentPageIndex"  value="<%= postsCurrentPageIndex %>"/>
             <input type="hidden" name="controllerAction" value="PostManagement.view" />
         </form>
 
@@ -194,8 +194,8 @@
     </section>
 
     <form name="backForm" method="post" action="Dispatcher">
-        <input type="hidden" name="currentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
-        <input type="hidden" name="searchResultFlag" value="<%=topicsSearchResultFlag%>"/>
+        <input type="hidden" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
+        <input type="hidden" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
         <input type="hidden" name="controllerAction" value="TopicManagement.changePageView"/>
     </form>
 
@@ -212,7 +212,7 @@
         <input type="hidden" name="topicID" value="<%=topic.getTopicID()%>"/>
         <input type="hidden" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
         <input type="hidden" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
-        <input type="hidden" name="currentPageIndex" value="<%=currentPageIndex%>"/>
+        <input type="hidden" name="postsCurrentPageIndex" value="<%=postsCurrentPageIndex%>"/>
         <input type="hidden" name="controllerAction" value="TopicManagement.modifyView"/>
     </form>
 

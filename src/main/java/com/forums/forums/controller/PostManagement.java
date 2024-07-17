@@ -37,20 +37,20 @@ public class PostManagement {
         Long topicID = null;
         Topic topic;
         List<String> profilePicPaths = new ArrayList<>();
-        Long currentPageIndex;
-        Long pageCount;
+        Long postsCurrentPageIndex;
+        Long postsPageCount;
 
         Logger logger = LogService.getApplicationLogger();
         FileSystemService fs = new FileSystemService();
 
-        String currentPageIndexStr = request.getParameter("currentPageIndex");
-        currentPageIndex = 1L;
+        String postsCurrentPageIndexStr = request.getParameter("postsCurrentPageIndex");
+        postsCurrentPageIndex = 1L;
 
-        if (currentPageIndexStr != null) {
+        if (postsCurrentPageIndexStr != null) {
             try {
-                currentPageIndex = Long.parseLong(currentPageIndexStr);
+                postsCurrentPageIndex = Long.parseLong(postsCurrentPageIndexStr);
             } catch (NumberFormatException e) {
-                currentPageIndex = 1L;
+                postsCurrentPageIndex = 1L;
             }
         }
 
@@ -99,8 +99,8 @@ public class PostManagement {
 
             TopicDAO topicDAO = daoFactory.getTopicDAO();
 
-            topic = topicDAO.findByIDWithPosts(currentPageIndex,topicID);
-            pageCount = topicDAO.countPostPagesByTopicID(topicID);
+            topic = topicDAO.findByIDWithPosts(postsCurrentPageIndex,topicID);
+            postsPageCount = topicDAO.countPostPagesByTopicID(topicID);
 
             /*
             logger.log(Level.SEVERE, "PostID: {0}", topic.getPosts().get(0).getPostID());
@@ -122,8 +122,8 @@ public class PostManagement {
             request.setAttribute("profilePicPaths", profilePicPaths);
             request.setAttribute("topicsCurrentPageIndex",topicsCurrentPageIndex);
             request.setAttribute("topicsSearchResultFlag",topicsSearchResultFlag);
-            request.setAttribute("currentPageIndex", currentPageIndex);
-            request.setAttribute("pageCount",pageCount);
+            request.setAttribute("postsCurrentPageIndex", postsCurrentPageIndex);
+            request.setAttribute("postsPageCount",postsPageCount);
             request.setAttribute("topic",topic);
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);

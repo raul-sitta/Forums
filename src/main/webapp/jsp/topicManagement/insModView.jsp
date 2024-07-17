@@ -9,7 +9,7 @@
     User loggedUser = (User) request.getAttribute("loggedUser");
     List<Category> categories = (List<Category>) request.getAttribute("categories");
     String menuActiveLink = "Topics";
-    Long currentPageIndex = (request.getAttribute("currentPageIndex") != null) ? (Long) request.getAttribute("currentPageIndex") : 1L;
+    Long postsCurrentPageIndex = (request.getAttribute("postsCurrentPageIndex") != null) ? (Long) request.getAttribute("postsCurrentPageIndex") : 1L;
     Long topicsCurrentPageIndex = (request.getAttribute("topicsCurrentPageIndex") != null) ? (Long) request.getAttribute("topicsCurrentPageIndex") : 1L;
     Boolean topicsSearchResultFlag = (request.getAttribute("topicsSearchResultFlag") != null) ? (Boolean) request.getAttribute("topicsSearchResultFlag") : false;
     String action = (String) request.getAttribute("action");
@@ -96,7 +96,7 @@
 
             <input type="hidden" id="topicsCurrentPageIndex" name="topicsCurrentPageIndex" value="<%=(action.equals("modify")) ? topicsCurrentPageIndex : ""%>"/>
             <input type="hidden" id="topicsSearchResultFlag" name="topicsSearchResultFlag" value="<%=(action.equals("modify")) ? topicsSearchResultFlag : ""%>"/>
-            <input type="hidden" id="currentPageIndex" name="currentPageIndex" value="<%=(action.equals("modify")) ? currentPageIndex : ""%>"/>
+            <input type="hidden" id="postsCurrentPageIndex" name="postsCurrentPageIndex" value="<%=(action.equals("modify")) ? postsCurrentPageIndex : ""%>"/>
             <input type="hidden" id="topicID" name="topicID" value="<%=(action.equals("modify")) ? topic.getTopicID() : ""%>"/>
             <input type="hidden" id="creationTimestamp" name="creationTimestamp" value=""/>
 
@@ -108,6 +108,7 @@
         <% if (action.equals("modify")) { %>
             <input type="hidden" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
             <input type="hidden" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
+            <input type="hidden" name="postsCurrentPageIndex" value="<%=postsCurrentPageIndex%>"/>
             <input type="hidden" name="topicID" value="<%=topic.getTopicID()%>"/>
             <input type="hidden" name="controllerAction" value="PostManagement.view">
         <% } else { %>

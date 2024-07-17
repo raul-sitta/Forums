@@ -12,7 +12,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
     private final String COUNTER_ID = "topicID";
     private static final long TOPICS_PER_PAGE = 10L;
-    private static final long POSTS_PER_PAGE = 10L;
+    private static final long POSTS_PER_PAGE = 1L;
     Connection conn;
 
     public TopicDAOMySQLJDBCImpl(Connection conn) {
@@ -309,7 +309,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
         PreparedStatement ps;
 
-        Long pageCount = 0L;
+        Long topicsPageCount = 0L;
 
         try {
             String sql = "SELECT COUNT(*) AS total FROM TOPIC AS T " +
@@ -368,7 +368,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
             if (resultSet.next()) {
                 long totalItems = resultSet.getLong("total");
-                pageCount = (totalItems + TOPICS_PER_PAGE - 1) / TOPICS_PER_PAGE;
+                topicsPageCount = (totalItems + TOPICS_PER_PAGE - 1) / TOPICS_PER_PAGE;
             }
 
             resultSet.close();
@@ -380,7 +380,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             throw new RuntimeException(e);
         }
 
-        return pageCount;
+        return topicsPageCount;
     }
 
     @Override
@@ -474,7 +474,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
     public Long countPostPagesByTopicID (Long topicID) {
         PreparedStatement ps;
 
-        Long pageCount = 0L;
+        Long postsPageCount = 0L;
 
         try {
             String sql = "SELECT COUNT(*) AS total " +
@@ -492,7 +492,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
             if (resultSet.next()) {
                 long totalItems = resultSet.getLong("total");
-                pageCount = (totalItems + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE;
+                postsPageCount = (totalItems + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE;
             }
 
             resultSet.close();
@@ -504,7 +504,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             throw new RuntimeException(e);
         }
 
-        return pageCount;
+        return postsPageCount;
     }
 
     @Override
