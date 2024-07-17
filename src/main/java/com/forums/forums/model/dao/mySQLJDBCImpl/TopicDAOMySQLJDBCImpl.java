@@ -4,9 +4,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.forums.forums.model.dao.TopicDAO;
-
+import com.forums.forums.model.dao.*;
 import com.forums.forums.model.mo.*;
+import com.forums.forums.services.config.Configuration;
 
 public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
@@ -93,7 +93,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                     = "UPDATE TOPIC "
                     + "SET "
                     + "title = ?, "
-                    + "category = ? "
+                    + "categoryID = ? "
                     + "WHERE topicID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -505,6 +505,49 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         }
 
         return pageCount;
+    }
+
+    @Override
+    public Topic findByID(Long topicID) {
+        if (topicID == null) {
+            throw new IllegalArgumentException("Errore: il parametro topicID non può essere null");
+        }
+
+        Topic topic = null;
+        PreparedStatement ps;
+
+        try {
+
+            String sql = " SELECT T.*, U.*, C.* "
+                    + " FROM TOPIC T "
+                    + " JOIN USER U ON T.authorID = U.userID "
+                    + " JOIN CATEGORY C ON T.categoryID = C.categoryID "
+                    + " WHERE T.topicID = ? ";
+
+            ps = conn.prepareStatement(sql);
+            ps.setLong(1, topicID);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            //Creo i DAOMySQLJDBCImpl per leggere il resultSet usando i metodi di altri DAO
+            UserDAOMySQLJDBCImpl userDAOMySQLJDBC = new UserDAOMySQLJDBCImpl(this.conn);
+            CategoryDAOMySQLJDBCImpl categoryDAOMySQLJDBC = new CategoryDAOMySQLJDBCImpl(this.conn);
+            if (resultSet.next()) {
+                User author = userDAOMySQLJDBC.read(resultSet);
+                Category category = categoryDAOMySQLJDBC.read(resultSet);
+                topic = read(resultSet);
+                topic.setAuthor(author);
+                topic.setCategory(category);
+            }
+            resultSet.close();
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return topic;
+
     }
 
     @Override

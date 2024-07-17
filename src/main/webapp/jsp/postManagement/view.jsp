@@ -210,6 +210,9 @@
 
     <form name="modifyTopicForm" method="post" action="Dispatcher">
         <input type="hidden" name="topicID" value="<%=topic.getTopicID()%>"/>
+        <input type="hidden" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
+        <input type="hidden" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
+        <input type="hidden" name="currentPageIndex" value="<%=currentPageIndex%>"/>
         <input type="hidden" name="controllerAction" value="TopicManagement.modifyView"/>
     </form>
 

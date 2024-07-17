@@ -9,8 +9,10 @@ import com.forums.forums.services.filesystemservice.FileSystemService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
+import java.util.Enumeration;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -28,7 +30,6 @@ public class TopicManagement {
         TopicSearchFilter topicSearchFilter;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
-        FileSystemService fs = new FileSystemService();
         List<Topic> topics;
         Long currentPageIndex = 1L;
         Long pageCount;
@@ -95,29 +96,12 @@ public class TopicManagement {
         TopicSearchFilter topicSearchFilter;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
-        FileSystemService fs = new FileSystemService();
         List<Topic> topics;
         Long pageCount;
-
-        String currentPageIndexStr = request.getParameter("currentPageIndex");
-        Long currentPageIndex = 1L;
-
-        if (currentPageIndexStr != null) {
-            try {
-                currentPageIndex = Long.parseLong(currentPageIndexStr);
-            } catch (NumberFormatException e) {
-                currentPageIndex = 1L;
-            }
-        }
-
         String searchResultFlagStr;
         Boolean searchResultFlag;
-        searchResultFlagStr = request.getParameter("searchResultFlag");
-        if (searchResultFlagStr == null || searchResultFlagStr.isEmpty()) {
-            searchResultFlag = Boolean.FALSE;
-        } else {
-            searchResultFlag = Boolean.valueOf(searchResultFlagStr);
-        }
+        String currentPageIndexStr;
+        Long currentPageIndex = 1L;
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
@@ -125,6 +109,22 @@ public class TopicManagement {
             sessionFactoryParameters.put("response",response);
             sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
             sessionDAOFactory.beginTransaction();
+
+            currentPageIndexStr = request.getParameter("currentPageIndex");
+            if (currentPageIndexStr != null) {
+                try {
+                    currentPageIndex = Long.parseLong(currentPageIndexStr);
+                } catch (NumberFormatException e) {
+                    currentPageIndex = 1L;
+                }
+            }
+
+            searchResultFlagStr = request.getParameter("searchResultFlag");
+            if (searchResultFlagStr == null || searchResultFlagStr.isEmpty()) {
+                searchResultFlag = Boolean.FALSE;
+            } else {
+                searchResultFlag = Boolean.valueOf(searchResultFlagStr);
+            }
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             TopicSearchFilterDAO topicSearchFilterDAO = sessionDAOFactory.getTopicSearchFilterDAO();
@@ -181,7 +181,6 @@ public class TopicManagement {
         List<Category> categories;
 
         Logger logger = LogService.getApplicationLogger();
-        FileSystemService fs = new FileSystemService();
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
             sessionFactoryParameters.put("request",request);
@@ -239,7 +238,6 @@ public class TopicManagement {
         TopicSearchFilter topicSearchFilter;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
-        FileSystemService fs = new FileSystemService();
         List<Topic> topics;
         Long pageCount;
 
@@ -256,22 +254,25 @@ public class TopicManagement {
         String sortOrderStr;
         Boolean sortNewestFirst;
 
-        String currentPageIndexStr = request.getParameter("currentPageIndex");
+        String currentPageIndexStr;
         Long currentPageIndex = 1L;
-
-        if (currentPageIndexStr != null) {
-            try {
-                currentPageIndex = Long.parseLong(currentPageIndexStr);
-            } catch (NumberFormatException e) {
-                currentPageIndex = 1L;
-            }
-        }
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
             sessionFactoryParameters.put("request",request);
             sessionFactoryParameters.put("response",response);
             sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+
+            currentPageIndexStr = request.getParameter("currentPageIndex");
+
+            if (currentPageIndexStr != null) {
+                try {
+                    currentPageIndex = Long.parseLong(currentPageIndexStr);
+                } catch (NumberFormatException e) {
+                    currentPageIndex = 1L;
+                }
+            }
+
             sessionDAOFactory.beginTransaction();
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
@@ -402,7 +403,6 @@ public class TopicManagement {
         List<Category> categories;
 
         Logger logger = LogService.getApplicationLogger();
-        FileSystemService fs = new FileSystemService();
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
             sessionFactoryParameters.put("request",request);
@@ -429,7 +429,7 @@ public class TopicManagement {
             request.setAttribute("viewUrl","topicManagement/insModView");
         }
         catch (Exception e){
-            logger.log(Level.SEVERE, "Controller / UserManagement / insertView", e);
+            logger.log(Level.SEVERE, "Controller / UserManagement / modifyView", e);
             try {
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
             }
@@ -470,7 +470,7 @@ public class TopicManagement {
             daoFactory.beginTransaction();
 
             CategoryDAO categoryDAO = daoFactory.getCategoryDAO();
-            categoryName = request.getParameter("category");
+            categoryName = request.getParameter("categoryName");
             category = categoryDAO.findByName(categoryName);
 
             isAnonymousStr = request.getParameter("isAnonymous");
@@ -502,6 +502,218 @@ public class TopicManagement {
             request.setAttribute("pageCount", 1L);
             request.setAttribute("topicsCurrentPageIndex", null);
             request.setAttribute("topicsSearchResultFlag", null);
+            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("applicationMessage",applicationMessage);
+            request.setAttribute("viewUrl","postManagement/view");
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE, "Controller / TopicManagement / insert", e);
+            try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            }
+            catch (Throwable t){}
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if(daoFactory != null) daoFactory.closeTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            }
+            catch (Throwable t){}
+        }
+    }
+
+    public static void modifyView(HttpServletRequest request, HttpServletResponse response){
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        Topic topic;
+        Long topicID;
+        String currentPageIndexStr;
+        Long currentPageIndex = 1L;
+        String topicsCurrentPageIndexStr;
+        String topicsSearchResultFlagStr;
+        Long topicsCurrentPageIndex = null;
+        Boolean topicsSearchResultFlag = null;
+        List<Category> categories;
+
+        Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+            sessionDAOFactory.beginTransaction();
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            Enumeration<String> parameterNames = request.getParameterNames();
+
+            while (parameterNames.hasMoreElements()) {
+                String paramName = parameterNames.nextElement();
+                String[] paramValues = request.getParameterValues(paramName);
+
+                for (String paramValue : paramValues) {
+                    logger.log(Level.INFO,paramName + ": " + paramValue);
+                }
+            }
+
+            topicsCurrentPageIndexStr = request.getParameter("topicsCurrentPageIndex");
+            topicsSearchResultFlagStr = request.getParameter("topicsSearchResultFlag");
+
+            if (topicsCurrentPageIndexStr != null) {
+                topicsCurrentPageIndex = Long.parseLong(topicsCurrentPageIndexStr);
+            } else {
+                topicsCurrentPageIndex = 1L;
+            }
+
+            if (topicsSearchResultFlagStr != null) {
+                topicsSearchResultFlag = Boolean.parseBoolean(topicsSearchResultFlagStr);
+            } else {
+                topicsSearchResultFlag = false;
+            }
+
+            currentPageIndexStr = request.getParameter("currentPageIndex");
+            currentPageIndex = Long.parseLong(currentPageIndexStr);
+
+            topicID = Long.parseLong(request.getParameter("topicID"));
+            TopicDAO topicDAO = daoFactory.getTopicDAO();
+            topic = topicDAO.findByID(topicID);
+
+            CategoryDAO categoryDAO = daoFactory.getCategoryDAO();
+            categories = categoryDAO.getAll();
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("currentPageIndex", currentPageIndex);
+            request.setAttribute("topicsCurrentPageIndex", topicsCurrentPageIndex);
+            request.setAttribute("topicsSearchResultFlag", topicsSearchResultFlag);
+            request.setAttribute("topic", topic);
+            request.setAttribute("categories", categories);
+            request.setAttribute("action", "modify");
+            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("viewUrl","topicManagement/insModView");
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE, "Controller / UserManagement / insertView", e);
+            try {
+                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            }
+            catch (Throwable t){}
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            }
+            catch (Throwable t){}
+        }
+    }
+
+    public static void modify(HttpServletRequest request, HttpServletResponse response){
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        Topic topic = null;
+        String title;
+        Category category;
+        String categoryName;
+        String applicationMessage = null;
+        String currentPageIndexStr;
+        Long currentPageIndex = 1L;
+        Long pageCount;
+        String topicsCurrentPageIndexStr;
+        String topicsSearchResultFlagStr;
+        Long topicsCurrentPageIndex = null;
+        Boolean topicsSearchResultFlag = null;
+        List<String> profilePicPaths = new ArrayList<>();
+        Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
+
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+            sessionDAOFactory.beginTransaction();
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            topicsCurrentPageIndexStr = request.getParameter("topicsCurrentPageIndex");
+            topicsSearchResultFlagStr = request.getParameter("topicsSearchResultFlag");
+
+            if (topicsCurrentPageIndexStr != null) {
+                topicsCurrentPageIndex = Long.parseLong(topicsCurrentPageIndexStr);
+            } else {
+                topicsCurrentPageIndex = 1L;
+            }
+
+            if (topicsSearchResultFlagStr != null) {
+                topicsSearchResultFlag = Boolean.parseBoolean(topicsSearchResultFlagStr);
+            } else {
+                topicsSearchResultFlag = false;
+            }
+
+            currentPageIndexStr = request.getParameter("currentPageIndex");
+            currentPageIndex = Long.parseLong(currentPageIndexStr);
+
+            Long topicID = Long.parseLong(request.getParameter("topicID"));
+
+            if (currentPageIndexStr != null) {
+                try {
+                    currentPageIndex = Long.parseLong(currentPageIndexStr);
+                } catch (NumberFormatException e) {
+                    currentPageIndex = 1L;
+                }
+            }
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            TopicDAO topicDAO = daoFactory.getTopicDAO();
+            topic = topicDAO.findByIDWithPosts(currentPageIndex,topicID);
+            pageCount = topicDAO.countPostPagesByTopicID(topicID);
+
+            if (topic.getPosts() != null) {
+                for (int i = 0; i < topic.getPosts().size(); i++) {
+                    profilePicPaths.add(fs.getActualProfilePicPath(topic.getPosts().get(i).getAuthor()));
+                }
+            }
+
+            title = request.getParameter("title");
+
+            CategoryDAO categoryDAO = daoFactory.getCategoryDAO();
+            categoryName = request.getParameter("categoryName");
+            category = categoryDAO.findByName(categoryName);
+
+            topic.setTitle(title);
+            topic.setCategory(category);
+
+            try {
+                topicDAO.update(topic);
+            }catch (Exception e){
+                logger.log(Level.SEVERE, "Errore nella modifica del topic: " + e);
+            }
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("topic", topic);
+            request.setAttribute("profilePicPaths", profilePicPaths);
+            request.setAttribute("currentPageIndex", currentPageIndex);
+            request.setAttribute("pageCount", pageCount);
+            request.setAttribute("topicsCurrentPageIndex", topicsCurrentPageIndex);
+            request.setAttribute("topicsSearchResultFlag", topicsSearchResultFlag);
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
             request.setAttribute("applicationMessage",applicationMessage);
