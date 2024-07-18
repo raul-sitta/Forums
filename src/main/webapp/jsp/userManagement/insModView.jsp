@@ -21,6 +21,8 @@
     #preview{
         width: 250px;
         height: 250px;
+        object-fit: cover;
+        border-radius: 8px;
     }
 </style>
 <script>
@@ -223,7 +225,7 @@
                     <input type="button" name="deleteImageButton" id="deleteImageButton" class="button red" value="Reimposta"/>
                     <input type="file" id="image" name="image" accept="image/png" class="invisible"/>
                 </section>
-                <img id="preview" src="<%=(loggedUser != null) ? loggedUser.getProfilePicPath() : FileSystemService.DEFAULT_PROFILE_PIC_PATH%>" alt="Immagine profilo">
+                <img id="preview" src="<%=(loggedUser != null) ? loggedUser.getProfilePicPath() : FileSystemService.DEFAULT_PROFILE_PIC_PATH%>?cache=<%=System.currentTimeMillis()%>" alt="Immagine profilo">
             </div>
 
             <div class="buttonContainer large">

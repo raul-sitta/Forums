@@ -114,6 +114,13 @@
         document.modifyTopicForm.submit();
     }
 
+    function deleteTopic() {
+        if(confirm("Attenzione! Questa azione e' irreversibile. Vuoi procedere?")){
+            document.deleteTopicForm.topicID.value = <%=topic.getTopicID()%>
+            document.deleteTopicForm.submit();
+        }
+    }
+
     function modifyPost(postID) {
         let f = document.modifyForm;
         f.postID.value = postID;
@@ -140,6 +147,7 @@
 
         <% if (loggedUser.getUserID() == topic.getAuthor().getUserID()) { %>
             <input type="button" id="modifyTopicButton" name="modifyTopicButton" class="button blue" value="Modifica Topic" onclick="javascript:modifyTopic()" />
+            <input type="button" id="deleteTopicButton" name="deleteTopicButton" class="button red" value="Elimina Topic" onclick="javascript:deleteTopic()" />
         <% } %>
         <input type="button" name="backButton" id="backButton" class="button red" value="Indietro" onclick="javascript:goBack()"/>
 
@@ -153,7 +161,7 @@
                 <div class="authorProfilePic">
                     <img src="<%= (topic.getAnonymous() && topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID())) ?
                         "/images/categoryImages/anonymous.png" :
-                            topic.getPosts().get(i).getAuthor().getProfilePicPath() %>"
+                            topic.getPosts().get(i).getAuthor().getProfilePicPath() %>?cache=<%=System.currentTimeMillis()%>"
                                 alt="Foto profilo di @<%=topic.getPosts().get(i).getAuthor().getUsername()%>"/>
                 </div>
                 <div class="authorDetails">
@@ -216,6 +224,11 @@
 
     <form name="modifyTopicForm" method="post" action="Dispatcher">
         <input type="hidden" name="controllerAction" value="TopicManagement.modifyView"/>
+    </form>
+
+    <form name="deleteTopicForm" method="post" action="Dispatcher">
+        <input type="hidden" name="topicID"/>
+        <input type="hidden" name="controllerAction" value="TopicManagement.delete"/>
     </form>
 
 </main>

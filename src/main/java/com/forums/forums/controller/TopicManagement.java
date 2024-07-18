@@ -342,6 +342,9 @@ public class TopicManagement {
 
             topicSearchFilter.setSortNewestFirst(sortNewestFirst);
 
+            // Correzione per non violare la privacy
+            if (topicSearchFilter.getAuthorName() != null) topicSearchFilter.setAnonymous(false);
+
             topicSearchFilterDAO.create(topicSearchFilter.getTitle(),
                                         topicSearchFilter.getAuthorName(),
                                         topicSearchFilter.getCategoryName(),
@@ -462,8 +465,7 @@ public class TopicManagement {
 
             NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
             navigationState = navigationStateDAO.findOrCreateNavigationState();
-            navigationState.setPostsCurrentPageIndex(1L);
-            navigationStateDAO.update(navigationState);
+
 
             daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
             daoFactory.beginTransaction();
@@ -488,9 +490,14 @@ public class TopicManagement {
                         isAnonymous
                 );
 
+                navigationState.setTopicID(topic.getTopicID());
+                navigationState.setPostsCurrentPageIndex(1L);
+
             }catch (Exception e){
                 logger.log(Level.SEVERE, "Errore nella creazione del topic: " + e);
             }
+
+            navigationStateDAO.update(navigationState);
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
@@ -643,6 +650,87 @@ public class TopicManagement {
         }
         catch (Exception e){
             logger.log(Level.SEVERE, "Controller / TopicManagement / insert", e);
+            try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            }
+            catch (Throwable t){}
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if(daoFactory != null) daoFactory.closeTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            }
+            catch (Throwable t){}
+        }
+    }
+
+    public static void delete(HttpServletRequest request, HttpServletResponse response){
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        Topic topic;
+        List<Topic> topics;
+        Long topicID;
+        TopicSearchFilter topicSearchFilter;
+        NavigationState navigationState;
+        Long topicsPageCount;
+        Logger logger = LogService.getApplicationLogger();
+
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+            sessionDAOFactory.beginTransaction();
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
+            navigationState.setTopicID(null);
+            navigationState.setPostsCurrentPageIndex(null);
+            navigationStateDAO.update(navigationState);
+
+            TopicSearchFilterDAO topicSearchFilterDAO = sessionDAOFactory.getTopicSearchFilterDAO();
+            topicSearchFilter = topicSearchFilterDAO.findTopicSearchFilter();
+            if (topicSearchFilter == null) {
+                topicSearchFilter = topicSearchFilterDAO.create(null, null,null, null, null, null, true);
+            }
+
+            topicID = Long.parseLong(request.getParameter("topicID"));
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            TopicDAO topicDAO = daoFactory.getTopicDAO();
+            topic = topicDAO.findByID(topicID);
+
+            try {
+                topicDAO.delete(topic);
+            }
+            catch (Exception e){
+                logger.log(Level.SEVERE, "Errore di cancellazione del topic " + topicID + ": " + e);
+            }
+
+            topics = topicDAO.findByParameters(navigationState.getTopicsCurrentPageIndex(), topicSearchFilter);
+            topicsPageCount = topicDAO.countTopicPagesByParameters(topicSearchFilter);
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("navigationState", navigationState);
+            request.setAttribute("topics",topics);
+            request.setAttribute("topicsPageCount",topicsPageCount);
+            request.setAttribute("loggedOn",loggedUser != null);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("applicationMessage","Topic eliminato correttamente!");
+            request.setAttribute("viewUrl","topicManagement/view");
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE, "Controller / UserManagement / delete", e);
             try {
                 if(daoFactory != null) daoFactory.rollbackTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();

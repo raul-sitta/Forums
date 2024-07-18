@@ -28,6 +28,7 @@
             overflow: hidden;
             border: 2px solid #ccc;
             margin-right: 20px;
+            object-fit: cover;
         }
 
         #profileInfo h2 {
@@ -76,7 +77,7 @@
     <section id="userProfilePreview">
         <div class="profileContainer" id="profileContainer">
             <div class="profilePic" id="profilePic">
-                <img src="<%=loggedUser.getProfilePicPath()%>" alt="Foto Profilo" />
+                <img src="<%=loggedUser.getProfilePicPath()%>?cache=<%=System.currentTimeMillis()%>" alt="Foto Profilo" />
             </div>
             <div class="profileInfo" id="profileInfo">
                 <h2><%="@" + loggedUser.getUsername() %></h2>
