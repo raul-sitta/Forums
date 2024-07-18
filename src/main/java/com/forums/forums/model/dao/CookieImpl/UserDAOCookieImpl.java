@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import com.forums.forums.model.dao.UserDAO;
-import com.forums.forums.model.mo.User;
+import com.forums.forums.model.mo.*;
 
 import java.sql.*;
 import java.util.List;
@@ -115,6 +115,10 @@ public class UserDAOCookieImpl implements UserDAO {
                                        String role,
                                        Boolean isDeleted,
                                        User exceptUser) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    @Override
+    public User findByPost(Post post)  {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

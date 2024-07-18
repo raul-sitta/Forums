@@ -30,6 +30,8 @@ public interface UserDAO {
 
     public User findByUsername(String username);
 
+    public User findByPost(Post post);
+
     public List<User> findByParameters(String username,
                                        Date registratedBefore,
                                        Date registratedAfter,

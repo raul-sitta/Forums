@@ -53,6 +53,7 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        border-radius: 8px;
     }
 
     .authorDetails {
@@ -200,6 +201,10 @@
     </form>
 
     <form name="insertForm" method="post" action="Dispatcher">
+        <input type="hidden" name="topicID" value="<%=topic.getTopicID()%>"/>
+        <input type="hidden" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
+        <input type="hidden" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
+        <input type="hidden" name="postsCurrentPageIndex" value="<%=postsCurrentPageIndex%>"/>
         <input type="hidden" name="controllerAction" value="PostManagement.insertView"/>
     </form>
 

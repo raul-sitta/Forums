@@ -431,6 +431,7 @@ public class TopicManagement {
         catch (Exception e){
             logger.log(Level.SEVERE, "Controller / UserManagement / modifyView", e);
             try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
             }
             catch (Throwable t){}
@@ -438,6 +439,7 @@ public class TopicManagement {
         }
         finally {
             try {
+                if(daoFactory != null) daoFactory.closeTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
             }
             catch (Throwable t){}
@@ -497,7 +499,6 @@ public class TopicManagement {
             sessionDAOFactory.commitTransaction();
 
             request.setAttribute("topic", topic);
-            request.setAttribute("profilePicPaths", null);
             request.setAttribute("postsCurrentPageIndex", 1L);
             request.setAttribute("topicsPageCount", 1L);
             request.setAttribute("topicsCurrentPageIndex", null);
@@ -595,6 +596,7 @@ public class TopicManagement {
         catch (Exception e){
             logger.log(Level.SEVERE, "Controller / UserManagement / insertView", e);
             try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
             }
             catch (Throwable t){}
@@ -602,6 +604,7 @@ public class TopicManagement {
         }
         finally {
             try {
+                if(daoFactory != null) daoFactory.closeTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
             }
             catch (Throwable t){}

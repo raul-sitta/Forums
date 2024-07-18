@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Calendar;
 
-import com.forums.forums.model.mo.Topic;
-import com.forums.forums.model.mo.User;
+import com.forums.forums.model.mo.*;
 import com.forums.forums.model.dao.UserDAO;
 
 import com.forums.forums.model.dao.exception.DuplicatedObjectException;
@@ -418,6 +417,37 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         }
 
         return users;
+    }
+
+    @Override
+    public User findByPost(Post post) {
+        PreparedStatement ps;
+        User user = null;
+
+        try {
+
+            String sql = "SELECT U.* " +
+                         "FROM USER AS U " +
+                         "JOIN POST AS P ON U.userID = P.authorID " +
+                         "WHERE P.postID = ? ";
+
+            ps = conn.prepareStatement(sql);
+            int i = 1;
+            ps.setLong(i++, post.getPostID());
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                user = read(resultSet);
+            }
+            resultSet.close();
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return user;
     }
 
     User read(ResultSet rs) {
