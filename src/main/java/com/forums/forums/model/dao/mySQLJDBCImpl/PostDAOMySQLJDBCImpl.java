@@ -26,6 +26,7 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         post.setAuthor(author);
         post.setTopic(topic);
         post.setDeleted(false);
+        post.setEdited(false);
 
         PreparedStatement ps;
         try {
@@ -51,8 +52,9 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
                     + "creationTimestamp, "
                     + "authorID, "
                     + "topicID, "
-                    + "deleted) "
-                    + "VALUES (?, ?, ?, ?, ?, ?)";
+                    + "deleted, "
+                    + "edited) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
             int i = 1;
@@ -61,6 +63,7 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
             ps.setTimestamp(i++, post.getCreationTimestamp());
             ps.setLong(i++, post.getAuthor().getUserID());
             ps.setLong(i++, post.getTopic().getTopicID());
+            ps.setString(i++,"N");
             ps.setString(i++,"N");
 
             ps.executeUpdate();
@@ -75,9 +78,11 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
     @Override
     public void update(Post post) {
         PreparedStatement ps;
+        post.setEdited(true);
         try {
             String sql = "UPDATE POST SET "
                     + "content = ?, "
+                    + "edited = 'Y' "
                     + "WHERE postID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -228,70 +233,11 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         } catch (SQLException sqle) {
         }
 
+        try {
+            post.setEdited(rs.getString("edited").equals("Y"));
+        } catch (SQLException sqle) {
+        }
 
         return post;
     }
-
-    Post readParent(ResultSet rs) {
-        Post parentPost = new Post();
-        User author = new User();
-        Topic topic = new Topic();
-
-        parentPost.setAuthor(author);
-        parentPost.setTopic(topic);
-
-        try {
-            Long parentPostID = rs.getObject("parentPostID", Long.class);
-            if (parentPostID != null) {
-                parentPost.setPostID(parentPostID);
-            }
-        } catch (SQLException sqle) {
-        }
-
-        try {
-            parentPost.setContent(rs.getString("parentContent"));
-        } catch (SQLException sqle) {
-        }
-
-        try {
-            parentPost.setCreationTimestamp(rs.getTimestamp("parentCreationTimestamp"));
-        } catch (SQLException sqle) {
-        }
-
-        try {
-            Long parentAuthorID = rs.getObject("parentAuthorID", Long.class);
-            if (parentAuthorID != null) {
-                parentPost.getAuthor().setUserID(parentAuthorID);
-            }
-        } catch (SQLException sqle) {
-        }
-
-        try {
-            Long parentTopicID = rs.getObject("parentTopicID", Long.class);
-            if (parentTopicID != null) {
-                parentPost.getTopic().setTopicID(parentTopicID);
-            }
-        } catch (SQLException sqle) {
-        }
-
-        try {
-            String parentDeleted = rs.getString("parentDeleted");
-            if (parentDeleted != null) {
-                parentPost.setDeleted(parentDeleted.equals("Y"));
-            } else {
-                parentPost.setDeleted(null);
-            }
-        } catch (SQLException sqle) {
-        }
-
-        if (parentPost.getPostID() == null && parentPost.getContent() == null &&
-                parentPost.getCreationTimestamp() == null && parentPost.getAuthor().getUserID() == null &&
-                parentPost.getTopic().getTopicID() == null && parentPost.getDeleted() == null) {
-            parentPost = null;
-        }
-
-        return parentPost;
-    }
-
-
 }

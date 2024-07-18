@@ -398,7 +398,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
         try {
             String sql = "SELECT T.topicID, T.title, T.authorID, T.categoryID, T.anonymous, T.deleted, " +
-                         "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, " +
+                         "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, P.edited, " +
                          "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.profilePicPath, U.deleted, " +
                          "COUNT(M.mediaID) AS mediaCount " +
                          "FROM TOPIC AS T " +
@@ -407,7 +407,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                          "LEFT JOIN MEDIA AS M ON P.postID = M.postID " +
                          "WHERE T.topicID = ? AND T.deleted = 'N' AND (P.deleted = 'N' OR P.deleted IS NULL) " +
                          "GROUP BY T.topicID, T.title, T.authorID, T.categoryID, T.anonymous, T.deleted, " +
-                         "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, " +
+                         "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, P.edited, " +
                          "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.profilePicPath, U.deleted " +
                          "ORDER BY P.creationTimestamp ASC ";
 
@@ -491,7 +491,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             String sql = "SELECT COUNT(*) AS total " +
                     "FROM TOPIC AS T " +
                     "LEFT JOIN POST AS P ON T.topicID = P.topicID " +
-                    "WHERE T.topicID = ? AND T.deleted = 'N' AND P.deleted = 'N' ";
+                    "WHERE T.topicID = ? AND T.deleted = 'N' AND (P.deleted = 'N' OR P.deleted IS NULL) ";
 
 
             ps = conn.prepareStatement(sql);

@@ -62,7 +62,7 @@
         color: #666;
     }
 
-    .username, .role, .creationDate {
+    .username, .role, .creationDate, .edited {
         display: block;
         margin-bottom: 5px;
         font-size: 16px;
@@ -83,9 +83,13 @@
         font-weight: bold;
     }
 
-    .role, .creationDate {
+    .role, .creationDate, .edited {
         font-size: 18px;
         color: #666;
+    }
+
+    .edited {
+        font-style: italic;
     }
 
     .postsNotFound {
@@ -149,17 +153,25 @@
         <article class="post">
             <div class="authorProfile">
                 <div class="authorProfilePic">
-                    <img src="<%= (topic.getPosts().get(i).getAuthor().getProfilePicPath()) %>" alt="Foto profilo di @<%=topic.getPosts().get(i).getAuthor().getUsername()%>"/>
+                    <img src="<%= (topic.getAnonymous() && topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID())) ?
+                        "/images/categoryImages/anonymous.png" :
+                            topic.getPosts().get(i).getAuthor().getProfilePicPath() %>"
+                                alt="Foto profilo di @<%=topic.getPosts().get(i).getAuthor().getUsername()%>"/>
                 </div>
                 <div class="authorDetails">
                     <span class="username"><%= (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) && topic.getAnonymous()) ? "Utente Anonimo" :
                             "@" + topic.getPosts().get(i).getAuthor().getUsername() +
-                                    (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) ? " (Autore)" : "") +
-                                        ((loggedUser.getUserID() == topic.getPosts().get(i).getAuthor().getUserID()) ? " (Tu)" : "") +
-                                            ((topic.getPosts().get(i).getAuthor().getDeleted()) ? " (Eliminato)" : "") %>
+                                            ((topic.getPosts().get(i).getAuthor().getDeleted()) ? " (Eliminato)" : "")%>
+                                                <%=((loggedUser.getUserID() == topic.getPosts().get(i).getAuthor().getUserID()) ? " (Tu)" : "")%>
+                                                    <%=(topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) ? " (Autore)" : "")%>
                     </span>
-                    <span class="role"><%=topic.getPosts().get(i).getAuthor().getRole()%></span>
+                    <% if (!topic.getAnonymous() || !topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID())) {%>
+                        <span class="role"><%=topic.getPosts().get(i).getAuthor().getRole()%></span>
+                    <% } %>
                     <span class="creationDate"><%=sdf.format(topic.getPosts().get(i).getCreationTimestamp())%></span>
+                    <% if (topic.getPosts().get(i).getEdited()) {%>
+                        <span class="edited">(modificato)</span>
+                    <% } %>
                 </div>
             </div>
             <div class="postContent">

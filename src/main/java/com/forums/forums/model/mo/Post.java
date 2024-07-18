@@ -9,6 +9,7 @@ public class Post {
     private String content;
     private Timestamp creationTimestamp;
     private Boolean deleted;
+    private Boolean edited;
 
     /* N:1 */
     private User author;
@@ -47,6 +48,14 @@ public class Post {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public Boolean getEdited() {
+        return edited;
+    }
+
+    public void setEdited(Boolean edited) {
+        this.edited = edited;
     }
 
     public User getAuthor() {
