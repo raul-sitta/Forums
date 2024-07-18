@@ -49,6 +49,11 @@ public class CookieDAOFactory extends DAOFactory {
     }
 
     @Override
+    public NavigationStateDAO getNavigationStateDAO() {
+        return new NavigationStateDAOCookieImpl(request, response);
+    }
+
+    @Override
     public PostDAO getPostDAO() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

@@ -28,19 +28,12 @@ public class PostManagement {
         DAOFactory daoFactory = null;
         User loggedUser;
         String applicationMessage = null;
-        String topicsCurrentPageIndexStr;
-        Long topicsCurrentPageIndex = null;
-        String topicsSearchResultFlagStr;
-        Boolean topicsSearchResultFlag = null;
-        String postsCurrentPageIndexStr;
-        Long postsCurrentPageIndex;
-        String topicIDStr;
-        Long topicID = null;
         Topic topic;
+        NavigationState navigationState;
         Long postsPageCount;
+        Long postsCurrentPageIndex;
 
         Logger logger = LogService.getApplicationLogger();
-        FileSystemService fs = new FileSystemService();
 
         try {
             Map sessionFactoryParameters = new HashMap<String, Object>();
@@ -48,80 +41,35 @@ public class PostManagement {
             sessionFactoryParameters.put("response",response);
             sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
 
-            topicIDStr = request.getParameter("topicID");
-
-            topicsCurrentPageIndexStr = request.getParameter("topicsCurrentPageIndex");
-            topicsSearchResultFlagStr = request.getParameter("topicsSearchResultFlag");
-
-            postsCurrentPageIndexStr = request.getParameter("postsCurrentPageIndex");
-            postsCurrentPageIndex = 1L;
-
-            if (postsCurrentPageIndexStr != null) {
-                try {
-                    postsCurrentPageIndex = Long.parseLong(postsCurrentPageIndexStr);
-                } catch (NumberFormatException e) {
-                    postsCurrentPageIndex = 1L;
-                }
-            }
-
-            try {
-                if (topicsCurrentPageIndexStr != null) {
-                    topicsCurrentPageIndex = Long.parseLong(topicsCurrentPageIndexStr);
-                } else {
-                    topicsCurrentPageIndex = 1L;
-                }
-
-                if (topicsSearchResultFlagStr != null) {
-                    topicsSearchResultFlag = Boolean.parseBoolean(topicsSearchResultFlagStr);
-                } else {
-                    topicsSearchResultFlag = false;
-                }
-
-                if (topicIDStr != null) {
-                    topicID = Long.parseLong(topicIDStr);
-                }
-            } catch (NumberFormatException e) {
-                logger.log(Level.SEVERE, "Topic Controller Error / view", e);
-            }
-
-
-            if (topicsCurrentPageIndex == null) {
-                topicsCurrentPageIndex = 1L;
-            }
-
-            if (topicsSearchResultFlag == null) {
-                topicsSearchResultFlag = false;
-            }
-
             sessionDAOFactory.beginTransaction();
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
 
             loggedUser = sessionUserDAO.findLoggedUser();
 
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
+            if (request.getParameter("topicID") != null) {
+                navigationState.setTopicID(Long.parseLong(request.getParameter("topicID")));
+            }
+            if (request.getParameter("postsCurrentPageIndex") != null) {
+                postsCurrentPageIndex = Long.parseLong(request.getParameter("postsCurrentPageIndex"));
+                navigationState.setPostsCurrentPageIndex(postsCurrentPageIndex);
+            }
+            navigationStateDAO.update(navigationState);
+
             daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
             daoFactory.beginTransaction();
 
             TopicDAO topicDAO = daoFactory.getTopicDAO();
 
-            topic = topicDAO.findByIDWithPosts(postsCurrentPageIndex,topicID);
-            postsPageCount = topicDAO.countPostPagesByTopicID(topicID);
-
-            /*
-            logger.log(Level.SEVERE, "PostID: {0}", topic.getPosts().get(0).getPostID());
-            logger.log(Level.SEVERE, "Content: {0}", topic.getPosts().get(0).getContent());
-            logger.log(Level.SEVERE, "CreationTimestamp: {0}", topic.getPosts().get(0).getCreationTimestamp());
-            logger.log(Level.SEVERE, "Author UserID: {0}", topic.getPosts().get(0).getAuthor().getUserID());
-            logger.log(Level.SEVERE, "TopicID: {0}", topic.getPosts().get(0).getTopic().getTopicID());
-            logger.log(Level.SEVERE, "Deleted: {0}", topic.getPosts().get(0).getDeleted());
-             */
+            topic = topicDAO.findByIDWithPosts(navigationState.getPostsCurrentPageIndex(), navigationState.getTopicID());
+            postsPageCount = topicDAO.countPostPagesByTopicID(navigationState.getTopicID());
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("topicsCurrentPageIndex",topicsCurrentPageIndex);
-            request.setAttribute("topicsSearchResultFlag",topicsSearchResultFlag);
-            request.setAttribute("postsCurrentPageIndex", postsCurrentPageIndex);
+            request.setAttribute("navigationState",navigationState);
             request.setAttribute("postsPageCount",postsPageCount);
             request.setAttribute("topic",topic);
             request.setAttribute("loggedOn",loggedUser!=null);
@@ -152,14 +100,7 @@ public class PostManagement {
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
         User loggedUser;
-        String topicsCurrentPageIndexStr;
-        Long topicsCurrentPageIndex = null;
-        String topicsSearchResultFlagStr;
-        Boolean topicsSearchResultFlag = null;
-        String postsCurrentPageIndexStr;
-        Long postsCurrentPageIndex;
-        String topicIDStr;
-        Long topicID = null;
+        NavigationState navigationState;
 
         Logger logger = LogService.getApplicationLogger();
         try {
@@ -168,62 +109,17 @@ public class PostManagement {
             sessionFactoryParameters.put("response",response);
             sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
 
-            topicIDStr = request.getParameter("topicID");
-
-            topicsCurrentPageIndexStr = request.getParameter("topicsCurrentPageIndex");
-            topicsSearchResultFlagStr = request.getParameter("topicsSearchResultFlag");
-
-            postsCurrentPageIndexStr = request.getParameter("postsCurrentPageIndex");
-            postsCurrentPageIndex = 1L;
-
-            if (postsCurrentPageIndexStr != null) {
-                try {
-                    postsCurrentPageIndex = Long.parseLong(postsCurrentPageIndexStr);
-                } catch (NumberFormatException e) {
-                    postsCurrentPageIndex = 1L;
-                }
-            }
-
-            try {
-                if (topicsCurrentPageIndexStr != null) {
-                    topicsCurrentPageIndex = Long.parseLong(topicsCurrentPageIndexStr);
-                } else {
-                    topicsCurrentPageIndex = 1L;
-                }
-
-                if (topicsSearchResultFlagStr != null) {
-                    topicsSearchResultFlag = Boolean.parseBoolean(topicsSearchResultFlagStr);
-                } else {
-                    topicsSearchResultFlag = false;
-                }
-
-                if (topicIDStr != null) {
-                    topicID = Long.parseLong(topicIDStr);
-                }
-            } catch (NumberFormatException e) {
-                logger.log(Level.SEVERE, "Topic Controller Error / view", e);
-            }
-
-
-            if (topicsCurrentPageIndex == null) {
-                topicsCurrentPageIndex = 1L;
-            }
-
-            if (topicsSearchResultFlag == null) {
-                topicsSearchResultFlag = false;
-            }
-
             sessionDAOFactory.beginTransaction();
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             loggedUser = sessionUserDAO.findLoggedUser();
 
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
+
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("topicID", topicID);
-            request.setAttribute("topicsCurrentPageIndex",topicsCurrentPageIndex);
-            request.setAttribute("topicsSearchResultFlag",topicsSearchResultFlag);
-            request.setAttribute("postsCurrentPageIndex", postsCurrentPageIndex);
+            request.setAttribute("topicID", navigationState.getTopicID());
             request.setAttribute("action", "insert");
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
@@ -251,16 +147,8 @@ public class PostManagement {
         User loggedUser;
         Topic topic;
         Post post;
-        Boolean isAnonymous = false;
-        String topicsCurrentPageIndexStr;
-        Long topicsCurrentPageIndex = null;
-        String topicsSearchResultFlagStr;
-        Boolean topicsSearchResultFlag = null;
-        String postsCurrentPageIndexStr;
-        Long postsCurrentPageIndex;
-        String topicIDStr;
-        Long topicID = null;
         Long postsPageCount;
+        NavigationState navigationState;
         String applicationMessage = null;
         Logger logger = LogService.getApplicationLogger();
 
@@ -270,52 +158,10 @@ public class PostManagement {
             sessionFactoryParameters.put("response",response);
             sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
 
-            topicIDStr = request.getParameter("topicID");
-
-            topicsCurrentPageIndexStr = request.getParameter("topicsCurrentPageIndex");
-            topicsSearchResultFlagStr = request.getParameter("topicsSearchResultFlag");
-
-            postsCurrentPageIndexStr = request.getParameter("postsCurrentPageIndex");
-            postsCurrentPageIndex = 1L;
-
-            if (postsCurrentPageIndexStr != null) {
-                try {
-                    postsCurrentPageIndex = Long.parseLong(postsCurrentPageIndexStr);
-                } catch (NumberFormatException e) {
-                    postsCurrentPageIndex = 1L;
-                }
-            }
-
-            try {
-                if (topicsCurrentPageIndexStr != null) {
-                    topicsCurrentPageIndex = Long.parseLong(topicsCurrentPageIndexStr);
-                } else {
-                    topicsCurrentPageIndex = 1L;
-                }
-
-                if (topicsSearchResultFlagStr != null) {
-                    topicsSearchResultFlag = Boolean.parseBoolean(topicsSearchResultFlagStr);
-                } else {
-                    topicsSearchResultFlag = false;
-                }
-
-                if (topicIDStr != null) {
-                    topicID = Long.parseLong(topicIDStr);
-                }
-            } catch (NumberFormatException e) {
-                logger.log(Level.SEVERE, "Topic Controller Error / view", e);
-            }
-
-
-            if (topicsCurrentPageIndex == null) {
-                topicsCurrentPageIndex = 1L;
-            }
-
-            if (topicsSearchResultFlag == null) {
-                topicsSearchResultFlag = false;
-            }
-
             sessionDAOFactory.beginTransaction();
+
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             loggedUser = sessionUserDAO.findLoggedUser();
@@ -326,34 +172,31 @@ public class PostManagement {
             PostDAO postDAO = daoFactory.getPostDAO();
 
             TopicDAO topicDAO = daoFactory.getTopicDAO();
-            topic = topicDAO.findByIDWithPosts(postsCurrentPageIndex,topicID);
-            postsPageCount = topicDAO.countPostPagesByTopicID(topicID);
-
-            if (topic.getPosts() == null) topic.setPosts(new ArrayList<>());
 
             try {
-                post = postDAO.create(
+                Topic topicIDContainer = new Topic();
+                topicIDContainer.setTopicID(navigationState.getTopicID());
+                postDAO.create(
                         request.getParameter("content"),
                         Timestamp.valueOf(request.getParameter("creationTimestamp")),
                         loggedUser,
-                        topic
+                        topicIDContainer
                 );
-                UserDAO userDAO = daoFactory.getUserDAO();
-                User author = userDAO.findByPost(post);
-                post.setAuthor(author);
-                topic.getPosts().add(post);
 
             }catch (Exception e){
                 logger.log(Level.SEVERE, "Errore nella creazione del post: " + e);
             }
 
+            postsPageCount = topicDAO.countPostPagesByTopicID(navigationState.getTopicID());
+            navigationState.setPostsCurrentPageIndex(postsPageCount);
+            navigationStateDAO.update(navigationState);
+            topic = topicDAO.findByIDWithPosts(navigationState.getPostsCurrentPageIndex(), navigationState.getTopicID());
+
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("topicsCurrentPageIndex",topicsCurrentPageIndex);
-            request.setAttribute("topicsSearchResultFlag",topicsSearchResultFlag);
-            request.setAttribute("postsCurrentPageIndex", postsCurrentPageIndex);
-            request.setAttribute("postsPageCount", (postsPageCount >= 1L) ? postsPageCount : 1L);
+            request.setAttribute("navigationState", navigationState);
+            request.setAttribute("postsPageCount", postsPageCount);
             request.setAttribute("topic", topic);
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);

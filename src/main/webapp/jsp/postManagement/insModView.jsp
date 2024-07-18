@@ -8,9 +8,7 @@
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     String menuActiveLink = "Topics";
-    Long postsCurrentPageIndex = (request.getAttribute("postsCurrentPageIndex") != null) ? (Long) request.getAttribute("postsCurrentPageIndex") : 1L;
-    Long topicsCurrentPageIndex = (request.getAttribute("topicsCurrentPageIndex") != null) ? (Long) request.getAttribute("topicsCurrentPageIndex") : 1L;
-    Boolean topicsSearchResultFlag = (request.getAttribute("topicsSearchResultFlag") != null) ? (Boolean) request.getAttribute("topicsSearchResultFlag") : false;
+    NavigationState navigationState = (NavigationState) request.getAttribute("navigationState");
     String action = (String) request.getAttribute("action");
     Long topicID = (Long) request.getAttribute("topicID");
     Post post = (action.equals("modify")) ? (Post) request.getAttribute("post") : null;
@@ -80,21 +78,12 @@
             <input type="hidden" id="postID" name="postID" value="<%=(action.equals("modify")) ? post.getPostID() : ""%>"/>
             <input type="hidden" id="creationTimestamp" name="creationTimestamp" value=""/>
             <input type="hidden" id="authorID" name="authorID" value="<%=loggedUser.getUserID()%>"/>
-            <input type="hidden" id="topicID" name="topicID" value="<%=topicID%>"/>
-
-            <input type="hidden" id="topicsCurrentPageIndex" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
-            <input type="hidden" id="topicsSearchResultFlag" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
-            <input type="hidden" id="postsCurrentPageIndex" name="postsCurrentPageIndex" value="<%=postsCurrentPageIndex%>"/>
 
             <input type="hidden" name="controllerAction"/>
         </form>
     </section>
 
     <form name="backForm" method="post" action="Dispatcher">
-        <input type="hidden" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
-        <input type="hidden" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
-        <input type="hidden" name="postsCurrentPageIndex" value="<%=postsCurrentPageIndex%>"/>
-        <input type="hidden" name="topicID" value="<%=topicID%>"/>
         <input type="hidden" name="controllerAction" value="PostManagement.view">
     </form>
 

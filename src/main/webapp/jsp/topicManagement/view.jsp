@@ -10,9 +10,8 @@
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     List<Topic> topics = (List<Topic>) request.getAttribute("topics");
-    Long topicsCurrentPageIndex = (Long) request.getAttribute("topicsCurrentPageIndex");
     Long topicsPageCount = (Long) request.getAttribute("topicsPageCount");
-    Boolean topicsSearchResultFlag = (Boolean) request.getAttribute("topicsSearchResultFlag");
+    NavigationState navigationState = (NavigationState) request.getAttribute("navigationState");
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     String menuActiveLink = "Topics";
 %>
@@ -134,12 +133,12 @@
 <main>
     <section id="pageTitle">
         <h1>
-            <%=(topicsSearchResultFlag.equals(true)) ? "Risultati della ricerca" : "Topics più recenti"%>
+            <%=(navigationState.getTopicsSearchResultFlag().equals(true)) ? "Risultati della ricerca" : "Topics più recenti"%>
         </h1>
     </section>
 
     <section class="buttonContainer">
-        <% if (topicsSearchResultFlag.equals(false)) {%>
+        <% if (navigationState.getTopicsSearchResultFlag().equals(false)) {%>
 
             <input type="button" id="insertTopicButton" name="insertTopicButton" class="button green" value="Nuovo Topic" onclick="javascript:insertTopic()" />
 
@@ -177,17 +176,16 @@
             <form name="changePageForm" method="post" action="Dispatcher">
 
                 <section class="navigationContainer" id="navigationContainer">
-                    <img src="images/firstPage.png" alt="<<-" class="navigationButton adjusted" style="<%= topicsCurrentPageIndex > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(1)" />
-                    <img src="images/previousPage.png" alt="<-" class="navigationButton" style="<%= topicsCurrentPageIndex > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= topicsCurrentPageIndex - 1L %>)" />
+                    <img src="images/firstPage.png" alt="<<-" class="navigationButton adjusted" style="<%=navigationState.getTopicsCurrentPageIndex() > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(1)" />
+                    <img src="images/previousPage.png" alt="<-" class="navigationButton" style="<%=navigationState.getTopicsCurrentPageIndex() > 1 ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= navigationState.getTopicsCurrentPageIndex() - 1L %>)" />
                     <div class="pageNumber" id="pageNumber">
-                        <%= "Pagina " + topicsCurrentPageIndex + " di " + topicsPageCount %>
+                        <%= "Pagina " + navigationState.getTopicsCurrentPageIndex() + " di " + topicsPageCount %>
                     </div>
-                    <img src="images/nextPage.png" alt="->" class="navigationButton" style="<%= topicsCurrentPageIndex < topicsPageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= topicsCurrentPageIndex + 1L %>)" />
-                    <img src="images/lastPage.png" alt="->>" class="navigationButton adjusted" style="<%= topicsCurrentPageIndex < topicsPageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= topicsPageCount %>)" />
+                    <img src="images/nextPage.png" alt="->" class="navigationButton" style="<%=navigationState.getTopicsCurrentPageIndex() < topicsPageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= navigationState.getTopicsCurrentPageIndex() + 1L %>)" />
+                    <img src="images/lastPage.png" alt="->>" class="navigationButton adjusted" style="<%=navigationState.getTopicsCurrentPageIndex() < topicsPageCount ? "" : "visibility: hidden;" %>" onclick="navigateTo(<%= topicsPageCount %>)" />
                 </section>
 
-                <input type="hidden" name="topicsCurrentPageIndex" id="topicsCurrentPageIndex"  value="<%= topicsCurrentPageIndex.toString() %>"/>
-                <input type="hidden" name="topicsSearchResultFlag" id="topicsSearchResultFlag"  value="<%= topicsSearchResultFlag.toString() %>"/>
+                <input type="hidden" name="topicsCurrentPageIndex" id="topicsCurrentPageIndex"  value="<%= navigationState.getTopicsCurrentPageIndex() %>"/>
                 <input type="hidden" name="controllerAction" value="TopicManagement.changePageView" />
             </form>
 
@@ -211,9 +209,8 @@
     </form>
 
     <form name="viewForm" method="post" action="Dispatcher">
-        <input type="hidden" name="topicsCurrentPageIndex" value="<%=topicsCurrentPageIndex%>"/>
-        <input type="hidden" name="topicsSearchResultFlag" value="<%=topicsSearchResultFlag%>"/>
         <input type="hidden" name="topicID"/>
+        <input type="hidden" name="postsCurrentPageIndex" value="1"/>
         <input type="hidden" name="controllerAction" value="PostManagement.view"/>
     </form>
 

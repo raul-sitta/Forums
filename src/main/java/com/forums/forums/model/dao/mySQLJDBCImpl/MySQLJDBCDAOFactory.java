@@ -75,6 +75,11 @@ public class MySQLJDBCDAOFactory extends DAOFactory {
     }
 
     @Override
+    public NavigationStateDAO getNavigationStateDAO() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public PostDAO getPostDAO() {
         return new PostDAOMySQLJDBCImpl(connection);
     }

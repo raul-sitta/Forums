@@ -2,6 +2,7 @@ package com.forums.forums.model.dao;
 
 import com.forums.forums.model.dao.mySQLJDBCImpl.MySQLJDBCDAOFactory;
 import com.forums.forums.model.dao.CookieImpl.CookieDAOFactory;
+import com.forums.forums.model.mo.NavigationState;
 
 import java.util.Map;
 
@@ -17,6 +18,7 @@ public abstract class DAOFactory {
 
     public abstract CategoryDAO getCategoryDAO();
     public abstract MediaDAO getMediaDAO();
+    public abstract NavigationStateDAO getNavigationStateDAO();
     public abstract PostDAO getPostDAO();
     public abstract ReportDAO getReportDAO();
     public abstract TopicDAO getTopicDAO();
