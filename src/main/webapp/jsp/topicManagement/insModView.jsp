@@ -15,7 +15,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <%@include file="/include/htmlHead.jsp"%>
+    <%@include file="/include/htmlHead.inc"%>
 </head>
 <style>
 
@@ -43,7 +43,7 @@
     }
 </script>
 <body>
-<%@include file="/include/header.jsp"%>
+<%@include file="/include/header.inc"%>
 <main>
     <section id="pageTitle">
         <h1>

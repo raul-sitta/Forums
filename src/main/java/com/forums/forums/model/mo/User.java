@@ -21,9 +21,6 @@ public class User {
     /* 1:N */
     private List<Topic> topics;
     private List<Post> posts;
-    private List<Media> medias;
-    private List<Report> reportsCreated;
-    private List<Report> reportsReceived;
 
     public Long getUserID() {
         return userID;
@@ -127,29 +124,5 @@ public class User {
 
     public void setPosts(List<Post> posts) {
         this.posts = posts;
-    }
-
-    public List<Media> getMedias() {
-        return medias;
-    }
-
-    public void setMedias(List<Media> medias) {
-        this.medias = medias;
-    }
-
-    public List<Report> getReportsCreated() {
-        return reportsCreated;
-    }
-
-    public void setReportsCreated(List<Report> reportsCreated) {
-        this.reportsCreated = reportsCreated;
-    }
-
-    public List<Report> getReportsReceived() {
-        return reportsReceived;
-    }
-
-    public void setReportsReceived(List<Report> reportsReceived) {
-        this.reportsReceived = reportsReceived;
     }
 }

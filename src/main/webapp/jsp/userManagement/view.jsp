@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <%@include file="/include/htmlHead.jsp"%>
+    <%@include file="/include/htmlHead.inc"%>
     <style>
 
         #profileContainer {
@@ -59,7 +59,7 @@
     </script>
 </head>
 <body>
-<%@include file="/include/header.jsp"%>
+<%@include file="/include/header.inc"%>
 <main>
     <section id="pageTitle">
         <h1>Gestione Account</h1>

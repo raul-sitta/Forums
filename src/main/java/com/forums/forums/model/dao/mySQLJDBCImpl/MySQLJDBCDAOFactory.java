@@ -70,11 +70,6 @@ public class MySQLJDBCDAOFactory extends DAOFactory {
     }
 
     @Override
-    public MediaDAO getMediaDAO() {
-        return new MediaDAOMySQLJDBCImpl(connection);
-    }
-
-    @Override
     public NavigationStateDAO getNavigationStateDAO() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -82,11 +77,6 @@ public class MySQLJDBCDAOFactory extends DAOFactory {
     @Override
     public PostDAO getPostDAO() {
         return new PostDAOMySQLJDBCImpl(connection);
-    }
-
-    @Override
-    public ReportDAO getReportDAO() {
-        return new ReportDAOMySQLJDBCImpl(connection);
     }
 
     @Override

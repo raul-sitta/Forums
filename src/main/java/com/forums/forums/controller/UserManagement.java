@@ -95,7 +95,6 @@ public class UserManagement {
                 //Elimino la directory della foto profilo dell'utente (insieme al suo contenuto)
                 fs.deleteDirectory(fs.getUserProfilePicDirectoryPath(user.getUserID()));
 
-                //Conservo i media dell'utente eliminato
             }
             catch (Exception e){
                 logger.log(Level.SEVERE, "Errore di cancellazione dell'utente!" + e);

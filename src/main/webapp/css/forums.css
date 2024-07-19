@@ -1,3 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+.logo {
+    padding-top: 20px;
+    padding-left: 14px;
+    font-size: 4.0em;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2),
+    1px 2px 1px rgba(0, 0, 0, 0.2),
+    1px 3px 1px rgba(0, 0, 0, 0.2);
+}
+
+
 /* Base Styles */
 * {
     margin: 0;
@@ -32,16 +46,8 @@ body {
 
 /* Header Section */
 header {
-    background: #005c99; /* Updated color */
+    background: #005c99;
     padding-top: 10px;
-}
-
-.logo {
-    padding-top: 20px;
-    padding-left: 14px;
-    font-size: 2.2em;
-    font-weight: 900;
-    color: white;
 }
 
 /* Navigation Menu */
@@ -56,8 +62,8 @@ header nav ul {
 
 header nav ul > li {
     float:left;
-    border-top:solid 1px #5da4d9; /* Updated color */
-    background: linear-gradient(#5da4d9, #89c2d9); /* Updated color */
+    border-top:solid 1px #5da4d9;
+    background: linear-gradient(#5da4d9, #89c2d9);
 }
 
 header nav ul > li > a {
@@ -72,11 +78,11 @@ header nav ul > li > a {
 }
 
 header nav ul > li:hover, nav ul > li.active {
-    border-top:solid 1px #003366; /* Updated color */
-    background: linear-gradient(#003366, #004c99); /* Updated color */
+    border-top:solid 1px #003366;
+    background: linear-gradient(#003366, #004c99);
 }
 header nav ul > li:hover > a {
-    color:#b4d6f2; /* Updated color */
+    color:#b4d6f2;
 }
 
 /* Login Section */
@@ -89,7 +95,7 @@ header nav ul > li:hover > a {
 #login label[for="usernameLogin"], #login label[for="passwordLogin"] {
     color:#fff;
     float:left;
-    padding:6px 12px 0px 7px;
+    padding:6px 12px 0 7px;
     font-size: 11px;
 }
 
@@ -97,7 +103,7 @@ header nav ul > li:hover > a {
     float:left;
     height:18px;
     width:125px;
-    border: 1px solid #005c99; /* Updated color */
+    border: 1px solid #005c99;
     border-radius: 4px;
     margin-top: 2px;
     font-size: 11px;
@@ -108,13 +114,13 @@ header nav ul > li:hover > a {
 }
 
 #login form input[type="submit"] {
-    background-color:#005c99; /* Updated color */
+    background-color:#005c99;
     color: #FFFFFF;
     border: 0;
     cursor:pointer;
     float:left;
     overflow:hidden;
-    padding:6px 12px 0px 7px;
+    padding:6px 12px 0 7px;
     width:26px;
     font-size: 11px;
 }
