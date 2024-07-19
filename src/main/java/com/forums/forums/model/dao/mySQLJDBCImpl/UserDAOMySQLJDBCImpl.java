@@ -206,6 +206,9 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         PreparedStatement ps;
         String sql;
 
+        user.setDeleted(true);
+        user.setProfilePicPath(FileSystemService.DELETED_PROFILE_PIC_PATH);
+
         try {
             sql =     "UPDATE USER SET "
                     + "deleted = ?, "
@@ -214,7 +217,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             ps = conn.prepareStatement(sql);
 
             ps.setString(1, "Y");
-            ps.setString(2, FileSystemService.DELETED_PROFILE_PIC_PATH);
+            ps.setString(2, user.getProfilePicPath());
             ps.setLong(3, user.getUserID());
 
             ps.executeUpdate();

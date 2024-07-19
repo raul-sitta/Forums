@@ -418,7 +418,10 @@ public class UserManagement {
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
         User loggedUser;
-        String applicationMessage = null;
+        User toBanUser;
+        Long userID;
+        List<Long> userStats = new ArrayList<>();
+        NavigationState navigationState;
         Logger logger = LogService.getApplicationLogger();
         FileSystemService fs = new FileSystemService();
 
@@ -427,50 +430,47 @@ public class UserManagement {
             sessionFactoryParameters.put("request",request);
             sessionFactoryParameters.put("response",response);
             sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+
+            userID = Long.parseLong(request.getParameter("userID"));
+
             sessionDAOFactory.beginTransaction();
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             loggedUser = sessionUserDAO.findLoggedUser();
 
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
+
             daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
             daoFactory.beginTransaction();
 
             UserDAO userDAO = daoFactory.getUserDAO();
+            toBanUser = userDAO.findByUserIDWithStats(userID,userStats);
 
-            User bannedUser = userDAO.findByUsername(request.getParameter("bannedUser"));
+            try {
+                userDAO.delete(toBanUser);
 
-            if(bannedUser.getUserID() != null){
-                try {
-                    userDAO.delete(bannedUser);
+                //Elimino la directory della foto profilo dell'utente (insieme al suo contenuto)
+                fs.deleteDirectory(fs.getUserProfilePicDirectoryPath(userID));
 
-                    //Elimino la directory della foto profilo dell'utente (insieme al suo contenuto)
-                    fs.deleteDirectory(fs.getUserProfilePicDirectoryPath(bannedUser.getUserID()));
-                }
-                catch (Exception e){
-                    logger.log(Level.SEVERE, "Errore di cancellazione dell'utente!" + e);
-                    throw new RuntimeException(e);
-                }
-
-                applicationMessage = "Utente bannato correttamente";
             }
-            else {
-                applicationMessage = "Username inserito non trovato!";
+            catch (Exception e){
+                logger.log(Level.SEVERE, "Errore di cancellazione dell'utente!" + e);
             }
-
-            //Cerco tutti gli utenti eccetto l'utente loggato e gli utenti eliminati
-            List<User> users = userDAO.findByParameters(null,null,null,null,false,loggedUser);
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedOn",loggedUser != null);
             request.setAttribute("loggedUser",loggedUser);
-            request.setAttribute("users",users);
-            request.setAttribute("applicationMessage",applicationMessage);
-            request.setAttribute("viewUrl","userManagement/banView");
+            request.setAttribute("user",toBanUser);
+            request.setAttribute("userStats",userStats);
+            request.setAttribute("navigationState",navigationState);
+            request.setAttribute("applicationMessage","Utente @" + toBanUser.getUsername() + " bannato!");
+            request.setAttribute("viewUrl","userManagement/profileView");
         }
         catch (Exception e){
-            logger.log(Level.SEVERE, "User Controller Error / ban", e);
+            logger.log(Level.SEVERE, "Controller / UserManagement / delete", e);
             try {
                 if(daoFactory != null) daoFactory.rollbackTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();

@@ -27,7 +27,7 @@
             document.backForm.submit();
         }
 
-        <% if (loggedUser.getRole().equals("Admin")) { %>
+        <% if (!user.getDeleted() && loggedUser.getRole().equals("Admin")) { %>
 
             function banUser(userID){
                 if(confirm("Attenzione! Questa azione e' irreversibile. Vuoi procedere?")){
@@ -90,14 +90,14 @@
 <%@include file="/include/header.jsp"%>
 <main>
     <section id="pageTitle">
-        <h1>Profilo di @<%=user.getUsername()%></h1>
+        <h1>Profilo di @<%=user.getUsername()%><%=(user.getDeleted()) ? " (Eliminato)" : ""%></h1>
     </section>
 
     <section class="buttonContainer">
 
-        <% if (loggedUser.getRole().equals("Admin")) { %>
+        <% if (!user.getDeleted() && loggedUser.getRole().equals("Admin")) { %>
         <input type="button" id="banButton" name="banButton"
-               class="button red" value="Banna" onclick="goBack()"/>
+               class="button red" value="Banna" onclick="banUser(<%=user.getUserID()%>)"/>
         <% } %>
 
         <input type="button" id="backButton" name="backButton" class="button red" value="Indietro" onclick="goBack()"/>
@@ -108,7 +108,7 @@
             <img src="<%= user.getProfilePicPath() %>" alt="Foto Profilo" />
         </div>
         <div class="userInfo">
-            <span class="username">@<%= user.getUsername() %></span>
+            <span class="username">@<%= user.getUsername() %><%=(user.getDeleted()) ? " (Eliminato)" : ""%></span>
             <span>Ruolo: <%= user.getRole() %></span>
             <span>Iscritto in data: <%= sdf.format(user.getRegistrationTimestamp()) %></span>
             <span>Topic creati: <%= userStats.get(0) %></span>
@@ -124,10 +124,12 @@
         <% } %>
     </form>
 
+    <% if (!user.getDeleted() && loggedUser.getRole().equals("Admin")) { %>
     <form name="banForm" method="post" action="Dispatcher">
         <input type="hidden" name="userID"/>
         <input type="hidden" name="controllerAction" value="UserManagement.ban"/>
     </form>
+    <% } %>
 
 </main>
 <%@include file="/include/footer.inc"%>
