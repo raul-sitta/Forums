@@ -101,7 +101,7 @@
 
             <div class="field clearfix">
                 <label for="olderThan">Creati prima del</label>
-                <input type="datetime-local" id="olderThan" name="moreRecentThan"
+                <input type="datetime-local" id="olderThan" name="olderThan"
                        value="<%=(topicSearchFilter.getOlderThan() != null) ? topicSearchFilter.getOlderThan() : ""%>"
                 />
             </div>
