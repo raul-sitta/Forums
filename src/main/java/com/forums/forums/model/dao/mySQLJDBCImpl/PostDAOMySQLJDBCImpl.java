@@ -167,6 +167,37 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
     }
 
     @Override
+    public Post findByID(Long postID) {
+        PreparedStatement ps;
+        Post post = null;
+
+        try {
+
+            String sql
+                    = " SELECT * "
+                    + "   FROM POST "
+                    + " WHERE "
+                    + "   postID = ?";
+
+            ps = conn.prepareStatement(sql);
+            ps.setLong(1, postID);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                post = read(resultSet);
+            }
+            resultSet.close();
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return post;
+    }
+
+    @Override
     public List<Post> getAll() {
         PreparedStatement ps;
         List<Post> posts = new ArrayList<>();

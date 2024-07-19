@@ -392,24 +392,45 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             throw new IllegalArgumentException("Errore: il parametro pageIndex non può essere minore di 1");
         }
 
-        Topic topic = new Topic();
+        Topic topic = null;
         List<Post> posts = null;
         PreparedStatement ps;
 
         try {
-            String sql = "SELECT T.topicID, T.title, T.authorID, T.categoryID, T.anonymous, T.deleted, " +
-                         "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, P.edited, " +
-                         "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.profilePicPath, U.deleted, " +
-                         "COUNT(M.mediaID) AS mediaCount " +
-                         "FROM TOPIC AS T " +
-                         "LEFT JOIN POST AS P ON T.topicID = P.topicID " +
-                         "LEFT JOIN USER AS U ON U.userID = P.authorID " +
-                         "LEFT JOIN MEDIA AS M ON P.postID = M.postID " +
-                         "WHERE T.topicID = ? AND T.deleted = 'N' AND (P.deleted = 'N' OR P.deleted IS NULL) " +
-                         "GROUP BY T.topicID, T.title, T.authorID, T.categoryID, T.anonymous, T.deleted, " +
-                         "P.postID, P.content, P.creationTimestamp, P.authorID, P.topicID, P.deleted, P.edited, " +
-                         "U.userID, U.username, U.password, U.firstname, U.surname, U.email, U.birthDate, U.registrationTimestamp, U.role, U.profilePicPath, U.deleted " +
-                         "ORDER BY P.creationTimestamp ASC ";
+            String sql =  "SELECT "
+                        + "T.topicID, "
+                        + "T.title, "
+                        + "T.authorID, "
+                        + "T.categoryID, "
+                        + "T.anonymous, "
+                        + "T.deleted, "
+                        + "P.postID, "
+                        + "P.content, "
+                        + "P.creationTimestamp, "
+                        + "P.authorID, "
+                        + "P.topicID, "
+                        + "P.deleted, "
+                        + "P.edited, "
+                        + "U.userID, "
+                        + "U.username, "
+                        + "U.password, "
+                        + "U.firstname, "
+                        + "U.surname, "
+                        + "U.email, "
+                        + "U.birthDate, "
+                        + "U.registrationTimestamp, "
+                        + "U.role, "
+                        + "U.profilePicPath, "
+                        + "U.deleted "
+                        + "FROM "
+                        + "TOPIC AS T "
+                        + "LEFT JOIN POST AS P ON T.topicID = P.topicID AND (P.deleted = 'N' OR P.deleted IS NULL) "
+                        + "LEFT JOIN USER AS U ON U.userID = P.authorID "
+                        + "WHERE "
+                        + "T.topicID = ? AND "
+                        + "T.deleted = 'N' "
+                        + "ORDER BY "
+                        + "P.creationTimestamp ASC ";
 
             if (pageIndex != null) {
                 sql += "LIMIT ? OFFSET ? ";
@@ -438,28 +459,18 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
                     Post post = postDAOMySQLJDBC.read(resultSet);
 
-                    //Fix per leggere la giusta colonna deleted
+                    //Fix per leggere la giusta colonna deleted di post
                     try {
                         post.setDeleted(resultSet.getString(12).equals("Y"));
                     } catch (SQLException sqle) {}
-
-                    Media hasMediaFlag;
-                    List<Media> medias = new ArrayList<>();
-
-                    if (resultSet.getLong("mediaCount") > 0) {
-                        hasMediaFlag = new Media();
-                        hasMediaFlag.setPath("hasMediaFlag");
-                        medias.add(hasMediaFlag);
-                        post.setMedias(medias);
-                    }
 
                     User author;
 
                     author = userDAOMySQLJDBC.read(resultSet);
 
-                    //Fix per leggere la giusta colonna deleted
+                    //Fix per leggere la giusta colonna deleted di author
                     try {
-                        author.setDeleted(resultSet.getString(23).equals("Y"));
+                        author.setDeleted(resultSet.getString(24).equals("Y"));
                     } catch (SQLException sqle) {}
 
                     post.setAuthor(author);
@@ -488,10 +499,11 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         Long postsPageCount = 0L;
 
         try {
-            String sql = "SELECT COUNT(*) AS total " +
-                    "FROM TOPIC AS T " +
-                    "LEFT JOIN POST AS P ON T.topicID = P.topicID " +
-                    "WHERE T.topicID = ? AND T.deleted = 'N' AND (P.deleted = 'N' OR P.deleted IS NULL) ";
+            String sql = "SELECT COUNT(*) AS total "
+                    + "FROM TOPIC AS T "
+                    + "LEFT JOIN POST AS P ON T.topicID = P.topicID AND (P.deleted = 'N' OR P.deleted IS NULL) "
+                    + "WHERE T.topicID = ? AND "
+                    + "T.deleted = 'N'";
 
 
             ps = conn.prepareStatement(sql);

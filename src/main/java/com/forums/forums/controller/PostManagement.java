@@ -100,7 +100,6 @@ public class PostManagement {
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
         User loggedUser;
-        NavigationState navigationState;
 
         Logger logger = LogService.getApplicationLogger();
         try {
@@ -114,12 +113,8 @@ public class PostManagement {
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             loggedUser = sessionUserDAO.findLoggedUser();
 
-            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
-            navigationState = navigationStateDAO.findOrCreateNavigationState();
-
             sessionDAOFactory.commitTransaction();
 
-            request.setAttribute("topicID", navigationState.getTopicID());
             request.setAttribute("action", "insert");
             request.setAttribute("loggedOn",loggedUser!=null);
             request.setAttribute("loggedUser",loggedUser);
@@ -128,6 +123,7 @@ public class PostManagement {
         catch (Exception e){
             logger.log(Level.SEVERE, "Controller / UserManagement / modifyView", e);
             try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
             }
             catch (Throwable t){}
@@ -135,6 +131,7 @@ public class PostManagement {
         }
         finally {
             try {
+                if(daoFactory != null) daoFactory.closeTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
             }
             catch (Throwable t){}
@@ -146,7 +143,6 @@ public class PostManagement {
         DAOFactory daoFactory = null;
         User loggedUser;
         Topic topic;
-        Post post;
         Long postsPageCount;
         NavigationState navigationState;
         String applicationMessage = null;
@@ -205,6 +201,218 @@ public class PostManagement {
         }
         catch (Exception e){
             logger.log(Level.SEVERE, "Controller / TopicManagement / insert", e);
+            try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            }
+            catch (Throwable t){}
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if(daoFactory != null) daoFactory.closeTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            }
+            catch (Throwable t){}
+        }
+    }
+
+    public static void modifyView(HttpServletRequest request, HttpServletResponse response){
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        Long postID;
+        Post post;
+
+        Logger logger = LogService.getApplicationLogger();
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+
+            sessionDAOFactory.beginTransaction();
+
+            postID = Long.parseLong(request.getParameter("postID"));
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            PostDAO postDAO = daoFactory.getPostDAO();
+            post = postDAO.findByID(postID);
+
+            daoFactory.commitTransaction();
+
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("post",post);
+            request.setAttribute("action", "modify");
+            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("viewUrl","postManagement/insModView");
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE, "Controller / UserManagement / modifyView", e);
+            try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            }
+            catch (Throwable t){}
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if(daoFactory != null) daoFactory.closeTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            }
+            catch (Throwable t){}
+        }
+    }
+
+    public static void modify(HttpServletRequest request, HttpServletResponse response){
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        Topic topic;
+        Post post;
+        Long postID;
+        Long postsPageCount;
+        NavigationState navigationState;
+        String applicationMessage = null;
+        Logger logger = LogService.getApplicationLogger();
+
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+
+            postID = Long.parseLong(request.getParameter("postID"));
+
+            sessionDAOFactory.beginTransaction();
+
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            PostDAO postDAO = daoFactory.getPostDAO();
+            post = postDAO.findByID(postID);
+
+            post.setContent(request.getParameter("content"));
+
+            try {
+                postDAO.update(post);
+            }catch (Exception e){
+                logger.log(Level.SEVERE, "Errore nella modifica del post: " + e);
+            }
+
+            TopicDAO topicDAO = daoFactory.getTopicDAO();
+
+            postsPageCount = topicDAO.countPostPagesByTopicID(navigationState.getTopicID());
+            topic = topicDAO.findByIDWithPosts(navigationState.getPostsCurrentPageIndex(), navigationState.getTopicID());
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("navigationState", navigationState);
+            request.setAttribute("postsPageCount", postsPageCount);
+            request.setAttribute("topic", topic);
+            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("applicationMessage",applicationMessage);
+            request.setAttribute("viewUrl","postManagement/view");
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE, "Controller / TopicManagement / insert", e);
+            try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            }
+            catch (Throwable t){}
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if(daoFactory != null) daoFactory.closeTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            }
+            catch (Throwable t){}
+        }
+    }
+
+    public static void delete(HttpServletRequest request, HttpServletResponse response){
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        String applicationMessage = null;
+        Topic topic;
+        Post post;
+        Long postID;
+        NavigationState navigationState;
+        Long postsPageCount;
+        Long postsCurrentPageIndex;
+
+        Logger logger = LogService.getApplicationLogger();
+
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+
+            postID = Long.parseLong(request.getParameter("postID"));
+
+            sessionDAOFactory.beginTransaction();
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            PostDAO postDAO = daoFactory.getPostDAO();
+
+            post = postDAO.findByID(postID);
+
+            try {
+                postDAO.delete(post);
+            }
+            catch (Exception e){
+                logger.log(Level.SEVERE, "Errore di cancellazione del post " + postID + ": " + e);
+            }
+
+            TopicDAO topicDAO = daoFactory.getTopicDAO();
+
+            topic = topicDAO.findByIDWithPosts(navigationState.getPostsCurrentPageIndex(), navigationState.getTopicID());
+            if (topic == null) logger.log(Level.SEVERE, "TOPIC NULL! ");
+            postsPageCount = topicDAO.countPostPagesByTopicID(navigationState.getTopicID());
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("navigationState",navigationState);
+            request.setAttribute("postsPageCount",postsPageCount);
+            request.setAttribute("topic",topic);
+            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("applicationMessage","Post eliminato correttamente!");
+            request.setAttribute("viewUrl","postManagement/view");
+
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE, "Topic Controller Error / view", e);
             try {
                 if(daoFactory != null) daoFactory.rollbackTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();

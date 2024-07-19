@@ -8,9 +8,7 @@
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     String menuActiveLink = "Topics";
-    NavigationState navigationState = (NavigationState) request.getAttribute("navigationState");
     String action = (String) request.getAttribute("action");
-    Long topicID = (Long) request.getAttribute("topicID");
     Post post = (action.equals("modify")) ? (Post) request.getAttribute("post") : null;
 %>
 <!DOCTYPE html>
@@ -44,6 +42,13 @@
         f.controllerAction.value = "PostManagement." + status;
     }
 
+    function deletePost() {
+        if(confirm("Attenzione! Questa azione e' irreversibile. Vuoi procedere?")){
+            document.deletePostForm.postID.value = <%=(action.equals("modify")) ? post.getPostID() : ""%>
+                document.deletePostForm.submit();
+        }
+    }
+
     function goBack() {
         document.backForm.submit();
     }
@@ -71,7 +76,10 @@
             </div>
 
             <div class="buttonContainer large">
-                <input type="submit" name="submitTopicButton" id="submitTopicButton" class="button blue" value="Invia"/>
+                <input type="submit" name="submitPostButton" id="submitPostButton" class="button blue" value="Invia"/>
+                <% if (action.equals("modify")) { %>
+                    <input type="button" name="deletePostButton" id="deletePostButton" class="button red" value="Elimina" onclick="deletePost()"/>
+                <% } %>
                 <input type="button" name="backButton" id="backButton" class="button red" value="Annulla" onclick="goBack()"/>
             </div>
 
@@ -85,6 +93,11 @@
 
     <form name="backForm" method="post" action="Dispatcher">
         <input type="hidden" name="controllerAction" value="PostManagement.view">
+    </form>
+
+    <form name="deletePostForm" method="post" action="Dispatcher">
+        <input type="hidden" name="postID"/>
+        <input type="hidden" name="controllerAction" value="PostManagement.delete"/>
     </form>
 
 </main>

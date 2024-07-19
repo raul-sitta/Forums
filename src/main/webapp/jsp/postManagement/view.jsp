@@ -76,6 +76,15 @@
         font-size: 20px;
     }
 
+    .editable {
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .editable:hover {
+        text-decoration: underline;
+    }
+
     .username {
         font-size: 20px;
         font-weight: bold;
@@ -181,7 +190,11 @@
                 </div>
             </div>
             <div class="postContent">
-                <span class="content"><%= (topic.getPosts().get(i).getContent())%></span>
+                <% if (topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) {%>
+                    <span class="content editable" onclick="javascript:modifyPost(<%=topic.getPosts().get(i).getPostID()%>)"><%= (topic.getPosts().get(i).getContent())%></span>
+                <% } else { %>
+                    <span class="content"><%= (topic.getPosts().get(i).getContent())%></span>
+                <% }%>
             </div>
         </article>
         <%}%>

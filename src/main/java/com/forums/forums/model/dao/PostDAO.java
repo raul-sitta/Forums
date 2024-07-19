@@ -16,5 +16,6 @@ public interface PostDAO {
     public void delete(Post post);
     public List<Post> findByTopic
             (Long pageIndex, Topic topic);
+    public Post findByID(Long postID);
     public List<Post> getAll();
 }
