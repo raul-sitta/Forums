@@ -118,12 +118,15 @@ public class TopicManagement {
 
             NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
             navigationState = navigationStateDAO.findOrCreateNavigationState();
+            navigationState.setPostsCurrentPageIndex(null);
+            navigationState.setTopicID(null);
 
             if (request.getParameter("topicsCurrentPageIndex") != null) {
                 topicsCurrentPageIndex = Long.parseLong(request.getParameter("topicsCurrentPageIndex"));
                 navigationState.setTopicsCurrentPageIndex(topicsCurrentPageIndex);
-                navigationStateDAO.update(navigationState);
             }
+
+            navigationStateDAO.update(navigationState);
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
             TopicSearchFilterDAO topicSearchFilterDAO = sessionDAOFactory.getTopicSearchFilterDAO();
@@ -265,6 +268,8 @@ public class TopicManagement {
             navigationState = navigationStateDAO.findOrCreateNavigationState();
             navigationState.setTopicsCurrentPageIndex(1L);
             navigationState.setTopicsSearchResultFlag(true);
+            navigationState.setPostsCurrentPageIndex(null);
+            navigationState.setTopicID(null);
             navigationStateDAO.update(navigationState);
 
             UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();

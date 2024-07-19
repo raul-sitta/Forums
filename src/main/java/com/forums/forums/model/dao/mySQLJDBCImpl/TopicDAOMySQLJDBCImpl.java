@@ -11,8 +11,8 @@ import com.forums.forums.services.config.Configuration;
 public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
     private final String COUNTER_ID = "topicID";
-    private static final long TOPICS_PER_PAGE = 1L;
-    private static final long POSTS_PER_PAGE = 1L;
+    private static final long TOPICS_PER_PAGE = 10L;
+    private static final long POSTS_PER_PAGE = 10L;
     Connection conn;
 
     public TopicDAOMySQLJDBCImpl(Connection conn) {
