@@ -395,9 +395,15 @@ public class PostManagement {
 
             TopicDAO topicDAO = daoFactory.getTopicDAO();
 
-            topic = topicDAO.findByIDWithPosts(navigationState.getPostsCurrentPageIndex(), navigationState.getTopicID());
-            if (topic == null) logger.log(Level.SEVERE, "TOPIC NULL! ");
             postsPageCount = topicDAO.countPostPagesByTopicID(navigationState.getTopicID());
+
+            // Fix nel caso si stia eliminando l'ultimo post dell'ultima pagina
+            if (navigationState.getPostsCurrentPageIndex() > postsPageCount) {
+                navigationState.setPostsCurrentPageIndex(postsPageCount);
+                navigationStateDAO.update(navigationState);
+            }
+
+            topic = topicDAO.findByIDWithPosts(navigationState.getPostsCurrentPageIndex(), navigationState.getTopicID());
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();

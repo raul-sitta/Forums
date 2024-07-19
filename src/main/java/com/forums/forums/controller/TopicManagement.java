@@ -715,8 +715,20 @@ public class TopicManagement {
                 logger.log(Level.SEVERE, "Errore di cancellazione del topic " + topicID + ": " + e);
             }
 
-            topics = topicDAO.findByParameters(navigationState.getTopicsCurrentPageIndex(), topicSearchFilter);
             topicsPageCount = topicDAO.countTopicPagesByParameters(topicSearchFilter);
+
+            // Fix nel caso si stia eliminando l'ultimo topic dell'ultima pagina
+            if (navigationState.getTopicsCurrentPageIndex() > topicsPageCount) {
+                if (topicsPageCount != 0) {
+                    navigationState.setTopicsCurrentPageIndex(topicsPageCount);
+                }
+                else {
+                    navigationState.setTopicsCurrentPageIndex(1L);
+                }
+                navigationStateDAO.update(navigationState);
+            }
+
+            topics = topicDAO.findByParameters(navigationState.getTopicsCurrentPageIndex(), topicSearchFilter);
 
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
