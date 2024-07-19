@@ -262,6 +262,79 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
     }
 
     @Override
+    public User findByUserIDWithStats(Long userID, List<Long> userStats) {
+
+        PreparedStatement ps;
+        User user = null;
+
+        try {
+
+            String sql =    "SELECT " +
+                            "    U.userID, " +
+                            "    U.username, " +
+                            "    U.password, " +
+                            "    U.firstname, " +
+                            "    U.surname, " +
+                            "    U.email, " +
+                            "    U.birthDate, " +
+                            "    U.registrationTimestamp, " +
+                            "    U.role, " +
+                            "    U.profilePicPath, " +
+                            "    U.deleted, " +
+                            "    COUNT(DISTINCT T.topicID) AS topicCount, " +
+                            "    COUNT(DISTINCT P.postID) AS postCount " +
+                            "FROM " +
+                            "    USER AS U " +
+                            "LEFT JOIN " +
+                            "    TOPIC AS T ON T.authorID = U.userID AND T.deleted = 'N' " +
+                            "LEFT JOIN " +
+                            "    POST AS P ON P.authorID = U.userID AND P.deleted = 'N' " +
+                            "WHERE " +
+                            "    U.userID = ? " +
+                            "GROUP BY " +
+                            "    U.userID, " +
+                            "    U.username, " +
+                            "    U.password, " +
+                            "    U.firstname, " +
+                            "    U.surname, " +
+                            "    U.email, " +
+                            "    U.birthDate, " +
+                            "    U.registrationTimestamp, " +
+                            "    U.role, " +
+                            "    U.profilePicPath, " +
+                            "    U.deleted ";
+
+            ps = conn.prepareStatement(sql);
+            ps.setLong(1, userID);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                user = read(resultSet);
+
+                try {
+                    userStats.add(resultSet.getLong("topicCount"));
+                } catch (SQLException sqle) {
+                }
+
+                try {
+                    userStats.add(resultSet.getLong("postCount"));
+                } catch (SQLException sqle) {
+                }
+
+            }
+            resultSet.close();
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return user;
+
+    }
+
+    @Override
     public User findByUsername(String username) {
 
         PreparedStatement ps;

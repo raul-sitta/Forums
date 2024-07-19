@@ -98,6 +98,10 @@ public class UserDAOCookieImpl implements UserDAO {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    public User findByUserIDWithStats(Long userID, List<Long> userStats)  {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     @Override
     public User findByUsername(String username) {
         throw new UnsupportedOperationException("Not supported yet.");

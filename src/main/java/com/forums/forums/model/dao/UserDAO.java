@@ -28,6 +28,8 @@ public interface UserDAO {
 
     public User findByUserID(Long userID);
 
+    public User findByUserIDWithStats(Long userID, List<Long> userStats);
+
     public User findByUsername(String username);
 
     public User findByPost(Post post);

@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -412,60 +413,7 @@ public class UserManagement {
             catch (Throwable t){}
         }
     }
-    public static void banView(HttpServletRequest request, HttpServletResponse response){
-        DAOFactory sessionDAOFactory = null;
-        DAOFactory daoFactory = null;
-        User loggedUser;
-        User user;
-        String applicationMessage = null;
-        Logger logger = LogService.getApplicationLogger();
-        FileSystemService fs = new FileSystemService();
 
-        try {
-            Map sessionFactoryParameters = new HashMap<String, Object>();
-            sessionFactoryParameters.put("request", request);
-            sessionFactoryParameters.put("response", response);
-            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
-            sessionDAOFactory.beginTransaction();
-
-            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
-            loggedUser = sessionUserDAO.findLoggedUser();
-
-            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
-            daoFactory.beginTransaction();
-
-            UserDAO userDAO = daoFactory.getUserDAO();
-            user = userDAO.findByUsername(loggedUser.getUsername());
-
-            //Cerco tutti gli utenti eccetto l'utente loggato e gli utenti eliminati
-            List<User> users = userDAO.findByParameters(null,null,null,null,false, user);
-
-            daoFactory.commitTransaction();
-            sessionDAOFactory.commitTransaction();
-
-            request.setAttribute("loggedOn", loggedUser!=null);
-            request.setAttribute("loggedUser",loggedUser);
-            request.setAttribute("users",users);
-            request.setAttribute("applicationMessage",applicationMessage);
-            request.setAttribute("viewUrl","userManagement/banView");
-        }
-        catch (Exception e){
-            logger.log(Level.SEVERE, "Controller / UserManagement / banView", e);
-            try {
-                if(daoFactory != null) daoFactory.rollbackTransaction();
-                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
-            }
-            catch (Throwable t){}
-            throw new RuntimeException(e);
-        }
-        finally {
-            try {
-                if(daoFactory != null) daoFactory.closeTransaction();
-                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
-            }
-            catch (Throwable t){}
-        }
-    }
     public static void ban(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
@@ -523,6 +471,69 @@ public class UserManagement {
         }
         catch (Exception e){
             logger.log(Level.SEVERE, "User Controller Error / ban", e);
+            try {
+                if(daoFactory != null) daoFactory.rollbackTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            }
+            catch (Throwable t){}
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if(daoFactory != null) daoFactory.closeTransaction();
+                if(sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            }
+            catch (Throwable t){}
+        }
+    }
+
+    public static void profileView(HttpServletRequest request, HttpServletResponse response){
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        User user;
+        Long userID;
+        List<Long> userStats = new ArrayList<>();
+        NavigationState navigationState;
+        String applicationMessage = null;
+        Logger logger = LogService.getApplicationLogger();
+
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request",request);
+            sessionFactoryParameters.put("response",response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+
+            userID = Long.parseLong(request.getParameter("userID"));
+
+            sessionDAOFactory.beginTransaction();
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            UserDAO userDAO = daoFactory.getUserDAO();
+            user = userDAO.findByUserIDWithStats(userID,userStats);
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("navigationState", navigationState);
+            request.setAttribute("user",user);
+            request.setAttribute("userStats",userStats);
+            request.setAttribute("loggedOn",loggedUser!=null);
+            request.setAttribute("loggedUser",loggedUser);
+            request.setAttribute("applicationMessage",applicationMessage);
+            request.setAttribute("viewUrl","userManagement/profileView");
+
+        }
+        catch (Exception e){
+            logger.log(Level.SEVERE, "Topic Controller Error / view", e);
             try {
                 if(daoFactory != null) daoFactory.rollbackTransaction();
                 if(sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();

@@ -76,15 +76,6 @@
         font-size: 20px;
     }
 
-    .editable {
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .editable:hover {
-        text-decoration: underline;
-    }
-
     .username {
         font-size: 20px;
         font-weight: bold;
@@ -136,6 +127,12 @@
         f.submit();
     }
 
+    function viewUser(userID) {
+        let f = document.viewUserForm;
+        f.userID.value = userID;
+        f.submit();
+    }
+
     function goBack(){
         document.backForm.submit();
     }
@@ -174,11 +171,13 @@
                                 alt="Foto profilo di @<%=topic.getPosts().get(i).getAuthor().getUsername()%>"/>
                 </div>
                 <div class="authorDetails">
-                    <span class="username"><%= (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) && topic.getAnonymous()) ? "Utente Anonimo" :
-                            "@" + topic.getPosts().get(i).getAuthor().getUsername() +
-                                            ((topic.getPosts().get(i).getAuthor().getDeleted()) ? " (Eliminato)" : "")%>
-                                                <%=((loggedUser.getUserID() == topic.getPosts().get(i).getAuthor().getUserID()) ? " (Tu)" : "")%>
-                                                    <%=(topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) ? " (Autore)" : "")%>
+                    <span class="username<%=(!topic.getPosts().get(i).getAuthor().getDeleted() && (!topic.getAnonymous() || topic.getPosts().get(i).getAuthor().getUserID() != topic.getAuthor().getUserID())) ? " clickable" : ""%>"
+                            <%=(!topic.getPosts().get(i).getAuthor().getDeleted() && (!topic.getAnonymous() || topic.getPosts().get(i).getAuthor().getUserID() != topic.getAuthor().getUserID())) ? "onclick = \"javascript:viewUser(" + topic.getPosts().get(i).getAuthor().getUserID() + ")\"" : ""%>
+                                ><%= (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) && topic.getAnonymous()) ? "Utente Anonimo" :
+                                        "@" + topic.getPosts().get(i).getAuthor().getUsername() +
+                                                        ((topic.getPosts().get(i).getAuthor().getDeleted()) ? " (Eliminato)" : "")%>
+                                                            <%=((loggedUser.getUserID() == topic.getPosts().get(i).getAuthor().getUserID()) ? " (Tu)" : "")%>
+                                                                <%=(topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) ? " (Autore)" : "")%>
                     </span>
                     <% if (!topic.getAnonymous() || !topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID())) {%>
                         <span class="role"><%=topic.getPosts().get(i).getAuthor().getRole()%></span>
@@ -191,7 +190,7 @@
             </div>
             <div class="postContent">
                 <% if (topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) {%>
-                    <span class="content editable" onclick="javascript:modifyPost(<%=topic.getPosts().get(i).getPostID()%>)"><%= (topic.getPosts().get(i).getContent())%></span>
+                    <span class="content clickable" onclick="javascript:modifyPost(<%=topic.getPosts().get(i).getPostID()%>)"><%= (topic.getPosts().get(i).getContent())%></span>
                 <% } else { %>
                     <span class="content"><%= (topic.getPosts().get(i).getContent())%></span>
                 <% }%>
@@ -242,6 +241,11 @@
     <form name="deleteTopicForm" method="post" action="Dispatcher">
         <input type="hidden" name="topicID"/>
         <input type="hidden" name="controllerAction" value="TopicManagement.delete"/>
+    </form>
+
+    <form name="viewUserForm" method="post" action="Dispatcher">
+        <input type="hidden" name="userID"/>
+        <input type="hidden" name="controllerAction" value="UserManagement.profileView"/>
     </form>
 
 </main>

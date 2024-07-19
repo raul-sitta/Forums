@@ -278,6 +278,12 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             while (resultSet.next()) {
                 Topic topic = read(resultSet);
                 User author = userDAOMySQLJDBC.read(resultSet);
+
+                // Fix per leggere la giusta colonna deleted di author
+                try {
+                    author.setDeleted(resultSet.getString(18).equals("Y"));
+                } catch (SQLException sqle) {}
+
                 Category category = categoryDAOMySQLJDBC.read(resultSet);
                 topic.setAuthor(author);
                 topic.setCategory(category);
@@ -427,8 +433,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                         + "LEFT JOIN POST AS P ON T.topicID = P.topicID AND (P.deleted = 'N' OR P.deleted IS NULL) "
                         + "LEFT JOIN USER AS U ON U.userID = P.authorID "
                         + "WHERE "
-                        + "T.topicID = ? AND "
-                        + "T.deleted = 'N' "
+                        + "T.topicID = ? "
                         + "ORDER BY "
                         + "P.creationTimestamp ASC ";
 
@@ -502,8 +507,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             String sql = "SELECT COUNT(*) AS total "
                     + "FROM TOPIC AS T "
                     + "LEFT JOIN POST AS P ON T.topicID = P.topicID AND (P.deleted = 'N' OR P.deleted IS NULL) "
-                    + "WHERE T.topicID = ? AND "
-                    + "T.deleted = 'N'";
+                    + "WHERE T.topicID = ? ";
 
 
             ps = conn.prepareStatement(sql);

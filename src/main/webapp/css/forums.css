@@ -168,6 +168,15 @@ main {
     box-sizing: border-box;
 }
 
+.clickable {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.clickable:hover {
+    text-decoration: underline;
+}
+
 .buttonContainer {
     display: flex;
     justify-content: start;

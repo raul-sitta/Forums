@@ -123,6 +123,12 @@
         f.submit();
     }
 
+    function viewUser(userID) {
+        let f = document.viewUserForm;
+        f.userID.value = userID;
+        f.submit();
+    }
+
     function goBack(){
         document.backForm.submit();
     }
@@ -165,7 +171,9 @@
                         <%=topics.get(i).getTitle()%>
                     </a>
                     <div class="topicDetails">
-                        <span class="author"><%=(!topics.get(i).getAnonymous()) ? "@" + topics.get(i).getAuthor().getUsername() : "Utente Anonimo"%></span>
+                        <span class="author<%=(!topics.get(i).getAuthor().getDeleted() && !topics.get(i).getAnonymous()) ? " clickable" : ""%>"
+                                <%=(!topics.get(i).getAuthor().getDeleted() && !topics.get(i).getAnonymous()) ? "onclick = \"javascript:viewUser(" + topics.get(i).getAuthor().getUserID() + ")\"" : ""%>
+                        ><%=(!topics.get(i).getAnonymous()) ? "@" + topics.get(i).getAuthor().getUsername() + ((topics.get(i).getAuthor().getDeleted()) ? " (Eliminato)" : "" ) : "Utente Anonimo"%></span>
                         <span class="creationDate"><%=sdf.format(topics.get(i).getCreationTimestamp())%></span>
                         <span class="category">Categoria: <%=topics.get(i).getCategory().getName()%></span>
                     </div>
@@ -212,6 +220,11 @@
         <input type="hidden" name="topicID"/>
         <input type="hidden" name="postsCurrentPageIndex" value="1"/>
         <input type="hidden" name="controllerAction" value="PostManagement.view"/>
+    </form>
+
+    <form name="viewUserForm" method="post" action="Dispatcher">
+        <input type="hidden" name="userID"/>
+        <input type="hidden" name="controllerAction" value="UserManagement.profileView"/>
     </form>
 
 </main>
