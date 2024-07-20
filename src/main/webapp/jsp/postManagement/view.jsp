@@ -189,7 +189,7 @@
                 </div>
             </div>
             <div class="postContent">
-                <% if (topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) {%>
+                <% if ((topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) || (loggedUser.getRole().equals("Admin"))) {%>
                     <span class="content clickable" onclick="javascript:modifyPost(<%=topic.getPosts().get(i).getPostID()%>)"><%= (topic.getPosts().get(i).getContent())%></span>
                 <% } else { %>
                     <span class="content"><%= (topic.getPosts().get(i).getContent())%></span>
