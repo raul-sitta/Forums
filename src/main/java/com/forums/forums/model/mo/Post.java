@@ -15,6 +15,9 @@ public class Post {
     private User author;
     private Topic topic;
 
+    /* N:1 */
+    private List<Media> medias;
+
     public Long getPostID() {
         return postID;
     }
@@ -69,5 +72,13 @@ public class Post {
 
     public void setTopic(Topic topic) {
         this.topic = topic;
+    }
+
+    public List<Media> getMedias() {
+        return medias;
+    }
+
+    public void setMedias(List<Media> medias) {
+        this.medias = medias;
     }
 }

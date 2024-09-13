@@ -21,6 +21,7 @@ public class User {
     /* 1:N */
     private List<Topic> topics;
     private List<Post> posts;
+    private List<Media> medias;
 
     public Long getUserID() {
         return userID;
@@ -124,5 +125,13 @@ public class User {
 
     public void setPosts(List<Post> posts) {
         this.posts = posts;
+    }
+
+    public List<Media> getMedias() {
+        return medias;
+    }
+
+    public void setMedias(List<Media> medias) {
+        this.medias = medias;
     }
 }
