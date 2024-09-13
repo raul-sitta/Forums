@@ -48,12 +48,12 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
             sql
                     = "INSERT INTO POST "
                     + "(postID, "
-                    + "content, "
-                    + "creationTimestamp, "
-                    + "authorID, "
-                    + "topicID, "
-                    + "deleted, "
-                    + "edited) "
+                    + "postContent, "
+                    + "postCreationTimestamp, "
+                    + "postAuthorID, "
+                    + "postTopicID, "
+                    + "postDeleted, "
+                    + "postEdited) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
@@ -81,8 +81,8 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         post.setEdited(true);
         try {
             String sql = "UPDATE POST SET "
-                    + "content = ?, "
-                    + "edited = 'Y' "
+                    + "postContent = ?, "
+                    + "postEdited = 'Y' "
                     + "WHERE postID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -104,7 +104,7 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         try {
             sql
                     = "UPDATE POST SET "
-                    + "deleted = ? "
+                    + "postDeleted = ? "
                     + "WHERE postID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -137,7 +137,7 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         List<Post> posts = new ArrayList<>();
 
         try {
-            String sql = "SELECT * FROM TOPIC WHERE topicID = ? ";
+            String sql = "SELECT * FROM TOPIC WHERE postTopicID = ? ";
 
             if (pageIndex != null) sql += "LIMIT ?, ? ";
 
@@ -238,34 +238,34 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
         }
 
         try {
-            post.setContent(rs.getString("content"));
+            post.setContent(rs.getString("postContent"));
         } catch (SQLException sqle) {
         }
 
         try {
-            post.setCreationTimestamp(rs.getTimestamp("creationTimestamp"));
+            post.setCreationTimestamp(rs.getTimestamp("postCreationTimestamp"));
         } catch (SQLException sqle) {
         }
 
         try {
-            post.getAuthor().setUserID(rs.getLong("authorID"));
+            post.getAuthor().setUserID(rs.getLong("postAuthorID"));
         }
         catch (SQLException sqle) {
         }
 
         try {
-            post.getTopic().setTopicID(rs.getLong("topicID"));
+            post.getTopic().setTopicID(rs.getLong("postTopicID"));
         }
         catch (SQLException sqle) {
         }
 
         try {
-            post.setDeleted(rs.getString("deleted").equals("Y"));
+            post.setDeleted(rs.getString("postDeleted").equals("Y"));
         } catch (SQLException sqle) {
         }
 
         try {
-            post.setEdited(rs.getString("edited").equals("Y"));
+            post.setEdited(rs.getString("postEdited").equals("Y"));
         } catch (SQLException sqle) {
         }
 

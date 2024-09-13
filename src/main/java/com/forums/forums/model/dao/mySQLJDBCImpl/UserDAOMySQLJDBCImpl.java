@@ -51,9 +51,9 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     = " SELECT * "
                     + " FROM USER "
                     + " WHERE "
-                    + " (deleted = 'N') AND "
-                    + " (username = ? OR "
-                    + " email = ?) ";
+                    + " (userDeleted = 'N') AND "
+                    + " (userUsername = ? OR "
+                    + " userEmail = ?) ";
 
             ps = conn.prepareStatement(sql);
             int i=1;
@@ -95,16 +95,16 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             sql
                     = "INSERT INTO USER "
                     + "(userID,"
-                    + "username,"
-                    + "password,"
-                    + "firstname,"
-                    + "surname,"
-                    + "email,"
-                    + "birthDate,"
-                    + "registrationTimestamp,"
-                    + "role,"
-                    + "profilePicPath,"
-                    + "deleted) "
+                    + "userUsername,"
+                    + "userPassword,"
+                    + "userFirstname,"
+                    + "userSurname,"
+                    + "userEmail,"
+                    + "userBirthDate,"
+                    + "userRegistrationTimestamp,"
+                    + "userRole,"
+                    + "userProfilePicPath,"
+                    + "userDeleted) "
                     + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
             ps = conn.prepareStatement(sql);
 
@@ -141,10 +141,10 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
                     = " SELECT * "
                     + " FROM USER "
                     + " WHERE "
-                    + " (deleted = 'N') AND "
+                    + " (userDeleted = 'N') AND "
                     + " (userID <> ?) AND "
-                    + " (username = ? OR "
-                    + " email = ?)";
+                    + " (userUsername = ? OR "
+                    + " userEmail = ?)";
 
             ps = conn.prepareStatement(sql);
             int i=1;
@@ -172,14 +172,14 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             sql
                     = "UPDATE USER "
                     + "SET "
-                    + "username = ?, "
-                    + "password = ?, "
-                    + "firstname = ?, "
-                    + "surname = ?, "
-                    + "email = ?, "
-                    + "birthDate = ?, "
-                    + "role = ?, "
-                    + "profilePicPath = ? "
+                    + "userUsername = ?, "
+                    + "userPassword = ?, "
+                    + "userFirstname = ?, "
+                    + "userSurname = ?, "
+                    + "userEmail = ?, "
+                    + "userBirthDate = ?, "
+                    + "userRole = ?, "
+                    + "userProfilePicPath = ? "
                     + "WHERE userID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -211,8 +211,8 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
         try {
             sql =     "UPDATE USER SET "
-                    + "deleted = ?, "
-                    + "profilePicPath = ? "
+                    + "userDeleted = ?, "
+                    + "userProfilePicPath = ? "
                     + "WHERE userID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -274,38 +274,38 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
             String sql =    "SELECT " +
                             "    U.userID, " +
-                            "    U.username, " +
-                            "    U.password, " +
-                            "    U.firstname, " +
-                            "    U.surname, " +
-                            "    U.email, " +
-                            "    U.birthDate, " +
-                            "    U.registrationTimestamp, " +
-                            "    U.role, " +
-                            "    U.profilePicPath, " +
-                            "    U.deleted, " +
+                            "    U.userUsername, " +
+                            "    U.userPassword, " +
+                            "    U.userFirstname, " +
+                            "    U.userSurname, " +
+                            "    U.userEmail, " +
+                            "    U.userBirthDate, " +
+                            "    U.userRegistrationTimestamp, " +
+                            "    U.userRole, " +
+                            "    U.userProfilePicPath, " +
+                            "    U.userDeleted, " +
                             "    COUNT(DISTINCT T.topicID) AS topicCount, " +
                             "    COUNT(DISTINCT P.postID) AS postCount " +
                             "FROM " +
                             "    USER AS U " +
                             "LEFT JOIN " +
-                            "    TOPIC AS T ON T.authorID = U.userID AND T.deleted = 'N' " +
+                            "    TOPIC AS T ON T.topicAuthorID = U.userID AND T.topicDeleted = 'N' " +
                             "LEFT JOIN " +
-                            "    POST AS P ON P.authorID = U.userID AND P.deleted = 'N' " +
+                            "    POST AS P ON P.postAuthorID = U.userID AND P.postDeleted = 'N' " +
                             "WHERE " +
                             "    U.userID = ? " +
                             "GROUP BY " +
                             "    U.userID, " +
-                            "    U.username, " +
-                            "    U.password, " +
-                            "    U.firstname, " +
-                            "    U.surname, " +
-                            "    U.email, " +
-                            "    U.birthDate, " +
-                            "    U.registrationTimestamp, " +
-                            "    U.role, " +
-                            "    U.profilePicPath, " +
-                            "    U.deleted ";
+                            "    U.userUsername, " +
+                            "    U.userPassword, " +
+                            "    U.userFirstname, " +
+                            "    U.userSurname, " +
+                            "    U.userEmail, " +
+                            "    U.userBirthDate, " +
+                            "    U.userRegistrationTimestamp, " +
+                            "    U.userRole, " +
+                            "    U.userProfilePicPath, " +
+                            "    U.userDeleted ";
 
             ps = conn.prepareStatement(sql);
             ps.setLong(1, userID);
@@ -348,8 +348,8 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
             String sql
                     = " SELECT * "
                     + " FROM USER "
-                    + " WHERE username = ? "
-                    + " AND deleted = ? ";
+                    + " WHERE userUsername = ? "
+                    + " AND userDeleted = ? ";
 
             ps = conn.prepareStatement(sql);
             int i = 1;
@@ -432,23 +432,23 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
 
         try {
-            String sql = "SELECT * FROM USERS WHERE 1=1 "; // Base SQL query
+            String sql = "SELECT * FROM USERS WHERE 1=1 ";
 
             // Costruzione dinamica della query SQL
             if (username != null && !username.trim().isEmpty()) {
-                sql += "AND username LIKE ? ";
+                sql += "AND userUsername LIKE ? ";
             }
             if (registratedBefore != null) {
-                sql += "AND registrationTimestamp < ? ";
+                sql += "AND userRegistrationTimestamp < ? ";
             }
             if (registratedAfter != null) {
-                sql += "AND registrationTimestamp > ? ";
+                sql += "AND userRegistrationTimestamp > ? ";
             }
             if (role != null && !role.trim().isEmpty()) {
-                sql += "AND role = ? ";
+                sql += "AND userRole = ? ";
             }
             if (isDeleted != null) {
-                sql += "AND deleted = ? ";
+                sql += "AND userDeleted = ? ";
             }
             if (exceptUser != null) {
                 sql += "AND userID <> ? ";
@@ -504,7 +504,7 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
 
             String sql = "SELECT U.* " +
                          "FROM USER AS U " +
-                         "JOIN POST AS P ON U.userID = P.authorID " +
+                         "JOIN POST AS P ON U.userID = P.postAuthorID " +
                          "WHERE P.postID = ? ";
 
             ps = conn.prepareStatement(sql);
@@ -536,52 +536,52 @@ public class UserDAOMySQLJDBCImpl implements UserDAO {
         }
 
         try {
-            user.setUsername(rs.getString("username"));
+            user.setUsername(rs.getString("userUsername"));
         } catch (SQLException sqle) {
         }
 
         try {
-            user.setPassword(rs.getString("password"));
+            user.setPassword(rs.getString("userPassword"));
         } catch (SQLException sqle) {
         }
 
         try {
-            user.setFirstname(rs.getString("firstname"));
+            user.setFirstname(rs.getString("userFirstname"));
         } catch (SQLException sqle) {
         }
 
         try {
-            user.setSurname(rs.getString("surname"));
+            user.setSurname(rs.getString("userSurname"));
         } catch (SQLException sqle) {
         }
 
         try {
-            user.setEmail(rs.getString("email"));
+            user.setEmail(rs.getString("userEmail"));
         } catch (SQLException sqle) {
         }
 
         try {
-            user.setBirthDate(rs.getDate("birthDate"));
+            user.setBirthDate(rs.getDate("userBirthDate"));
         } catch (SQLException sqle) {
         }
 
         try {
-            user.setRegistrationTimestamp(rs.getTimestamp("registrationTimestamp"));
+            user.setRegistrationTimestamp(rs.getTimestamp("userRegistrationTimestamp"));
         } catch (SQLException sqle) {
         }
 
         try {
-            user.setRole(rs.getString("role"));
+            user.setRole(rs.getString("userRole"));
         } catch (SQLException sqle) {
         }
 
         try {
-            user.setProfilePicPath(rs.getString("profilePicPath"));
+            user.setProfilePicPath(rs.getString("userProfilePicPath"));
         } catch (SQLException sqle) {
         }
 
         try {
-            user.setDeleted(rs.getString("deleted").equals("Y"));
+            user.setDeleted(rs.getString("userDeleted").equals("Y"));
         } catch (SQLException sqle) {
         }
 

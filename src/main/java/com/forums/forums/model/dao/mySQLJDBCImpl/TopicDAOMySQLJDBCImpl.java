@@ -56,12 +56,12 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             sql
                     = "INSERT INTO TOPIC "
                     + "(topicID,"
-                    + "title,"
-                    + "creationTimestamp,"
-                    + "authorID,"
-                    + "categoryID,"
-                    + "anonymous,"
-                    + "deleted) "
+                    + "topicTitle,"
+                    + "topicCreationTimestamp,"
+                    + "topicAuthorID,"
+                    + "topicCategoryID,"
+                    + "topicAnonymous,"
+                    + "topicDeleted) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
@@ -92,8 +92,8 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             String sql
                     = "UPDATE TOPIC "
                     + "SET "
-                    + "title = ?, "
-                    + "categoryID = ? "
+                    + "topicTitle = ?, "
+                    + "topicCategoryID = ? "
                     + "WHERE topicID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -117,7 +117,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         try {
             sql
                     = "UPDATE TOPIC SET "
-                    + "deleted = ? "
+                    + "topicDeleted = ? "
                     + "WHERE topicID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -153,12 +153,12 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         try {
             String sql = "SELECT * FROM TOPIC ";
 
-            if (category != null) sql += "WHERE categoryID = ? ";
+            if (category != null) sql += "WHERE topicCategoryID = ? ";
 
 
             String orderBy = sortNewestFirst ? "DESC " : "ASC ";
 
-            sql += " ORDER BY creationTimestamp " + orderBy;
+            sql += " ORDER BY topicCreationTimestamp " + orderBy;
 
             if (index != null) sql += "LIMIT ?, ? ";
 
@@ -207,28 +207,28 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
         try {
             String sql = "SELECT * FROM TOPIC AS T " +
-                         "LEFT JOIN USER AS U ON T.authorID = U.userID " +
-                         "LEFT JOIN CATEGORY AS C ON T.categoryID = C.categoryID ";
-            String whereClause = "T.deleted = 'N'";
+                         "LEFT JOIN USER AS U ON T.topicAuthorID = U.userID " +
+                         "LEFT JOIN CATEGORY AS C ON T.topicCategoryID = C.categoryID ";
+            String whereClause = "T.topicDeleted = 'N'";
 
             // Costruzione dinamica della query
             if (topicSearchFilter.getTitle() != null) {
-                whereClause += addCondition(whereClause, "T.title LIKE ?");
+                whereClause += addCondition(whereClause, "T.topicTitle LIKE ?");
             }
             if (topicSearchFilter.getAuthorName() != null) {
-                whereClause += addCondition(whereClause, "U.username LIKE ?");
+                whereClause += addCondition(whereClause, "U.userUsername LIKE ?");
             }
             if (topicSearchFilter.getCategoryName() != null) {
-                whereClause += addCondition(whereClause, "C.name = ?");
+                whereClause += addCondition(whereClause, "C.categoryName = ?");
             }
             if (topicSearchFilter.getMoreRecentThan() != null) {
-                whereClause += addCondition(whereClause, "T.creationTimestamp > ?");
+                whereClause += addCondition(whereClause, "T.topicCreationTimestamp > ?");
             }
             if (topicSearchFilter.getOlderThan() != null) {
-                whereClause += addCondition(whereClause, "T.creationTimestamp < ?");
+                whereClause += addCondition(whereClause, "T.topicCreationTimestamp < ?");
             }
             if (topicSearchFilter.getAnonymous() != null) {
-                whereClause += addCondition(whereClause, "T.anonymous = ?");
+                whereClause += addCondition(whereClause, "T.topicAnonymous = ?");
             }
 
             if (!whereClause.isEmpty()) {
@@ -236,7 +236,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             }
 
             String orderBy = topicSearchFilter.getSortNewestFirst() ? "DESC" : "ASC";
-            sql += "ORDER BY T.creationTimestamp " + orderBy + " ";
+            sql += "ORDER BY T.topicCreationTimestamp " + orderBy + " ";
 
             if (pageIndex != null) {
                 sql += "LIMIT ? OFFSET ?";
@@ -265,8 +265,8 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                 ps.setString(i++, topicSearchFilter.getAnonymous() ? "Y" : "N");
             }
             if (pageIndex != null) {
-                ps.setLong(i++, TOPICS_PER_PAGE); // Limit
-                ps.setLong(i++, (pageIndex - 1) * TOPICS_PER_PAGE); // Offset
+                ps.setLong(i++, TOPICS_PER_PAGE);
+                ps.setLong(i++, (pageIndex - 1) * TOPICS_PER_PAGE);
             }
 
             ResultSet resultSet = ps.executeQuery();
@@ -278,11 +278,6 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
             while (resultSet.next()) {
                 Topic topic = read(resultSet);
                 User author = userDAOMySQLJDBC.read(resultSet);
-
-                // Fix per leggere la giusta colonna deleted di author
-                try {
-                    author.setDeleted(resultSet.getString(18).equals("Y"));
-                } catch (SQLException sqle) {}
 
                 Category category = categoryDAOMySQLJDBC.read(resultSet);
                 topic.setAuthor(author);
@@ -319,28 +314,28 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
         try {
             String sql = "SELECT COUNT(*) AS total FROM TOPIC AS T " +
-                    "LEFT JOIN USER AS U ON T.authorID = U.userID " +
-                    "LEFT JOIN CATEGORY AS C ON T.categoryID = C.categoryID ";
-            String whereClause = "T.deleted = 'N'";
+                    "LEFT JOIN USER AS U ON T.topicAuthorID = U.userID " +
+                    "LEFT JOIN CATEGORY AS C ON T.topicCategoryID = C.categoryID ";
+            String whereClause = "T.topicDeleted = 'N'";
 
             // Costruzione dinamica della query
             if (topicSearchFilter.getTitle() != null) {
-                whereClause += addCondition(whereClause, "T.title LIKE ?");
+                whereClause += addCondition(whereClause, "T.topicTitle LIKE ?");
             }
             if (topicSearchFilter.getAuthorName() != null) {
-                whereClause += addCondition(whereClause, "U.username LIKE ?");
+                whereClause += addCondition(whereClause, "U.userUsername LIKE ?");
             }
             if (topicSearchFilter.getCategoryName() != null) {
-                whereClause += addCondition(whereClause, "C.name = ?");
+                whereClause += addCondition(whereClause, "C.categoryName = ?");
             }
             if (topicSearchFilter.getMoreRecentThan() != null) {
-                whereClause += addCondition(whereClause, "T.creationTimestamp > ?");
+                whereClause += addCondition(whereClause, "T.topicCreationTimestamp > ?");
             }
             if (topicSearchFilter.getOlderThan() != null) {
-                whereClause += addCondition(whereClause, "T.creationTimestamp < ?");
+                whereClause += addCondition(whereClause, "T.topicCreationTimestamp < ?");
             }
             if (topicSearchFilter.getAnonymous() != null) {
-                whereClause += addCondition(whereClause, "T.anonymous = ?");
+                whereClause += addCondition(whereClause, "T.topicAnonymous = ?");
             }
 
             if (!whereClause.isEmpty()) {
@@ -403,39 +398,15 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         PreparedStatement ps;
 
         try {
-            String sql =  "SELECT "
-                        + "T.topicID, "
-                        + "T.title, "
-                        + "T.authorID, "
-                        + "T.categoryID, "
-                        + "T.anonymous, "
-                        + "T.deleted, "
-                        + "P.postID, "
-                        + "P.content, "
-                        + "P.creationTimestamp, "
-                        + "P.authorID, "
-                        + "P.topicID, "
-                        + "P.deleted, "
-                        + "P.edited, "
-                        + "U.userID, "
-                        + "U.username, "
-                        + "U.password, "
-                        + "U.firstname, "
-                        + "U.surname, "
-                        + "U.email, "
-                        + "U.birthDate, "
-                        + "U.registrationTimestamp, "
-                        + "U.role, "
-                        + "U.profilePicPath, "
-                        + "U.deleted "
+            String sql =  "SELECT * "
                         + "FROM "
                         + "TOPIC AS T "
-                        + "LEFT JOIN POST AS P ON T.topicID = P.topicID AND (P.deleted = 'N' OR P.deleted IS NULL) "
-                        + "LEFT JOIN USER AS U ON U.userID = P.authorID "
+                        + "LEFT JOIN POST AS P ON T.topicID = P.postTopicID AND (P.postDeleted = 'N' OR P.postDeleted IS NULL) "
+                        + "LEFT JOIN USER AS U ON U.userID = P.postAuthorID "
                         + "WHERE "
                         + "T.topicID = ? "
                         + "ORDER BY "
-                        + "P.creationTimestamp ASC ";
+                        + "P.postCreationTimestamp ASC ";
 
             if (pageIndex != null) {
                 sql += "LIMIT ? OFFSET ? ";
@@ -464,19 +435,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
                     Post post = postDAOMySQLJDBC.read(resultSet);
 
-                    //Fix per leggere la giusta colonna deleted di post
-                    try {
-                        post.setDeleted(resultSet.getString(12).equals("Y"));
-                    } catch (SQLException sqle) {}
-
-                    User author;
-
-                    author = userDAOMySQLJDBC.read(resultSet);
-
-                    //Fix per leggere la giusta colonna deleted di author
-                    try {
-                        author.setDeleted(resultSet.getString(24).equals("Y"));
-                    } catch (SQLException sqle) {}
+                    User author = userDAOMySQLJDBC.read(resultSet);
 
                     post.setAuthor(author);
                     posts.add(post);
@@ -506,7 +465,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         try {
             String sql = "SELECT COUNT(*) AS total "
                     + "FROM TOPIC AS T "
-                    + "LEFT JOIN POST AS P ON T.topicID = P.topicID AND (P.deleted = 'N' OR P.deleted IS NULL) "
+                    + "LEFT JOIN POST AS P ON T.topicID = P.postTopicID AND (P.postDeleted = 'N' OR P.postDeleted IS NULL) "
                     + "WHERE T.topicID = ? ";
 
 
@@ -547,8 +506,8 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
             String sql = " SELECT T.*, U.*, C.* "
                     + " FROM TOPIC T "
-                    + " JOIN USER U ON T.authorID = U.userID "
-                    + " JOIN CATEGORY C ON T.categoryID = C.categoryID "
+                    + " JOIN USER U ON T.topicAuthorID = U.userID "
+                    + " JOIN CATEGORY C ON T.topicCategoryID = C.categoryID "
                     + " WHERE T.topicID = ? ";
 
             ps = conn.prepareStatement(sql);
@@ -618,27 +577,27 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         } catch (SQLException sqle) {}
 
         try {
-            topic.setTitle(rs.getString("title"));
+            topic.setTitle(rs.getString("topicTitle"));
         } catch (SQLException sqle) {}
 
         try {
-            topic.setCreationTimestamp(rs.getTimestamp("creationTimestamp"));
+            topic.setCreationTimestamp(rs.getTimestamp("topicCreationTimestamp"));
         } catch (SQLException sqle) {}
 
         try {
-            topic.getAuthor().setUserID(rs.getLong("authorID"));
+            topic.getAuthor().setUserID(rs.getLong("topicAuthorID"));
         } catch (SQLException sqle) {}
 
         try {
-            topic.getCategory().setCategoryID(rs.getLong("categoryID"));
+            topic.getCategory().setCategoryID(rs.getLong("topicCategoryID"));
         } catch (SQLException sqle) {}
 
         try {
-            topic.setAnonymous(rs.getBoolean("anonymous"));
+            topic.setAnonymous(rs.getBoolean("topicAnonymous"));
         } catch (SQLException sqle) {}
 
         try {
-            topic.setDeleted(rs.getString("deleted").equals("Y"));
+            topic.setDeleted(rs.getString("topicDeleted").equals("Y"));
         } catch (SQLException sqle) {}
 
         return topic;

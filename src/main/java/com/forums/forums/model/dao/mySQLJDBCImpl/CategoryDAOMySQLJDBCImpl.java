@@ -30,8 +30,8 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
                     = " SELECT categoryID "
                     + " FROM CATEGORY "
                     + " WHERE "
-                    + " deleted = 'N' AND "
-                    + " name = ? ";
+                    + " categoryDeleted = 'N' AND "
+                    + " categoryName = ? ";
 
             ps = conn.prepareStatement(sql);
             int i = 1;
@@ -65,8 +65,8 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
             sql
                     = "INSERT INTO CATEGORY "
                     + "(categoryID, "
-                    + "name, "
-                    + "deleted) "
+                    + "categoryName, "
+                    + "categoryDeleted) "
                     + "VALUES (?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
@@ -93,8 +93,8 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
                     = " SELECT categoryID "
                     + " FROM CATEGORY "
                     + " WHERE "
-                    + " deleted = 'N' AND "
-                    + " name = ? ";
+                    + " categoryDeleted = 'N' AND "
+                    + " categoryName = ? ";
 
             ps = conn.prepareStatement(sql);
             ps.setString(1, category.getName());
@@ -111,7 +111,7 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
 
             sql = "UPDATE CATEGORY "
                     + "SET "
-                    + "name = ? "
+                    + "categoryName = ? "
                     + "WHERE "
                     + "categoryID = ? ";
             ps = conn.prepareStatement(sql);
@@ -135,7 +135,7 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
         try {
             sql
                     = "UPDATE CATEGORY SET "
-                    + "deleted = ? "
+                    + "categoryDeleted = ? "
                     + "WHERE categoryID = ?";
             ps = conn.prepareStatement(sql);
 
@@ -186,7 +186,7 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
                     = "SELECT * " +
                     "FROM CATEGORY " +
                     "WHERE " +
-                    "name = ?";
+                    "categoryName = ?";
 
             ps = conn.prepareStatement(sql);
             ps.setString(1, name);
@@ -237,19 +237,28 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
         Category category = new Category();
 
         try {
-
             category.setCategoryID(rs.getLong("categoryID"));
-
-            category.setName(rs.getString("name"));
-
-            category.setDeleted(rs.getString("deleted").equals("Y"));
-
         }
         catch (SQLException sqle){
-
             throw new RuntimeException("Error: read rs - Category", sqle);
-
         }
+
+
+        try {
+            category.setName(rs.getString("categoryName"));
+        }
+        catch (SQLException sqle){
+            throw new RuntimeException("Error: read rs - Category", sqle);
+        }
+
+
+        try {
+            category.setDeleted(rs.getString("categoryDeleted").equals("Y"));
+        }
+        catch (SQLException sqle){
+            throw new RuntimeException("Error: read rs - Category", sqle);
+        }
+
 
         return category;
     }

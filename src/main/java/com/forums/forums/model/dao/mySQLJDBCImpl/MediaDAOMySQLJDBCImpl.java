@@ -51,11 +51,11 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
             sql =
                     "INSERT INTO MEDIA "
                             + "(mediaID, "
-                            + "path, "
-                            + "creationTimestamp, "
-                            + "uploaderID, "
-                            + "postID, "
-                            + "deleted) "
+                            + "mediaPath, "
+                            + "mediaCreationTimestamp, "
+                            + "mediaUploaderID, "
+                            + "mediaPostID, "
+                            + "mediaDeleted) "
                             + "VALUES (?, ?, ?, ?, ?, ?)";
             ps = conn.prepareStatement(sql);
 
@@ -89,8 +89,8 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
         try {
             sql
                     = "UPDATE MEDIA SET "
-                    + "deleted = ? "
-                    + "WHERE topicID = ?";
+                    + "mediaDeleted = ? "
+                    + "WHERE mediaTopicID = ?";
             ps = conn.prepareStatement(sql);
 
             ps.setString(1, "Y");
@@ -139,11 +139,41 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
 
         try {
             media.setMediaID(rs.getLong("mediaID"));
-            media.setPath(rs.getString("path"));
-            media.setCreationTimestamp(rs.getTimestamp("creationTimestamp"));
-            media.getUploader().setUserID(rs.getLong("uploaderID"));
-            media.getPost().setPostID(rs.getLong("postID"));
-            media.setDeleted(rs.getString("deleted").equals("Y"));
+        } catch (SQLException sqle) {
+            throw new RuntimeException("Error: read rs - Media", sqle);
+        }
+
+
+        try {
+            media.setPath(rs.getString("mediaPath"));
+        } catch (SQLException sqle) {
+            throw new RuntimeException("Error: read rs - Media", sqle);
+        }
+
+
+        try {
+            media.setCreationTimestamp(rs.getTimestamp("mediaCreationTimestamp"));
+        } catch (SQLException sqle) {
+            throw new RuntimeException("Error: read rs - Media", sqle);
+        }
+
+
+        try {
+            media.getUploader().setUserID(rs.getLong("mediaUploaderID"));
+        } catch (SQLException sqle) {
+            throw new RuntimeException("Error: read rs - Media", sqle);
+        }
+
+
+        try {
+            media.getPost().setPostID(rs.getLong("mediaPostID"));
+        } catch (SQLException sqle) {
+            throw new RuntimeException("Error: read rs - Media", sqle);
+        }
+
+
+        try {
+            media.setDeleted(rs.getString("mediaDeleted").equals("Y"));
         } catch (SQLException sqle) {
             throw new RuntimeException("Error: read rs - Media", sqle);
         }
