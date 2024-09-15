@@ -66,6 +66,17 @@
         font-size: 16px;
     }
 
+    .addMediaButton img {
+        width: 70px;
+        height: auto;
+        transition: filter 0.3s ease;
+        padding: 0;
+    }
+
+    .addMediaButton img:hover {
+        filter: brightness(85%);
+    }
+
     .postContent {
         flex-grow: 1;
         padding-left: 25px;
@@ -74,6 +85,10 @@
     .content {
         white-space: pre-wrap;
         font-size: 20px;
+    }
+
+    .viewMediaButton {
+        padding-top: 24px;
     }
 
     .username {
@@ -187,6 +202,11 @@
                         <span class="edited">(modificato)</span>
                     <% } %>
                 </div>
+                <% if (topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) {%>
+                <div class="addMediaButton">
+                    <img src="images/addMedia.png" alt="<<-" class="button adjusted" onclick="navigateTo(1)" />
+                </div>
+                <% } %>
             </div>
             <div class="postContent">
                 <% if ((topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) || (loggedUser.getRole().equals("Admin"))) {%>
@@ -194,6 +214,12 @@
                 <% } else { %>
                     <span class="content"><%= (topic.getPosts().get(i).getContent())%></span>
                 <% }%>
+
+                <% if (topic.getPosts().get(i).getMedias() != null) { %>
+                    <div class="viewMediaButton">
+                        <input type="button" name="viewMediaButton" class="button green" value="Visualizza Allegati" onclick="javascript:goBack()"/>
+                    </div>
+                <% } %>
             </div>
         </article>
         <%}%>

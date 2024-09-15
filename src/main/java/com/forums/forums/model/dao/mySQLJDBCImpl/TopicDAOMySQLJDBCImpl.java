@@ -426,13 +426,12 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                     "U.userDeleted, " +
                     "COUNT(M.mediaID) AS mediaCount " +
                     "FROM TOPIC AS T " +
-                    "LEFT JOIN POST AS P ON T.topicID = P.postTopicID " +
+                    "LEFT JOIN POST AS P ON T.topicID = P.postTopicID AND (P.postDeleted = 'N' OR P.postDeleted IS NULL) " +
                     "LEFT JOIN USER AS U ON U.userID = P.postAuthorID " +
                     "LEFT JOIN MEDIA AS M ON P.postID = M.mediaPostID " +
                     "WHERE " +
                     "T.topicID = ? AND " +
-                    "T.topicDeleted = 'N' AND " +
-                    "(P.postDeleted = 'N' OR P.postDeleted IS NULL) " +
+                    "T.topicDeleted = 'N' " +
                     "GROUP BY " +
                     "T.topicID, " +
                     "T.topicTitle, " +
@@ -489,13 +488,8 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
 
                     Post post = postDAOMySQLJDBC.read(resultSet);
 
-                    Media hasMediaFlag;
-                    List<Media> medias = new ArrayList<>();
-
                     if (resultSet.getLong("mediaCount") > 0) {
-                        hasMediaFlag = new Media();
-                        hasMediaFlag.setPath("hasMediaFlag");
-                        medias.add(hasMediaFlag);
+                        List<Media> medias = new ArrayList<>();
                         post.setMedias(medias);
                     }
 
