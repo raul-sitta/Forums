@@ -398,15 +398,69 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
         PreparedStatement ps;
 
         try {
-            String sql =  "SELECT * "
-                        + "FROM "
-                        + "TOPIC AS T "
-                        + "LEFT JOIN POST AS P ON T.topicID = P.postTopicID AND (P.postDeleted = 'N' OR P.postDeleted IS NULL) "
-                        + "LEFT JOIN USER AS U ON U.userID = P.postAuthorID "
-                        + "WHERE "
-                        + "T.topicID = ? "
-                        + "ORDER BY "
-                        + "P.postCreationTimestamp ASC ";
+            String sql = "SELECT " +
+                    "T.topicID, " +
+                    "T.topicTitle, " +
+                    "T.topicCreationTimestamp, " +
+                    "T.topicAuthorID, " +
+                    "T.topicCategoryID, " +
+                    "T.topicAnonymous, " +
+                    "T.topicDeleted, " +
+                    "P.postID, " +
+                    "P.postContent, " +
+                    "P.postCreationTimestamp, " +
+                    "P.postAuthorID, " +
+                    "P.postTopicID, " +
+                    "P.postDeleted, " +
+                    "P.postEdited, " +
+                    "U.userID, " +
+                    "U.userUsername, " +
+                    "U.userPassword, " +
+                    "U.userFirstname, " +
+                    "U.userSurname, " +
+                    "U.userEmail, " +
+                    "U.userBirthDate, " +
+                    "U.userRegistrationTimestamp, " +
+                    "U.userRole, " +
+                    "U.userProfilePicPath, " +
+                    "U.userDeleted, " +
+                    "COUNT(M.mediaID) AS mediaCount " +
+                    "FROM TOPIC AS T " +
+                    "LEFT JOIN POST AS P ON T.topicID = P.postTopicID " +
+                    "LEFT JOIN USER AS U ON U.userID = P.postAuthorID " +
+                    "LEFT JOIN MEDIA AS M ON P.postID = M.mediaPostID " +
+                    "WHERE " +
+                    "T.topicID = ? AND " +
+                    "T.topicDeleted = 'N' AND " +
+                    "(P.postDeleted = 'N' OR P.postDeleted IS NULL) " +
+                    "GROUP BY " +
+                    "T.topicID, " +
+                    "T.topicTitle, " +
+                    "T.topicCreationTimestamp, " +
+                    "T.topicAuthorID, " +
+                    "T.topicCategoryID, " +
+                    "T.topicAnonymous, " +
+                    "T.topicDeleted, " +
+                    "P.postID, " +
+                    "P.postContent, " +
+                    "P.postCreationTimestamp, " +
+                    "P.postAuthorID, " +
+                    "P.postTopicID, " +
+                    "P.postDeleted, " +
+                    "P.postEdited, " +
+                    "U.userID, " +
+                    "U.userUsername, " +
+                    "U.userPassword, " +
+                    "U.userFirstname, " +
+                    "U.userSurname, " +
+                    "U.userEmail, " +
+                    "U.userBirthDate, " +
+                    "U.userRegistrationTimestamp, " +
+                    "U.userRole, " +
+                    "U.userProfilePicPath, " +
+                    "U.userDeleted " +
+                    "ORDER BY " +
+                    "P.postCreationTimestamp ASC ";
 
             if (pageIndex != null) {
                 sql += "LIMIT ? OFFSET ? ";
@@ -434,6 +488,16 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                     if (posts == null) posts = new ArrayList<>();
 
                     Post post = postDAOMySQLJDBC.read(resultSet);
+
+                    Media hasMediaFlag;
+                    List<Media> medias = new ArrayList<>();
+
+                    if (resultSet.getLong("mediaCount") > 0) {
+                        hasMediaFlag = new Media();
+                        hasMediaFlag.setPath("hasMediaFlag");
+                        medias.add(hasMediaFlag);
+                        post.setMedias(medias);
+                    }
 
                     User author = userDAOMySQLJDBC.read(resultSet);
 
