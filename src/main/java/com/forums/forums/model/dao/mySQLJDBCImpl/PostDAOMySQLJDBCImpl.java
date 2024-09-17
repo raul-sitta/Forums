@@ -1,6 +1,7 @@
 package com.forums.forums.model.dao.mySQLJDBCImpl;
 
 import com.forums.forums.model.dao.PostDAO;
+import com.forums.forums.model.mo.Media;
 import com.forums.forums.model.mo.Post;
 import com.forums.forums.model.mo.User;
 import com.forums.forums.model.mo.Topic;
@@ -187,6 +188,54 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
             if (resultSet.next()) {
                 post = read(resultSet);
             }
+            resultSet.close();
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return post;
+    }
+
+    @Override
+    public Post findByIDWithMedias(Long postID) {
+        PreparedStatement ps;
+        Post post = null;
+        List<Media> medias = null;
+
+        try {
+
+            String sql =  "SELECT P.*, M.* "
+                        + "FROM POST AS P "
+                        + "LEFT JOIN MEDIA AS M ON P.postID = M.mediaPostID "
+                        + "WHERE P.postID = ? AND (M.mediaDeleted = 'N' OR M.mediaDeleted IS NULL) "
+                        + "ORDER BY M.mediaCreationTimestamp DESC ";
+
+
+            ps = conn.prepareStatement(sql);
+            ps.setLong(1, postID);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            //Creo i DAOMySQLJDBCImpl per leggere il resultSet usando i metodi di altri DAO
+            MediaDAOMySQLJDBCImpl mediaDAOMySQLJDBC = new MediaDAOMySQLJDBCImpl(this.conn);
+            while (resultSet.next()) {
+                post = read(resultSet);
+
+                if (resultSet.getObject("mediaID", Long.class) != null) {
+
+                    if (medias == null) medias = new ArrayList<>();
+
+                    Media media = mediaDAOMySQLJDBC.read(resultSet);
+
+                    medias.add(media);
+                }
+
+            }
+
+            if (medias!=null) post.setMedias(medias);
+
             resultSet.close();
             ps.close();
 

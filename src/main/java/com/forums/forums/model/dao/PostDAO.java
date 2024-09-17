@@ -17,5 +17,6 @@ public interface PostDAO {
     public List<Post> findByTopic
             (Long pageIndex, Topic topic);
     public Post findByID(Long postID);
+    public Post findByIDWithMedias(Long postID);
     public List<Post> getAll();
 }

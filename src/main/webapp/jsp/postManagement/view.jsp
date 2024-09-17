@@ -67,7 +67,7 @@
     }
 
     .addMediaButton img {
-        width: 70px;
+        width: 60px;
         height: auto;
         transition: filter 0.3s ease;
         padding: 0;
@@ -148,6 +148,12 @@
         f.submit();
     }
 
+    function viewMedias(postID) {
+        let f = document.viewMediasForm;
+        f.postID.value = postID;
+        f.submit();
+    }
+
     function goBack(){
         document.backForm.submit();
     }
@@ -204,7 +210,7 @@
                 </div>
                 <% if (topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) {%>
                 <div class="addMediaButton">
-                    <img src="images/addMedia.png" alt="<<-" class="button adjusted" onclick="navigateTo(1)" />
+                    <img src="images/addMedia.png" alt="Aggiungi Media" class="button adjusted" onclick="navigateTo(1)" />
                 </div>
                 <% } %>
             </div>
@@ -217,7 +223,7 @@
 
                 <% if (topic.getPosts().get(i).getMedias() != null) { %>
                     <div class="viewMediaButton">
-                        <input type="button" name="viewMediaButton" class="button green" value="Visualizza Allegati" onclick="javascript:goBack()"/>
+                        <input type="button" name="viewMediaButton" class="button green" value="Visualizza Allegati" onclick="javascript:viewMedias(<%=topic.getPosts().get(i).getPostID()%>)"/>
                     </div>
                 <% } %>
             </div>
@@ -272,6 +278,11 @@
     <form name="viewUserForm" method="post" action="Dispatcher">
         <input type="hidden" name="userID"/>
         <input type="hidden" name="controllerAction" value="UserManagement.profileView"/>
+    </form>
+
+    <form name="viewMediasForm" method="post" action="Dispatcher">
+        <input type="hidden" name="postID"/>
+        <input type="hidden" name="controllerAction" value="MediaManagement.view"/>
     </form>
 
 </main>

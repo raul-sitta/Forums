@@ -10,6 +10,9 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.mime.MimeTypes;
+import org.apache.tika.mime.MimeType;
 
 /**
  * Struttura del Filesystem:
@@ -32,7 +35,7 @@ import java.util.logging.Logger;
 
 public class FileSystemService {
 
-    private static final String BASE_DIR_PATH = File.separator + "opt" +
+    public static final String BASE_DIR_PATH = File.separator + "opt" +
                                                 File.separator + "tomcat" +
                                                 File.separator + "webapps";
 
@@ -152,6 +155,25 @@ public class FileSystemService {
             return profilePicPath.substring(profilePicPath.indexOf("/Uploads"));
         } else {
             return DEFAULT_PROFILE_PIC_PATH;
+        }
+    }
+
+    public static String getFileDescription(String fileExtension) {
+        try {
+            TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
+            MimeTypes allTypes = tikaConfig.getMimeRepository();
+
+            MimeType mimeType = allTypes.forName(allTypes.getMimeType("file." + fileExtension).getName());
+
+            String fileDescription = mimeType.getDescription();
+
+            if (fileDescription == null || fileDescription.isEmpty()) {
+                throw new Exception();
+            }
+
+            return fileDescription;
+        } catch (Exception e) {
+            return "Formato Sconosciuto";
         }
     }
 
