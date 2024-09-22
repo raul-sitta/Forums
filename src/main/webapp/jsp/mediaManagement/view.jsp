@@ -73,6 +73,10 @@
         padding: 0;
     }
 
+    .mediaButtons img+img {
+        margin-left: 6px;
+    }
+
     .mediaButtons img:hover {
         filter: brightness(85%);
     }
@@ -84,7 +88,9 @@
 </style>
 <script>
     function viewImage(mediaID) {
-
+        let f = document.viewImageForm;
+        f.mediaID.value = mediaID;
+        f.submit();
     }
 
     function downloadMedia(mediaPath){
@@ -129,6 +135,9 @@
                     <span class="mediaDate">Aggiunto in data <%= sdf.format(media.getCreationTimestamp()) %></span>
                     <div class="mediaButtons">
                         <img src="images/downloadMedia.png" alt="Scarica Media" class="button adjusted" onclick="downloadMedia('<%=media.getPath()%>')" />
+                        <% if (media.getPath().matches(".*\\.(png|jpg|jpeg|gif)$")) { %>
+                            <img src="images/viewImage.png" alt="Visualizza Immagine" class="button adjusted" onclick="viewImage('<%=media.getMediaID()%>')" />
+                        <% } %>
                     </div>
                 </div>
             </article>
@@ -142,6 +151,12 @@
 
     <form name="downloadMediaForm" method="get" action="FileDownloadServlet">
         <input type="hidden" name="mediaPath" />
+    </form>
+
+    <form name="viewImageForm" method="get" action="Dispatcher">
+        <input type="hidden" name="mediaID" />
+        <input type="hidden" name="postID" value="<%=post.getPostID()%>"/>
+        <input type="hidden" name="controllerAction" value="MediaManagement.imageView"/>
     </form>
 
     <form name="backForm" method="post" action="Dispatcher">

@@ -103,6 +103,37 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
     }
 
     @Override
+    public Media findByMediaID(Long mediaID) {
+        PreparedStatement ps;
+        Media media = null;
+
+        try {
+
+            String sql
+                    = " SELECT * "
+                    + "   FROM MEDIA "
+                    + " WHERE "
+                    + "   mediaID = ?";
+
+            ps = conn.prepareStatement(sql);
+            ps.setLong(1, mediaID);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                media = read(resultSet);
+            }
+            resultSet.close();
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return media;
+    }
+
+    @Override
     public List<Media> getAll() {
         PreparedStatement ps;
         List<Media> medias = new ArrayList<>();

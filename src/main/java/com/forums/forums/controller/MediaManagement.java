@@ -87,4 +87,70 @@ public class MediaManagement {
             }
         }
     }
+
+    public static void imageView(HttpServletRequest request, HttpServletResponse response) {
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        Long postID;
+        Long mediaID;
+        Media media;
+        String applicationMessage = null;
+        NavigationState navigationState;
+
+        Logger logger = LogService.getApplicationLogger();
+
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request", request);
+            sessionFactoryParameters.put("response", response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+
+            sessionDAOFactory.beginTransaction();
+
+            postID = Long.parseLong(request.getParameter("postID"));
+
+            mediaID = Long.parseLong(request.getParameter("mediaID"));
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            MediaDAO mediaDAO = daoFactory.getMediaDAO();
+
+            media = mediaDAO.findByMediaID(mediaID);
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("navigationState", navigationState);
+            request.setAttribute("media", media);
+            request.setAttribute("postID", postID);
+            request.setAttribute("loggedOn", loggedUser != null);
+            request.setAttribute("loggedUser", loggedUser);
+            request.setAttribute("applicationMessage", applicationMessage);
+            request.setAttribute("viewUrl", "mediaManagement/imageView");
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Media Controller Error / view", e);
+            try {
+                if (daoFactory != null) daoFactory.rollbackTransaction();
+                if (sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            } catch (Throwable t) {
+            }
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (daoFactory != null) daoFactory.closeTransaction();
+                if (sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            } catch (Throwable t) {
+            }
+        }
+    }
 }

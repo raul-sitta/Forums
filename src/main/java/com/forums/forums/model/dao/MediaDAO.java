@@ -14,5 +14,6 @@ public interface MediaDAO {
     );
     public void update(Media media);
     public void delete(Media media);
+    public Media findByMediaID(Long mediaID);
     public List<Media> getAll();
 }
