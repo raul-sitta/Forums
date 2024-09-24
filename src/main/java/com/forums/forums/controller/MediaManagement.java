@@ -345,6 +345,86 @@ public class MediaManagement {
         }
     }
 
+    public static void delete(HttpServletRequest request, HttpServletResponse response) {
+        DAOFactory sessionDAOFactory = null;
+        DAOFactory daoFactory = null;
+        User loggedUser;
+        Long postID;
+        Post post;
+        Long mediaID;
+        Media media;
+        String applicationMessage = null;
+        NavigationState navigationState;
+
+        Logger logger = LogService.getApplicationLogger();
+        FileSystemService fs = new FileSystemService();
+
+        try {
+            Map sessionFactoryParameters = new HashMap<String, Object>();
+            sessionFactoryParameters.put("request", request);
+            sessionFactoryParameters.put("response", response);
+            sessionDAOFactory = DAOFactory.getDAOFactory(Configuration.COOKIE_IMPL, sessionFactoryParameters);
+
+            sessionDAOFactory.beginTransaction();
+
+            postID = Long.parseLong(request.getParameter("postID"));
+
+            mediaID = Long.parseLong(request.getParameter("mediaID"));
+
+            UserDAO sessionUserDAO = sessionDAOFactory.getUserDAO();
+
+            loggedUser = sessionUserDAO.findLoggedUser();
+
+            NavigationStateDAO navigationStateDAO = sessionDAOFactory.getNavigationStateDAO();
+            navigationState = navigationStateDAO.findOrCreateNavigationState();
+
+            daoFactory = DAOFactory.getDAOFactory(Configuration.DAO_IMPL, null);
+            daoFactory.beginTransaction();
+
+            MediaDAO mediaDAO = daoFactory.getMediaDAO();
+
+            media = mediaDAO.findByMediaID(mediaID);
+
+            try {
+                mediaDAO.delete(media);
+
+                fs.deleteFile(FileSystemService.BASE_DIR_PATH + media.getPath());
+            }
+            catch (Exception e){
+                logger.log(Level.SEVERE, "Errore di cancellazione del media " + mediaID + ": " + e);
+            }
+
+            PostDAO postDAO = daoFactory.getPostDAO();
+
+            post = postDAO.findByIDWithMedias(postID);
+
+            daoFactory.commitTransaction();
+            sessionDAOFactory.commitTransaction();
+
+            request.setAttribute("navigationState", navigationState);
+            request.setAttribute("post", post);
+            request.setAttribute("loggedOn", loggedUser != null);
+            request.setAttribute("loggedUser", loggedUser);
+            request.setAttribute("applicationMessage", applicationMessage);
+            request.setAttribute("viewUrl", "mediaManagement/view");
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Media Controller Error / view", e);
+            try {
+                if (daoFactory != null) daoFactory.rollbackTransaction();
+                if (sessionDAOFactory != null) sessionDAOFactory.rollbackTransaction();
+            } catch (Throwable t) {
+            }
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (daoFactory != null) daoFactory.closeTransaction();
+                if (sessionDAOFactory != null) sessionDAOFactory.closeTransaction();
+            } catch (Throwable t) {
+            }
+        }
+    }
+
     private static String getSubmittedFileName(Part part) {
         for (String cd : part.getHeader("content-disposition").split(";")) {
             if (cd.trim().startsWith("filename")) {

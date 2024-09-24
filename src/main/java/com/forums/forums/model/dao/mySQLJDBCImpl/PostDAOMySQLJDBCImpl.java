@@ -208,8 +208,8 @@ public class PostDAOMySQLJDBCImpl implements PostDAO {
 
             String sql =  "SELECT P.*, M.* "
                         + "FROM POST AS P "
-                        + "LEFT JOIN MEDIA AS M ON P.postID = M.mediaPostID "
-                        + "WHERE P.postID = ? AND (M.mediaDeleted = 'N' OR M.mediaDeleted IS NULL) "
+                        + "LEFT JOIN MEDIA AS M ON P.postID = M.mediaPostID AND (M.mediaDeleted = 'N' OR M.mediaDeleted IS NULL) "
+                        + "WHERE P.postID = ? "
                         + "ORDER BY M.mediaCreationTimestamp DESC ";
 
 

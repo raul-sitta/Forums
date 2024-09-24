@@ -428,7 +428,7 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                     "FROM TOPIC AS T " +
                     "LEFT JOIN POST AS P ON T.topicID = P.postTopicID AND (P.postDeleted = 'N' OR P.postDeleted IS NULL) " +
                     "LEFT JOIN USER AS U ON U.userID = P.postAuthorID " +
-                    "LEFT JOIN MEDIA AS M ON P.postID = M.mediaPostID " +
+                    "LEFT JOIN MEDIA AS M ON P.postID = M.mediaPostID AND (M.mediaDeleted = 'N' OR M.mediaDeleted IS NULL) " +
                     "WHERE " +
                     "T.topicID = ? AND " +
                     "T.topicDeleted = 'N' " +

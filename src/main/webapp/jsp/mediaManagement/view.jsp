@@ -56,11 +56,15 @@
         flex-direction: column;
     }
 
+    .mediaButtons {
+        margin-top: auto;
+    }
+
     .mediaDetails span {
         margin-bottom: 6px;
     }
 
-    .mediaTitle {
+    .mediaDetails .mediaTitle {
         font-size: 22px;
         font-weight: bold;
         margin-bottom: 5px;
@@ -87,6 +91,13 @@
 
 </style>
 <script>
+    function deleteMedia(mediaID) {
+        if(confirm("Attenzione! Questa azione e' irreversibile. Vuoi procedere?")){
+            document.deleteMediaForm.mediaID.value = mediaID
+                document.deleteMediaForm.submit();
+        }
+    }
+
     function viewImage(mediaID) {
         let f = document.viewImageForm;
         f.mediaID.value = mediaID;
@@ -135,8 +146,13 @@
                     <span class="mediaDate">Aggiunto in data <%= sdf.format(media.getCreationTimestamp()) %></span>
                     <div class="mediaButtons">
                         <img src="images/downloadMedia.png" alt="Scarica Media" class="button adjusted" onclick="downloadMedia('<%=media.getPath()%>')" />
+
                         <% if (media.getPath().matches(".*\\.(png|jpg|jpeg|gif)$")) { %>
                             <img src="images/viewImage.png" alt="Visualizza Immagine" class="button adjusted" onclick="viewImage('<%=media.getMediaID()%>')" />
+                        <% } %>
+
+                        <% if ((loggedUser.getUserID() == post.getAuthor().getUserID()) || (loggedUser.getRole().equals("admin"))) { %>
+                            <img src="images/deleteMedia.png" alt="Elimina Media" class="button adjusted" onclick="deleteMedia('<%=media.getMediaID()%>')" />
                         <% } %>
                     </div>
                 </div>
@@ -157,6 +173,12 @@
         <input type="hidden" name="mediaID" />
         <input type="hidden" name="postID" value="<%=post.getPostID()%>"/>
         <input type="hidden" name="controllerAction" value="MediaManagement.imageView"/>
+    </form>
+
+    <form name="deleteMediaForm" method="post" action="Dispatcher">
+        <input type="hidden" name="mediaID"/>
+        <input type="hidden" name="postID" value="<%=post.getPostID()%>"/>
+        <input type="hidden" name="controllerAction" value="MediaManagement.delete"/>
     </form>
 
     <form name="backForm" method="post" action="Dispatcher">

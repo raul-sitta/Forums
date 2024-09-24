@@ -90,7 +90,7 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
             sql
                     = "UPDATE MEDIA SET "
                     + "mediaDeleted = ? "
-                    + "WHERE mediaTopicID = ?";
+                    + "WHERE mediaID = ?";
             ps = conn.prepareStatement(sql);
 
             ps.setString(1, "Y");
