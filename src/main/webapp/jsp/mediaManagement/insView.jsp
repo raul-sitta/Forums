@@ -108,6 +108,20 @@
         });
     }
 
+    function updateMediaCount() {
+        var fileInputs = document.querySelectorAll('input[type="file"]');
+        var nonEmptyFiles = 0;
+        fileInputs.forEach(function(input) {
+            if (input.files.length > 0 && input.files[0].size > 0) {
+                nonEmptyFiles++;
+            }
+        });
+        var mediasCount = document.getElementById('mediasCount');
+        mediasCount.textContent = nonEmptyFiles + " file selezionat";
+        if (nonEmptyFiles !== 1) mediasCount.textContent += "i.";
+        else mediasCount.textContent += "o.";
+    }
+
     function formatFileSize(bytes) {
         const k = 1024;
         if (bytes >= k * k) {
@@ -163,6 +177,7 @@
             }
             article.remove();
             URL.revokeObjectURL(img.src);
+            updateMediaCount();
         };
         return button;
     }
@@ -203,6 +218,8 @@
 
             var cancelBtn = createCancelButton(fileIDCounter, mediaArticle, img);
             mediaArticle.querySelector('.mediaButtons').appendChild(cancelBtn);
+
+            updateMediaCount();
 
             fileIDCounter++;
         };
