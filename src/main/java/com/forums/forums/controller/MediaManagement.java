@@ -265,29 +265,29 @@ public class MediaManagement {
 
             // Recupero i file dei media dalla request
 
-            Map<String, Integer> fileNameMap = new HashMap<>();
             fileParts = new ArrayList<>();
+            Map<String, Integer> fileNameMap = new HashMap<>();
 
+            // Inizializza la mappa con i nomi dei file già presenti
             for (Media media : oldMedias) {
                 String existingFileName = media.getPath().substring(media.getPath().lastIndexOf("/") + 1);
-                if (fileNameMap.containsKey(existingFileName)) {
-                    fileNameMap.put(existingFileName, fileNameMap.get(existingFileName) + 1);
-                } else {
-                    fileNameMap.put(existingFileName, 1);
-                }
+                fileNameMap.put(existingFileName, fileNameMap.getOrDefault(existingFileName, 0) + 1);
             }
 
             Collection<Part> parts = request.getParts();
             for (Part part : parts) {
                 if (part.getName().equals("files[]") && part.getSize() > 0) {
                     String fileName = getSubmittedFileName(part);
+
+                    // Rinomina il file se esiste già un file con lo stesso nome
                     while (fileNameMap.containsKey(fileName)) {
                         int count = fileNameMap.get(fileName);
                         String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
                         String extension = fileName.substring(fileName.lastIndexOf('.'));
                         fileName = baseName + "_" + count + extension;
-                        fileNameMap.put(fileName, count + 1);
                     }
+
+                    // Aggiorna la mappa e la lista con il nuovo nome del file
                     fileNameMap.put(fileName, 1);
                     fileParts.add(part);
                 }
@@ -299,8 +299,10 @@ public class MediaManagement {
 
             try {
 
+                fs.createDirectory(FileSystemService.getUserMediaPostPath(uploaderID,postID));
+
                 for (Part part : fileParts) {
-                    String path = FileSystemService.getUserRelativeMediaDirectoryPath(uploaderID) + getSubmittedFileName(part);
+                    String path = FileSystemService.getUserRelativeMediaDirectoryPath(uploaderID) + postID + File.separator + getSubmittedFileName(part);
                     Media media = mediaDAO.create(  path,
                                                     creationTimestamp,
                                                     uploader,

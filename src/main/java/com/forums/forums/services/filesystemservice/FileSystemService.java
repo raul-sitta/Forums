@@ -157,6 +157,13 @@ public class FileSystemService {
         return profilePicPath;
     }
 
+    public static String getUserMediaPostPath(Long userID, Long postID) {
+        String path = BASE_DIR_PATH +
+                        File.separator +
+                        getUserRelativeMediaDirectoryPath(userID) + postID;
+        return path;
+    }
+
     public String getActualProfilePicPath(User user) {
         if (user == null) {
             return DEFAULT_PROFILE_PIC_PATH;
