@@ -89,7 +89,23 @@
 </style>
 <script>
 
-    let uploadedFiles = [];
+    let fileIDCounter = 0;
+
+    function goBack(){
+        document.backForm.submit();
+    }
+
+    function submitMedias() {
+        let f = document.insForm;
+        f.creationTimestamp.value = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+        let fileInputs = f.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            if (!input.value) {
+                input.remove();
+            }
+        });
+    }
 
     function formatFileSize(bytes) {
         const k = 1024;
@@ -102,33 +118,9 @@
         }
     }
 
-    function handleFileInputChange(event) {
-        var files = event.target.files;
-        var container = document.getElementById('medias');
-
-        for (var i = 0; i < files.length; i++) {
-            uploadedFiles.push(files[i]);
-            var article = createMediaArticle(files[i]);
-            container.prepend(article);
-        }
-    }
-
-    function createMediaArticle(file) {
+    function createMediaArticle(file, img) {
         var article = document.createElement('article');
         article.className = "media";
-
-        var img = document.createElement('img');
-        img.onload = function() {
-            URL.revokeObjectURL(this.src);
-        };
-        img.onerror = function() {
-            this.src = "images/genericFile.png";
-        };
-        if (file.type.startsWith('image/')) {
-            img.src = URL.createObjectURL(file);
-        } else {
-            img.src = "images/genericFile.png";
-        }
 
         var divPreview = document.createElement('div');
         divPreview.className = "mediaPreview";
@@ -148,17 +140,6 @@
         var divButtons = document.createElement('div');
         divButtons.className = "mediaButtons";
 
-        var imgCancel = document.createElement('img');
-        imgCancel.src = "images/deleteMedia.png";
-        imgCancel.alt = "Elimina Media";
-        imgCancel.className = "button adjusted";
-        imgCancel.onclick = function() {
-            article.remove();
-            URL.revokeObjectURL(img.src);
-        };
-
-        divButtons.appendChild(imgCancel);
-
         divDetails.appendChild(spanTitle);
         divDetails.appendChild(spanSize);
         divDetails.appendChild(divButtons);
@@ -169,18 +150,83 @@
         return article;
     }
 
-
-    function requestImageUpload() {
-        document.getElementById('fileInput').click();
+    function createCancelButton(id, article, img) {
+        var button = document.createElement('img');
+        button.src = "images/deleteMedia.png";
+        button.alt = "Elimina Media";
+        button.className = "button adjusted";
+        button.onclick = function() {
+            var fileInputToRemove = document.getElementById('file-' + id);
+            if (fileInputToRemove) {
+                document.getElementById('insForm').removeChild(fileInputToRemove);
+            }
+            article.remove();
+            URL.revokeObjectURL(img.src);
+        };
+        return button;
     }
 
-    function goBack(){
-        document.backForm.submit();
+    function createFileInput() {
+        var newFileInput = document.createElement('input');
+        newFileInput.type = 'file';
+        newFileInput.name = 'files[]';
+        newFileInput.id = 'file-' + fileIDCounter;
+        newFileInput.style.display = 'none';
+
+        newFileInput.onchange = function() {
+            var file = newFileInput.files[0];
+
+            if (file.length === 0) {
+                newFileInput.remove();
+                return;
+            }
+
+            var img = document.createElement('img');
+            if (file.type.startsWith('image/')) {
+                img.src = URL.createObjectURL(file);
+            } else {
+                img.src = "images/genericFile.png";
+            }
+            img.onload = function() {
+                URL.revokeObjectURL(this.src);
+            };
+            img.onerror = function() {
+                this.src = "images/genericFile.png";
+            };
+
+            var container = document.getElementById('medias');
+            var mediaArticle = createMediaArticle(file, img);
+            container.prepend(mediaArticle);
+
+            var cancelBtn = createCancelButton(fileIDCounter, mediaArticle, img);
+            mediaArticle.querySelector('.mediaButtons').appendChild(cancelBtn);
+
+            fileIDCounter++;
+        };
+
+        document.getElementById('insForm').appendChild(newFileInput);
+        newFileInput.click();
     }
+
+    function uploadMedia() {
+        var existingInputs = document.querySelectorAll('input[type="file"]');
+        var foundEmpty = false;
+
+        existingInputs.forEach(input => {
+            if (!input.value && !foundEmpty) {
+                input.click();
+                foundEmpty = true;
+            }
+        });
+
+        if (!foundEmpty) {
+            createFileInput();
+        }
+    }
+
 
     function mainOnLoadHandler() {
-        document.getElementById('fileInput').addEventListener('change', handleFileInputChange);
-        document.getElementById('uploadMediaButton').addEventListener("click", requestImageUpload);
+        document.getElementById('uploadMediaButton').addEventListener('click', uploadMedia);
         document.getElementById('backButton').addEventListener("click", goBack);
     }
 
@@ -207,15 +253,14 @@
     </section>
 
     <section id="medias" class="clearfix">
-        <form name="insForm" action="Dispatcher" method="post" enctype="multipart/form-data">
-
+        <form name="insForm" id="insForm" action="Dispatcher" method="post" enctype="multipart/form-data">
 
             <div class="buttonContainer large">
                 <input type="submit" name="submitMediasButton" id="submitMediasButton" class="button blue" value="Invia"/>
                 <input type="button" name="backButton" id="backButton" class="button red" value="Annulla"/>
             </div>
 
-            <input type="file" id="fileInput" name="fileInput" class="invisible" multiple/>
+            <input type="hidden" id="creationTimestamp" name="creationTimestamp" />
 
         </form>
     </section>
