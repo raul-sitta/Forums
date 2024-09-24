@@ -277,18 +277,6 @@ public class MediaManagement {
             Collection<Part> parts = request.getParts();
             for (Part part : parts) {
                 if (part.getName().equals("files[]") && part.getSize() > 0) {
-                    String fileName = getSubmittedFileName(part);
-
-                    // Rinomina il file se esiste già un file con lo stesso nome
-                    while (fileNameMap.containsKey(fileName)) {
-                        int count = fileNameMap.get(fileName);
-                        String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
-                        String extension = fileName.substring(fileName.lastIndexOf('.'));
-                        fileName = baseName + "_" + count + extension;
-                    }
-
-                    // Aggiorna la mappa e la lista con il nuovo nome del file
-                    fileNameMap.put(fileName, 1);
                     fileParts.add(part);
                 }
             }
@@ -302,7 +290,20 @@ public class MediaManagement {
                 fs.createDirectory(FileSystemService.getUserMediaPostPath(uploaderID,postID));
 
                 for (Part part : fileParts) {
-                    String path = FileSystemService.getUserRelativeMediaDirectoryPath(uploaderID) + postID + File.separator + getSubmittedFileName(part);
+
+                    String fileName = getSubmittedFileName(part);
+
+                    while (fileNameMap.containsKey(fileName)) {
+                        int count = fileNameMap.get(fileName);
+                        String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+                        String extension = fileName.substring(fileName.lastIndexOf('.'));
+                        fileNameMap.put(fileName, count);
+                        fileName = baseName + "_" + count + extension;
+                    }
+
+                    fileNameMap.put(fileName, 1);
+
+                    String path = FileSystemService.getUserRelativeMediaDirectoryPath(uploaderID) + postID + File.separator + fileName;
                     Media media = mediaDAO.create(  path,
                                                     creationTimestamp,
                                                     uploader,
