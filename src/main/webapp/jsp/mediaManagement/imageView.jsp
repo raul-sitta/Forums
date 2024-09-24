@@ -7,7 +7,6 @@
 <%@ page import="java.io.File" %>
 
 <%
-    int i = 0;
     boolean loggedOn = (Boolean) request.getAttribute("loggedOn");
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");

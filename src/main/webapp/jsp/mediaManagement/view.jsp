@@ -60,7 +60,7 @@
         margin-bottom: 6px;
     }
 
-    .mediaDetails .mediaTitle {
+    .mediaTitle {
         font-size: 22px;
         font-weight: bold;
         margin-bottom: 5px;
@@ -108,7 +108,7 @@
 <main>
     <section id="pageTitle">
         <h1>
-            Allegati al post "<%=(post.getContent().length() > 50) ? post.getContent().substring(0, 50) + "..." : post.getContent()%>"
+            Allegati al post "<%=(post.getContent().length() > 30) ? post.getContent().substring(0, 30) + "..." : post.getContent()%>"
         </h1>
     </section>
 

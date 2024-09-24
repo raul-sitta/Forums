@@ -66,14 +66,14 @@
         font-size: 16px;
     }
 
-    .addMediaButton img {
+    .insertMediasButton img {
         width: 60px;
         height: auto;
         transition: filter 0.3s ease;
         padding: 0;
     }
 
-    .addMediaButton img:hover {
+    .insertMediasButton img:hover {
         filter: brightness(85%);
     }
 
@@ -148,6 +148,12 @@
         f.submit();
     }
 
+    function insertMedias(postID) {
+        let f = document.insertMediasForm;
+        f.postID.value = postID;
+        f.submit();
+    }
+
     function viewMedias(postID) {
         let f = document.viewMediasForm;
         f.postID.value = postID;
@@ -209,8 +215,8 @@
                     <% } %>
                 </div>
                 <% if (topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) {%>
-                <div class="addMediaButton">
-                    <img src="images/addMedia.png" alt="Aggiungi Media" class="button adjusted" onclick="navigateTo(1)" />
+                <div class="insertMediasButton">
+                    <img src="images/addMedia.png" alt="Aggiungi Media" class="button adjusted" onclick="insertMedias(<%=topic.getPosts().get(i).getPostID()%>)" />
                 </div>
                 <% } %>
             </div>
@@ -278,6 +284,11 @@
     <form name="viewUserForm" method="post" action="Dispatcher">
         <input type="hidden" name="userID"/>
         <input type="hidden" name="controllerAction" value="UserManagement.profileView"/>
+    </form>
+
+    <form name="insertMediasForm" method="post" action="Dispatcher">
+        <input type="hidden" name="postID"/>
+        <input type="hidden" name="controllerAction" value="MediaManagement.insertView"/>
     </form>
 
     <form name="viewMediasForm" method="post" action="Dispatcher">
