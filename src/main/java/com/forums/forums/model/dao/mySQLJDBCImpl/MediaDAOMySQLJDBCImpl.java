@@ -134,6 +134,34 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
     }
 
     @Override
+    public List<Media> getAllByPostID(Long postID) {
+        PreparedStatement ps;
+        List<Media> medias = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM MEDIA WHERE mediaPostID = ? ORDER BY mediaCreationTimestamp DESC ";
+
+            ps = conn.prepareStatement(sql);
+
+            ps.setLong(1, postID);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            while(resultSet.next()){
+                Media media = read(resultSet);
+                medias.add(media);
+            }
+            resultSet.close();
+            ps.close();
+        }
+        catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+        return medias;
+    }
+
+    @Override
     public List<Media> getAll() {
         PreparedStatement ps;
         List<Media> medias = new ArrayList<>();

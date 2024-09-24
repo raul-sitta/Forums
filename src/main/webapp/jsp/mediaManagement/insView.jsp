@@ -90,6 +90,7 @@
 <script>
 
     let fileIDCounter = 0;
+    let maxFilesAllowed = 10;
 
     function goBack(){
         document.backForm.submit();
@@ -176,7 +177,9 @@
         newFileInput.onchange = function() {
             var file = newFileInput.files[0];
 
-            if (file.length === 0) {
+            // Controllo che il file abbia dimensione < di 100 mega
+            if (file.size > 100 * 1024 * 1024) {
+                alert("Il file " + file.name + " deve avere dimensione inferiore a 100 MB.");
                 newFileInput.remove();
                 return;
             }
@@ -220,12 +223,21 @@
         });
 
         if (!foundEmpty) {
-            createFileInput();
+            if (!foundEmpty) {
+                var nonEmptyFiles = Array.from(existingInputs).filter(input => input.value).length;
+
+                if (nonEmptyFiles < maxFilesAllowed) {
+                    createFileInput();
+                } else {
+                    alert("Non è possibile caricare più di " + maxFilesAllowed + " file alla volta.");
+                }
+            }
         }
     }
 
 
     function mainOnLoadHandler() {
+        document.getElementById('submitMediasButton').addEventListener("click",submitMedias);
         document.getElementById('uploadMediaButton').addEventListener('click', uploadMedia);
         document.getElementById('backButton').addEventListener("click", goBack);
     }
@@ -261,6 +273,9 @@
             </div>
 
             <input type="hidden" id="creationTimestamp" name="creationTimestamp" />
+            <input type="hidden" id="uploaderID" name="uploaderID" value="<%=loggedUser.getUserID()%>"/>
+            <input type="hidden" id="postID" name="postID" value="<%=post.getPostID()%>"/>
+            <input type="hidden" name="controllerAction" value="MediaManagement.insert"/>
 
         </form>
     </section>

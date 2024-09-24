@@ -145,6 +145,18 @@ public class FileSystemService {
         return profilePicPath;
     }
 
+    public static String getUserRelativeMediaDirectoryPath(Long userID) {
+
+        String profilePicPath = File.separator +
+                "Uploads" + File.separator +
+                "forums" + File.separator +
+                "users" + File.separator +
+                userID + File.separator +
+                "medias" + File.separator;
+
+        return profilePicPath;
+    }
+
     public String getActualProfilePicPath(User user) {
         if (user == null) {
             return DEFAULT_PROFILE_PIC_PATH;
