@@ -17,6 +17,7 @@ public abstract class DAOFactory {
     public abstract void closeTransaction();
 
     public abstract CategoryDAO getCategoryDAO();
+    public abstract FAQDAO getFAQDAO();
     public abstract MediaDAO getMediaDAO();
     public abstract NavigationStateDAO getNavigationStateDAO();
     public abstract PostDAO getPostDAO();

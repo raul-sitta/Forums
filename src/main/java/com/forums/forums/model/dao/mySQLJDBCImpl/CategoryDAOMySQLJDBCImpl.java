@@ -240,7 +240,6 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
             category.setCategoryID(rs.getLong("categoryID"));
         }
         catch (SQLException sqle){
-            throw new RuntimeException("Error: read rs - Category", sqle);
         }
 
 
@@ -248,7 +247,6 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
             category.setName(rs.getString("categoryName"));
         }
         catch (SQLException sqle){
-            throw new RuntimeException("Error: read rs - Category", sqle);
         }
 
 
@@ -256,7 +254,6 @@ public class CategoryDAOMySQLJDBCImpl implements CategoryDAO {
             category.setDeleted(rs.getString("categoryDeleted").equals("Y"));
         }
         catch (SQLException sqle){
-            throw new RuntimeException("Error: read rs - Category", sqle);
         }
 
 

@@ -70,6 +70,11 @@ public class MySQLJDBCDAOFactory extends DAOFactory {
     }
 
     @Override
+    public FAQDAO getFAQDAO() {
+        return new FAQDAOMySQLJDBCImpl(connection);
+    }
+
+    @Override
     public MediaDAO getMediaDAO() {
         return new MediaDAOMySQLJDBCImpl(connection);
     }

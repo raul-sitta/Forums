@@ -44,6 +44,11 @@ public class CookieDAOFactory extends DAOFactory {
     }
 
     @Override
+    public FAQDAO getFAQDAO() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public MediaDAO getMediaDAO() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

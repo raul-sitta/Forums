@@ -188,48 +188,48 @@
 
     <section id="posts" class="clearfix">
         <% if (topic.getPosts() != null && !topic.getPosts().isEmpty()) {%>
-        <% for (i = 0; i < topic.getPosts().size(); i++) {%>
+        <% for (Post post : topic.getPosts()) {%>
         <article class="post">
             <div class="authorProfile">
                 <div class="authorProfilePic">
-                    <img src="<%= (topic.getAnonymous() && topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID())) ?
+                    <img src="<%= (topic.getAnonymous() && post.getAuthor().getUserID().equals(topic.getAuthor().getUserID())) ?
                         "/images/categoryImages/anonymous.png" :
-                            topic.getPosts().get(i).getAuthor().getProfilePicPath() %>?cache=<%=System.currentTimeMillis()%>"
-                                alt="Foto profilo di @<%=topic.getPosts().get(i).getAuthor().getUsername()%>"/>
+                            post.getAuthor().getProfilePicPath() %>?cache=<%=System.currentTimeMillis()%>"
+                                alt="Foto profilo di @<%=post.getAuthor().getUsername()%>"/>
                 </div>
                 <div class="authorDetails">
-                    <span class="username<%=(!topic.getPosts().get(i).getAuthor().getDeleted() && (!topic.getAnonymous() || topic.getPosts().get(i).getAuthor().getUserID() != topic.getAuthor().getUserID())) ? " clickable" : ""%>"
-                            <%=(!topic.getPosts().get(i).getAuthor().getDeleted() && (!topic.getAnonymous() || topic.getPosts().get(i).getAuthor().getUserID() != topic.getAuthor().getUserID())) ? "onclick = \"javascript:viewUser(" + topic.getPosts().get(i).getAuthor().getUserID() + ")\"" : ""%>
-                                ><%= (topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) && topic.getAnonymous()) ? "Utente Anonimo" :
-                                        "@" + topic.getPosts().get(i).getAuthor().getUsername() +
-                                                        ((topic.getPosts().get(i).getAuthor().getDeleted()) ? " (Eliminato)" : "")%>
-                                                            <%=((loggedUser.getUserID() == topic.getPosts().get(i).getAuthor().getUserID()) ? " (Tu)" : "")%>
-                                                                <%=(topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID()) ? " (Autore)" : "")%>
+                    <span class="username<%=(!post.getAuthor().getDeleted() && (!topic.getAnonymous() || post.getAuthor().getUserID() != topic.getAuthor().getUserID())) ? " clickable" : ""%>"
+                            <%=(!post.getAuthor().getDeleted() && (!topic.getAnonymous() || post.getAuthor().getUserID() != topic.getAuthor().getUserID())) ? "onclick = \"javascript:viewUser(" + post.getAuthor().getUserID() + ")\"" : ""%>
+                                ><%= (post.getAuthor().getUserID().equals(topic.getAuthor().getUserID()) && topic.getAnonymous()) ? "Utente Anonimo" :
+                                        "@" + post.getAuthor().getUsername() +
+                                                        ((post.getAuthor().getDeleted()) ? " (Eliminato)" : "")%>
+                                                            <%=((loggedUser.getUserID() == post.getAuthor().getUserID()) ? " (Tu)" : "")%>
+                                                                <%=(post.getAuthor().getUserID().equals(topic.getAuthor().getUserID()) ? " (Autore)" : "")%>
                     </span>
-                    <% if (!topic.getAnonymous() || !topic.getPosts().get(i).getAuthor().getUserID().equals(topic.getAuthor().getUserID())) {%>
-                        <span class="role"><%=topic.getPosts().get(i).getAuthor().getRole()%></span>
+                    <% if (!topic.getAnonymous() || !post.getAuthor().getUserID().equals(topic.getAuthor().getUserID())) {%>
+                        <span class="role"><%=post.getAuthor().getRole()%></span>
                     <% } %>
-                    <span class="creationDate"><%=sdf.format(topic.getPosts().get(i).getCreationTimestamp())%></span>
-                    <% if (topic.getPosts().get(i).getEdited()) {%>
+                    <span class="creationDate"><%=sdf.format(post.getCreationTimestamp())%></span>
+                    <% if (post.getEdited()) {%>
                         <span class="edited">(modificato)</span>
                     <% } %>
                 </div>
-                <% if (topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) {%>
+                <% if (post.getAuthor().getUserID() == loggedUser.getUserID()) {%>
                 <div class="insertMediasButton">
-                    <img src="images/addMedia.png" alt="Aggiungi Media" class="button adjusted" onclick="insertMedias(<%=topic.getPosts().get(i).getPostID()%>)" />
+                    <img src="images/addMedia.png" alt="Aggiungi Media" class="button adjusted" onclick="insertMedias(<%=post.getPostID()%>)" />
                 </div>
                 <% } %>
             </div>
             <div class="postContent">
-                <% if ((topic.getPosts().get(i).getAuthor().getUserID() == loggedUser.getUserID()) || (loggedUser.getRole().equals("Admin"))) {%>
-                    <span class="content clickable" onclick="javascript:modifyPost(<%=topic.getPosts().get(i).getPostID()%>)"><%= (topic.getPosts().get(i).getContent())%></span>
+                <% if ((post.getAuthor().getUserID() == loggedUser.getUserID()) || (loggedUser.getRole().equals("Admin"))) {%>
+                    <span class="content clickable" onclick="javascript:modifyPost(<%=post.getPostID()%>)"><%= (post.getContent())%></span>
                 <% } else { %>
-                    <span class="content"><%= (topic.getPosts().get(i).getContent())%></span>
+                    <span class="content"><%= (post.getContent())%></span>
                 <% }%>
 
-                <% if (topic.getPosts().get(i).getMedias() != null) { %>
+                <% if (post.getMedias() != null) { %>
                     <div class="viewMediaButton">
-                        <input type="button" name="viewMediaButton" class="button green" value="Visualizza Allegati" onclick="javascript:viewMedias(<%=topic.getPosts().get(i).getPostID()%>)"/>
+                        <input type="button" name="viewMediaButton" class="button green" value="Visualizza Allegati" onclick="javascript:viewMedias(<%=post.getPostID()%>)"/>
                     </div>
                 <% } %>
             </div>

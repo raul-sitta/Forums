@@ -225,42 +225,36 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
         try {
             media.setMediaID(rs.getLong("mediaID"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Media", sqle);
         }
 
 
         try {
             media.setPath(rs.getString("mediaPath"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Media", sqle);
         }
 
 
         try {
             media.setCreationTimestamp(rs.getTimestamp("mediaCreationTimestamp"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Media", sqle);
         }
 
 
         try {
             media.getUploader().setUserID(rs.getLong("mediaUploaderID"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Media", sqle);
         }
 
 
         try {
             media.getPost().setPostID(rs.getLong("mediaPostID"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Media", sqle);
         }
 
 
         try {
             media.setDeleted(rs.getString("mediaDeleted").equals("Y"));
         } catch (SQLException sqle) {
-            throw new RuntimeException("Error: read rs - Media", sqle);
         }
 
         return media;
