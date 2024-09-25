@@ -2,12 +2,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.forums.forums.model.mo.*" %>
 <%@ page import="com.forums.forums.services.filesystemservice.FileSystemService" %>
-<%@ page import="java.util.List" %>
 <%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="java.io.File" %>
 
 <%
-    int i = 0;
     boolean loggedOn = (Boolean) request.getAttribute("loggedOn");
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");

@@ -1,7 +1,10 @@
 package com.forums.forums.model.dao.mySQLJDBCImpl;
 
+import com.forums.forums.model.dao.DAOFactory;
 import com.forums.forums.model.dao.FAQDAO;
+import com.forums.forums.model.dao.UserDAO;
 import com.forums.forums.model.mo.*;
+import com.forums.forums.services.config.Configuration;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -125,14 +128,18 @@ public class FAQDAOMySQLJDBCImpl implements FAQDAO {
         List<FAQ> faqs = new ArrayList<>();
 
         try {
-            String sql = "SELECT * FROM FAQ ";
+            String sql = "SELECT F.*, U.userUsername, U.userID FROM FAQ AS F LEFT JOIN USER AS U ON F.faqAuthorID = U.userID ";
 
             ps = conn.prepareStatement(sql);
 
             ResultSet resultSet = ps.executeQuery();
 
+            UserDAOMySQLJDBCImpl userDAOMySQLJDBC = new UserDAOMySQLJDBCImpl(this.conn);
+
             while(resultSet.next()){
                 FAQ faq = read(resultSet);
+                User author = userDAOMySQLJDBC.read(resultSet);
+                faq.setAuthor(author);
                 faqs.add(faq);
             }
             resultSet.close();
