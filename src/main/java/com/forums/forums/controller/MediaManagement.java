@@ -18,6 +18,9 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 
 public class MediaManagement {
     private MediaManagement() {
@@ -294,11 +297,22 @@ public class MediaManagement {
                     String fileName = getSubmittedFileName(part);
 
                     while (fileNameMap.containsKey(fileName)) {
-                        int count = fileNameMap.get(fileName);
-                        String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
-                        String extension = fileName.substring(fileName.lastIndexOf('.'));
-                        fileNameMap.put(fileName, count);
-                        fileName = baseName + "_" + count + extension;
+                        if (fileName != null) {
+                            Pattern pattern = Pattern.compile("^(.+?)(?:_([0-9]+))?(\\.[^\\.]+)?$");
+                            Matcher matcher = pattern.matcher(fileName);
+
+                            if (matcher.matches()) {
+                                String baseName = matcher.group(1);
+                                int suffix = matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : 0;
+                                String extension = matcher.group(3) != null ? matcher.group(3) : "";
+
+                                fileName = baseName + "_" + (suffix + 1) + extension;
+                            } else {
+                                fileName = fileName + "_1";
+                            }
+                        } else {
+                            fileName = "";
+                        }
                     }
 
                     fileNameMap.put(fileName, 1);
