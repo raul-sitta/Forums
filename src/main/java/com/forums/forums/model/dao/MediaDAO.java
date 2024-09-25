@@ -16,5 +16,6 @@ public interface MediaDAO {
     public void delete(Media media);
     public Media findByMediaID(Long mediaID);
     public List<Media> getAllByPostID(Long postID);
+    public Long countByPostID(Long postID);
     public List<Media> getAll();
 }

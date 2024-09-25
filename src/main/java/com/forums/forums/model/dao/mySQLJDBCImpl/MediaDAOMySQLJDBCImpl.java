@@ -162,6 +162,32 @@ public class MediaDAOMySQLJDBCImpl implements MediaDAO {
     }
 
     @Override
+    public Long countByPostID(Long postID) {
+        PreparedStatement ps;
+        long count = 0;
+
+        try {
+            String sql = "SELECT COUNT(*) FROM MEDIA WHERE mediaPostID = ? AND mediaDeleted = 'N'";
+
+            ps = conn.prepareStatement(sql);
+            ps.setLong(1, postID);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                count = resultSet.getLong(1);
+            }
+            resultSet.close();
+            ps.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return count;
+    }
+
+
+    @Override
     public List<Media> getAll() {
         PreparedStatement ps;
         List<Media> medias = new ArrayList<>();

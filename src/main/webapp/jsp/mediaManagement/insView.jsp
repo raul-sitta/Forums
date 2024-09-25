@@ -11,6 +11,7 @@
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     Post post = (Post) request.getAttribute("post");
+    Long mediasInDataBase = (Long) request.getAttribute("mediasInDataBase");
     NavigationState navigationState = (NavigationState) request.getAttribute("navigationState");
     String menuActiveLink = "Topics";
 %>
@@ -91,6 +92,8 @@
 
     let fileIDCounter = 0;
     let maxFilesAllowed = 10;
+    let mediasInDataBase = <%=mediasInDataBase%>;
+    let maxMediasAllowed = 20;
 
     function goBack(){
         document.backForm.submit();
@@ -240,14 +243,16 @@
         });
 
         if (!foundEmpty) {
-            if (!foundEmpty) {
-                var nonEmptyFiles = Array.from(existingInputs).filter(input => input.value).length;
+            var nonEmptyFiles = Array.from(existingInputs).filter(input => input.value).length;
 
-                if (nonEmptyFiles < maxFilesAllowed) {
+            if (nonEmptyFiles < maxFilesAllowed) {
+                if (nonEmptyFiles + mediasInDataBase < maxMediasAllowed) {
                     createFileInput();
                 } else {
-                    alert("Non è possibile caricare più di " + maxFilesAllowed + " file alla volta.");
+                    alert("Massimo " + maxMediasAllowed + " media consentiti per post. Attualmente, " + mediasInDataBase + " sono già stati caricati.");
                 }
+            } else {
+                alert("Non è possibile caricare più di " + maxFilesAllowed + " file alla volta.");
             }
         }
     }

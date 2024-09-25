@@ -160,6 +160,7 @@ public class MediaManagement {
         User loggedUser;
         Long postID;
         Post post;
+        Long mediasInDataBase;
         String applicationMessage = null;
         NavigationState navigationState;
 
@@ -189,11 +190,16 @@ public class MediaManagement {
 
             post = postDAO.findByID(postID);
 
+            MediaDAO mediaDAO = daoFactory.getMediaDAO();
+
+            mediasInDataBase = mediaDAO.countByPostID(postID);
+
             daoFactory.commitTransaction();
             sessionDAOFactory.commitTransaction();
 
             request.setAttribute("navigationState", navigationState);
             request.setAttribute("post", post);
+            request.setAttribute("mediasInDataBase", mediasInDataBase);
             request.setAttribute("loggedOn", loggedUser != null);
             request.setAttribute("loggedUser", loggedUser);
             request.setAttribute("applicationMessage", applicationMessage);
