@@ -148,7 +148,7 @@
                             <img src="images/viewImage.png" alt="Visualizza Immagine" class="button adjusted" onclick="viewImage('<%=media.getMediaID()%>')" />
                         <% } %>
 
-                        <% if ((loggedUser.getUserID() == post.getAuthor().getUserID()) || (loggedUser.getRole().equals("admin"))) { %>
+                        <% if ((loggedUser.getUserID() == post.getAuthor().getUserID()) || (loggedUser.getRole().equals("Admin"))) { %>
                             <img src="images/deleteMedia.png" alt="Elimina Media" class="button adjusted" onclick="deleteMedia('<%=media.getMediaID()%>')" />
                         <% } %>
                     </div>

@@ -13,5 +13,6 @@ public interface FAQDAO {
     );
     public void update(FAQ faq);
     public void delete(FAQ faq);
+    public FAQ findByID(Long faqID);
     public List<FAQ> getAll();
 }

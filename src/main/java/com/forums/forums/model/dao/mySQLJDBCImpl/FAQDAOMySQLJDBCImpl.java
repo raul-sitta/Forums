@@ -123,12 +123,47 @@ public class FAQDAOMySQLJDBCImpl implements FAQDAO {
     }
 
     @Override
+    public FAQ findByID(Long faqID) {
+        PreparedStatement ps;
+        FAQ faq = null;
+
+        try {
+
+            String sql
+                    = " SELECT * "
+                    + "   FROM FAQ "
+                    + " WHERE "
+                    + "   faqID = ?";
+
+            ps = conn.prepareStatement(sql);
+            ps.setLong(1, faqID);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                faq = read(resultSet);
+            }
+            resultSet.close();
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return faq;
+    }
+
+    @Override
     public List<FAQ> getAll() {
         PreparedStatement ps;
         List<FAQ> faqs = new ArrayList<>();
 
         try {
-            String sql = "SELECT F.*, U.userUsername, U.userID FROM FAQ AS F LEFT JOIN USER AS U ON F.faqAuthorID = U.userID ";
+            String sql =    "SELECT F.*, U.userUsername, U.userID " +
+                            "FROM FAQ AS F " +
+                            "LEFT JOIN USER AS U ON F.faqAuthorID = U.userID " +
+                            "WHERE F.faqDeleted = 'N' " +
+                            "ORDER BY F.faqQuestion ASC ";;
 
             ps = conn.prepareStatement(sql);
 

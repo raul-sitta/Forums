@@ -57,14 +57,29 @@
         padding: 20px;
     }
 
+    .faqAuthor {
+        font-size: 15px;
+        font-style: italic;
+        color: #707070;
+        padding-top:0;
+    }
+
     .faqsNotFound {
         font-size: 20px;
     }
 </style>
 <script>
-    function insertFAQ() {
+    <% if (loggedUser.getRole().equals("Admin")) { %>
+        function insertFAQ() {
+            document.insertForm.submit();
+        }
 
-    }
+        function modifyFAQ(faqID) {
+            let f = document.modifyForm;
+            f.faqID.value = faqID;
+            f.submit();
+        }
+    <% } %>
 </script>
 <body>
 <%@include file="/include/header.inc"%>
@@ -75,11 +90,13 @@
         </h1>
     </section>
 
-    <section class="buttonContainer">
+    <% if (loggedUser.getRole().equals("Admin")) { %>
+        <section class="buttonContainer">
 
-        <input type="button" name="insertFAQButton" id="insertFAQButton" class="button green" value="Nuova FAQ" onclick="javascript:insertFAQ()"/>
+            <input type="button" name="insertFAQButton" id="insertFAQButton" class="button green" value="Nuova FAQ" onclick="javascript:insertFAQ()"/>
 
-    </section>
+        </section>
+    <% } %>
 
     <section class="faqs">
         <% if (faqs != null && !faqs.isEmpty()) {%>
@@ -87,7 +104,12 @@
             <article class="faq">
                 <details>
                     <summary><%=faq.getQuestion()%></summary>
-                    <p><%=faq.getAnswer()%></p>
+                    <% if (loggedUser.getRole().equals("Admin")) { %>
+                        <p class="clickable" onclick="javascript:modifyFAQ(<%=faq.getFaqID()%>)"><%=faq.getAnswer()%></p>
+                    <% } else { %>
+                        <p><%=faq.getAnswer()%></p>
+                    <% } %>
+                        <p class="faqAuthor">Scritto da @<%=faq.getAuthor().getUsername()%> in data <%=sdf.format(faq.getCreationTimestamp())%></p>
                 </details>
             </article>
             <% } %>
@@ -98,14 +120,18 @@
         <%}%>
     </section>
 
-    <form name="insertForm" method="post" action="Dispatcher">
-        <input type="hidden" name="controllerAction" value="FAQManagement.insertView"/>
-    </form>
+    <% if (loggedUser.getRole().equals("Admin")) { %>
 
-    <form name="modifyForm" method="post" action="Dispatcher">
-        <input type="hidden" name="faqID"/>
-        <input type="hidden" name="controllerAction" value="FAQManagement.modifyView"/>
-    </form>
+        <form name="insertForm" method="post" action="Dispatcher">
+            <input type="hidden" name="controllerAction" value="FAQManagement.insertView"/>
+        </form>
+
+        <form name="modifyForm" method="post" action="Dispatcher">
+            <input type="hidden" name="faqID"/>
+            <input type="hidden" name="controllerAction" value="FAQManagement.modifyView"/>
+        </form>
+
+    <% } %>
 
 </main>
 <%@include file="/include/footer.inc"%>
