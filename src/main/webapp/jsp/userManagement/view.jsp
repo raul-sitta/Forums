@@ -30,7 +30,7 @@
             object-fit: cover;
         }
 
-        #profileInfo h2 {
+        #profileInfo h1 {
             margin: 0;
             font-size: 22px;
         }
@@ -79,7 +79,7 @@
                 <img src="<%=loggedUser.getProfilePicPath()%>?cache=<%=System.currentTimeMillis()%>" alt="Foto Profilo" />
             </div>
             <div class="profileInfo" id="profileInfo">
-                <h2><%="@" + loggedUser.getUsername() %></h2>
+                <h1><%="@" + loggedUser.getUsername() %></h1>
                 <p><%=loggedUser.getFirstname() %> <%=loggedUser.getSurname() %></p>
                 <p><%=loggedUser.getRole() %></p>
             </div>

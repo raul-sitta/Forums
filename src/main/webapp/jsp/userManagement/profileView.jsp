@@ -75,7 +75,7 @@
         padding-left: 20px;
     }
 
-    .userInfo span {
+    .userInfo p {
         font-size: 18px;
         margin-bottom: 10px;
     }
@@ -103,18 +103,20 @@
         <input type="button" id="backButton" name="backButton" class="button red" value="Indietro" onclick="goBack()"/>
     </section>
 
-    <article class="userProfile">
-        <div class="profilePhoto">
-            <img src="<%= user.getProfilePicPath() %>" alt="Foto Profilo" />
-        </div>
-        <div class="userInfo">
-            <span class="username">@<%= user.getUsername() %><%=(user.getDeleted()) ? " (Eliminato)" : ""%></span>
-            <span>Ruolo: <%= user.getRole() %></span>
-            <span>Iscritto in data: <%= sdf.format(user.getRegistrationTimestamp()) %></span>
-            <span>Topic creati: <%= userStats.get(0) %></span>
-            <span>Post creati: <%= userStats.get(1) %></span>
-        </div>
-    </article>
+    <section class="userProfileContainer">
+        <article class="userProfile">
+            <div class="profilePhoto">
+                <img src="<%= user.getProfilePicPath() %>" alt="Foto Profilo" />
+            </div>
+            <div class="userInfo">
+                <p class="username">@<%= user.getUsername() %><%=(user.getDeleted()) ? " (Eliminato)" : ""%></p>
+                <p>Ruolo: <%= user.getRole() %></p>
+                <p>Iscritto in data: <%= sdf.format(user.getRegistrationTimestamp()) %></p>
+                <p>Topic creati: <%= userStats.get(0) %></p>
+                <p>Post creati: <%= userStats.get(1) %></p>
+            </div>
+        </article>
+    </section>
 
     <form name="backForm" method="post" action="Dispatcher">
         <% if (navigationState.getTopicID() == null && navigationState.getPostsCurrentPageIndex() == null) { %>
