@@ -415,11 +415,8 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                     "P.postEdited, " +
                     "U.userID, " +
                     "U.userUsername, " +
-                    "U.userPassword, " +
                     "U.userFirstname, " +
                     "U.userSurname, " +
-                    "U.userEmail, " +
-                    "U.userBirthDate, " +
                     "U.userRegistrationTimestamp, " +
                     "U.userRole, " +
                     "U.userProfilePicPath, " +
@@ -449,11 +446,8 @@ public class TopicDAOMySQLJDBCImpl implements TopicDAO {
                     "P.postEdited, " +
                     "U.userID, " +
                     "U.userUsername, " +
-                    "U.userPassword, " +
                     "U.userFirstname, " +
                     "U.userSurname, " +
-                    "U.userEmail, " +
-                    "U.userBirthDate, " +
                     "U.userRegistrationTimestamp, " +
                     "U.userRole, " +
                     "U.userProfilePicPath, " +

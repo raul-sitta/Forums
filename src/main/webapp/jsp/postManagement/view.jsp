@@ -105,7 +105,7 @@
         font-style: italic;
     }
 
-    .postsNotFound {
+    .postsNotFound, topicNotFound {
         font-size: 20px;
     }
 
