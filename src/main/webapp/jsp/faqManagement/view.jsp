@@ -34,7 +34,6 @@
 
     details {
         font-size: 18px;
-        border-radius: 8px;
         margin-bottom: 5px;
     }
 
@@ -67,8 +66,30 @@
     .faqsNotFound {
         font-size: 20px;
     }
+
+    .highlight {
+        background-color: yellow;
+    }
 </style>
 <script>
+
+    function filterFAQs() {
+        let input = document.getElementById('searchFAQ');
+        let filter = input.value.toLowerCase();
+        let faqsSection = document.getElementsByClassName('faq');
+
+        for (let i = 0; i < faqsSection.length; i++) {
+            let question = faqsSection[i].getElementsByTagName('summary')[0];
+            let answer = faqsSection[i].getElementsByTagName('p')[0];
+
+            if (question.innerHTML.toLowerCase().indexOf(filter) > -1 || answer.innerHTML.toLowerCase().indexOf(filter) > -1) {
+                faqsSection[i].style.display = "";
+            } else {
+                faqsSection[i].style.display = "none";
+            }
+        }
+    }
+
     <% if (loggedUser.getRole().equals("Admin")) { %>
         function insertFAQ() {
             document.insertForm.submit();
@@ -97,6 +118,11 @@
 
         </section>
     <% } %>
+
+    <section id="searchContainer" class="field clearfix">
+        <label for="searchFAQ">Filtra per parola chiave</label>
+        <input type="text" id="searchFAQ" onkeyup="filterFAQs()">
+    </section>
 
     <section class="faqs">
         <% if (faqs != null && !faqs.isEmpty()) {%>
