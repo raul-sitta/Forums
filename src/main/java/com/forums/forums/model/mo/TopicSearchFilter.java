@@ -2,6 +2,13 @@ package com.forums.forums.model.mo;
 
 import java.sql.Timestamp;
 
+// Il model object "TopicSearchFilter" è stato pensato per essere implementato solo lato cookies
+// (e non nel database). Ha la funzione di contenere i parametri del filtro di ricerca dei topic,
+// permettendo così all'utente di visualizzare solo i topic di proprio interesse.
+// N.B. tutti i parametri sono opzionali: possono assumere valore null nel caso in cui un
+// utente non abbia preferenze per quanto riguarda il parametro specifico
+// (quando l'utente navigherà per la prima volta nella sezione "Supporto" il filtro sarà impostato
+// con tutti i parametri a null).
 public class TopicSearchFilter {
     private String title;
     private String authorName;

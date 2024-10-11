@@ -23,6 +23,9 @@ public class TopicManagement {
     private TopicManagement() {
     }
 
+    // Il metodo view viene chiamato solo quando l'utente clicca per la prima volta sul pulsante
+    // della sezione "Supporto". Questo metodo elimina il filtro di ricerca dei topic e lo resetta
+    // per poter permettere all'utente di scorrere tra i topic più recenti.
     public static void view(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
@@ -97,6 +100,9 @@ public class TopicManagement {
         }
     }
 
+    // Il metodo changePageView viene chiamato quando l'utente scorre tra le pagine dei topic, sia che
+    // si tratti di navigazione tra i topic più recenti sia che si tratti di scorrere tra le pagine ottenute
+    // come risultato di una ricerca tramite filtro per topic.
     public static void changePageView(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
@@ -174,6 +180,7 @@ public class TopicManagement {
         }
     }
 
+    // Metodo che serve per generare la jsp di visualizzazione per impostare il filtro di ricerca per i topic
     public static void searchView(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
@@ -232,6 +239,9 @@ public class TopicManagement {
         }
     }
 
+    // Il metodo search viene chiamato quando l'utente, nella pagina di creazione del filtro di ricerca
+    // per topic, avvia la ricerca creando così il filtro. il metodo crea effettivamente il filtro nei cookies
+    // e recupera dal database la prima pagina di topic secondo le specifiche del filtro.
     public static void search(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
@@ -395,6 +405,7 @@ public class TopicManagement {
         }
     }
 
+    // Metodo per creare la jsp di creazione dei topic
     public static void insertView(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
@@ -445,6 +456,7 @@ public class TopicManagement {
         }
     }
 
+    // Metodo che crea effettivamente un topic
     public static void insert(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
@@ -532,6 +544,7 @@ public class TopicManagement {
         }
     }
 
+    // Metodo per creare la jsp di modifica dei topic
     public static void modifyView(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
@@ -592,6 +605,7 @@ public class TopicManagement {
         }
     }
 
+    // Metodo che modifica un topic, nel caso in cui un utente ne voglia modificare i dettagli
     public static void modify(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
@@ -671,6 +685,7 @@ public class TopicManagement {
         }
     }
 
+    // Metodo che elimina un topic
     public static void delete(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;

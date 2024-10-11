@@ -7,7 +7,7 @@
     boolean loggedOn = (Boolean) request.getAttribute("loggedOn");
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
-    String menuActiveLink = "Topics";
+    String menuActiveLink = "Supporto";
     String action = (String) request.getAttribute("action");
     Post post = (action.equals("modify")) ? (Post) request.getAttribute("post") : null;
 %>

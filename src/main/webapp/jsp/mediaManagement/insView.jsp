@@ -13,7 +13,7 @@
     Post post = (Post) request.getAttribute("post");
     Long mediasInDataBase = (Long) request.getAttribute("mediasInDataBase");
     NavigationState navigationState = (NavigationState) request.getAttribute("navigationState");
-    String menuActiveLink = "Topics";
+    String menuActiveLink = "Supporto";
 %>
 <!DOCTYPE html>
 <html>

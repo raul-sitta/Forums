@@ -22,9 +22,10 @@ import org.apache.tika.mime.MimeType;
  *   │   ├─ profilePic/          // Cartella per l'immagine del profilo
  *   │   │   └─ profilePic.png   // Immagine del profilo dell'utente
  *   │   └─ medias/              // Cartella per i media caricati dall'utente
- *   │       ├─ file1.jpg
- *   │       ├─ file2.mp4
- *   │       └─ ...              // Altri file multimediali caricati dall'utente
+ *   │       ├─ postID/          // Sottocartella specifica per un post, nominata con il suo postID
+ *   │       │   ├─ file1.jpg    // Primo file multimediale specifico del post
+ *   │       │   └─ file2.mp4    // Secondo file multimediale specifico del post
+ *   │       └─ ...              // Altri file o cartelle multimediali caricati dall'utente
  *   └─ ...                     // Altre cartelle per altri utenti, ciascuna nominata con il loro userID
  *
  * Nota: La struttura sopra rappresenta la disposizione delle directory e dei file all'interno del sistema
@@ -33,8 +34,11 @@ import org.apache.tika.mime.MimeType;
  */
 
 
+
 public class FileSystemService {
 
+    // Cartella di base del filesystem dentro alla quale vengono salvate le foto
+    // profilo degli utenti ed i media da loro caricati
     public static final String BASE_DIR_PATH = File.separator + "opt" +
                                                 File.separator + "tomcat" +
                                                 File.separator + "webapps";
@@ -177,6 +181,8 @@ public class FileSystemService {
         }
     }
 
+    // Metodo utilizzato per ottenere la descrizione del tipo di file a partire
+    // dalla sua estensione
     public static String getFileDescription(String fileExtension) {
         try {
             TikaConfig tikaConfig = TikaConfig.getDefaultConfig();

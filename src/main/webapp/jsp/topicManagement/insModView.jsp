@@ -8,7 +8,7 @@
     String applicationMessage = (String) request.getAttribute("applicationMessage");
     User loggedUser = (User) request.getAttribute("loggedUser");
     List<Category> categories = (List<Category>) request.getAttribute("categories");
-    String menuActiveLink = "Topics";
+    String menuActiveLink = "Supporto";
     String action = (String) request.getAttribute("action");
     Topic topic = (action.equals("modify")) ? (Topic) request.getAttribute("topic") : null;
 %>

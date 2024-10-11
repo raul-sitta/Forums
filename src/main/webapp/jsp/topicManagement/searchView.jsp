@@ -9,7 +9,7 @@
     User loggedUser = (User) request.getAttribute("loggedUser");
     List<Category> categories = (List<Category>) request.getAttribute("categories");
     TopicSearchFilter topicSearchFilter = (TopicSearchFilter) request.getAttribute("topicSearchFilter");
-    String menuActiveLink = "Topics";
+    String menuActiveLink = "Supporto";
 %>
 <!DOCTYPE html>
 <html>

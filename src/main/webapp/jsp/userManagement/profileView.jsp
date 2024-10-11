@@ -12,7 +12,7 @@
     NavigationState navigationState = (NavigationState) request.getAttribute("navigationState");
     List<Long> userStats = (List<Long>) request.getAttribute("userStats");
     String applicationMessage = (String) request.getAttribute("applicationMessage");
-    String menuActiveLink = "Topics";
+    String menuActiveLink = "Supporto";
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 %>
 <!DOCTYPE html>

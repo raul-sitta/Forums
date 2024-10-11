@@ -13,7 +13,7 @@
     NavigationState navigationState = (NavigationState) request.getAttribute("navigationState");
     Long postsPageCount = (Long) request.getAttribute("postsPageCount");
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    String menuActiveLink = "Topics";
+    String menuActiveLink = "Supporto";
 %>
 <!DOCTYPE html>
 <html>

@@ -15,7 +15,7 @@ public class Post {
     private User author;
     private Topic topic;
 
-    /* N:1 */
+    /* 1:N */
     private List<Media> medias;
 
     public Long getPostID() {

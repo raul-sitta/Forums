@@ -11,7 +11,7 @@
     Post post = (Post) request.getAttribute("post");
     NavigationState navigationState = (NavigationState) request.getAttribute("navigationState");
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    String menuActiveLink = "Topics";
+    String menuActiveLink = "Supporto";
 %>
 <!DOCTYPE html>
 <html>

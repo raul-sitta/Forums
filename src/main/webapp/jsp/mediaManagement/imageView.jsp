@@ -13,7 +13,7 @@
     Long postID = (Long) request.getAttribute("postID");
     Media media = (Media) request.getAttribute("media");
     NavigationState navigationState = (NavigationState) request.getAttribute("navigationState");
-    String menuActiveLink = "Topics";
+    String menuActiveLink = "Supporto";
 %>
 <!DOCTYPE html>
 <html>

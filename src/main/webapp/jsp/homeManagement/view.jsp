@@ -24,16 +24,11 @@
 <main>
     <div class="welcome">
         <%if (loggedOn) {%>
-            Benvenuto @<%=loggedUser.getUsername()%> su Forums! Qui puoi esplorare una vasta gamma di topic e partecipare a discussioni su diversi argomenti.<br/><br/>
-            Crea nuovi topic, rispondi ai post e condividi le tue opinioni con una comunità di persone che condividono i tuoi interessi.<br/><br/>
-            Esplora le diverse categorie, resta aggiornato sugli ultimi Topic e diventa un membro attivo della nostra comunità.<br/><br/>
-            Grazie per essere parte del nostro forum!<br/><br/>
-            Sei loggato e pronto a partecipare!
+            Benvenuto @<%=loggedUser.getUsername()%>!<br/>
+            Sei loggato e pronto per iniziare.
         <%} else {%>
-            Benvenuto su Forums, la piattaforma ideale per esprimere le tue opinioni e interagire con altri utenti su una varietà di argomenti.<br/><br/>
-            Per accedere a tutte le funzionalità, ti invitiamo a effettuare il logon o a registrarti.<br/><br/>
-            Unisciti a noi oggi stesso per iniziare a esplorare nuovi contenuti, ampliare la tua rete e partecipare a numerose conversazioni.<br/><br/>
-            La registrazione è semplice e veloce: non perdere l'opportunità di far sentire la tua voce nel forum!
+            Benvenuto!<br/>
+            Per accedere a tutte le funzionalità, ti invitiamo a effettuare il logon o a registrarti.
         <%}%>
     </div>
 </main>

@@ -2,7 +2,7 @@
 
 <!-- Linking styles -->
 <link rel="stylesheet" href="css/forums.css" type="text/css" media="screen">
-<title>Forums: <%=menuActiveLink%></title>
+<title>Gestione Eventi: <%=menuActiveLink%></title>
 <script>
     var applicationMessage;
     <%if (applicationMessage != null) {%>

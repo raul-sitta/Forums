@@ -1,7 +1,7 @@
 <header class="clearfix"><!-- Defining the header section of the page -->
 
   <h1 class="logo"><!-- Defining the logo element -->
-    Forums
+    Gestione Eventi
   </h1>
 
   <form name="logoutForm" action="Dispatcher" method="post">
@@ -25,8 +25,8 @@
         <li <%=menuActiveLink.equals("Account")?"class=\"active\"":""%>>
             <a href="Dispatcher?controllerAction=UserManagement.view">Account</a>
         </li>
-        <li <%=menuActiveLink.equals("Topics")?"class=\"active\"":""%>>
-            <a href="Dispatcher?controllerAction=TopicManagement.view">Topics</a>
+        <li <%=menuActiveLink.equals("Supporto")?"class=\"active\"":""%>>
+            <a href="Dispatcher?controllerAction=TopicManagement.view">Supporto</a>
         </li>
         <li <%=menuActiveLink.equals("FAQ")?"class=\"active\"":""%>>
             <a href="Dispatcher?controllerAction=FAQManagement.view">FAQ</a>

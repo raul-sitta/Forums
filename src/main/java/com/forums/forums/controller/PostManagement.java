@@ -23,6 +23,9 @@ public class PostManagement {
     private PostManagement() {
     }
 
+    // A differenza di quanto fatto per i topic, per le pagine dei post è stato implementato un
+    // unico metodo di visualizzazione "view", chiamato per visualizzare sia la prima pagina dei post che
+    // le successive o le precedenti a seconda della pagina in cui si vuole navigare.
     public static void view(HttpServletRequest request, HttpServletResponse response){
         DAOFactory sessionDAOFactory = null;
         DAOFactory daoFactory = null;
